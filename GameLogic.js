@@ -140,15 +140,16 @@ function handleUpdateEvent() {
 
 function showGameBoard(board) {
   let output = "";
-  for (let i = 3; i >= -4; i--) {
-    for (let j = -4; j <= 3; j++) {
+  for (let i = 4; i >= -4; i--) {
+    for (let j = -4; j <= 4; j++) {
       if (getCellState(i, j, board).cellState === true) {output += "1 ";}
       else {output += "0 ";}
 
-      if (j === 3) {output += "\n";}
+      if (j === 4) {output += "\n";}
     }
   }
 
   console.log(output);
 }
 
+//export {createGameBoard, createUpdateTable, getCellState, setCellState, updateGameBoard};
