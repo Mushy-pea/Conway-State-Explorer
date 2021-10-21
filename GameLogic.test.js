@@ -86,16 +86,18 @@ test("Does setCellState return false when given an invalid index?", () => {
   expect(setCellState(6, 3, false, gameBoard) === false);
 });
 
-// In this test the gameBoard is initialised to the below virtual state before the test is run:
-// [ [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 1, 0, 0, 1, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 1, 0, 0, 1, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ] ]
+// In this test the gameBoard is initialised to the below virtual state before the test is run
+// and is expected to change as indicated.
+// Before:                               After:
+// [ [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],      [ [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 1, 0, 0, 1, 0, 0, 0 ],        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 1, 0, 0, 1, 0, 0, 0 ],        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ] ]       [0, 0, 0, 0, 0, 0, 0, 0, 0] ]
 test("Does updateGameBoard cause the expected change in a gameBoard when at least the following\
       conditions are present:\
       live cells with 0 live neighbours and dead cells with 0 or 1 live neighbours?", () => {
@@ -122,16 +124,18 @@ test("Does updateGameBoard cause the expected change in a gameBoard when at leas
   expect(JSON.stringify(newGameBoard) === JSON.stringify(expected)).toBe(true);
 });
 
-// In this test the gameBoard is initialised to the below virtual state before the test is run:
-// [ [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 1, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 1, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ] ]
+// In this test the gameBoard is initialised to the below virtual state before the test is run
+// and is expected to change as indicated.
+// Before:                               After:
+// [ [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],      [[0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],       [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 1, 0, 0, 0, 0, 0, 0 ],       [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 1, 0, 0, 0, 0, 0, 0 ],       [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],       [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],       [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],       [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],       [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ] ]      [0, 0, 0, 0, 0, 0, 0, 0, 0] ]
 test("Does updateGameBoard cause the expected change in a gameBoard when at least the following\
       conditions are present:\
       live cells with 1 live neighbour and dead cells with 0, 1 or 2 live neighbours?", () => {
@@ -156,16 +160,18 @@ test("Does updateGameBoard cause the expected change in a gameBoard when at leas
   expect(JSON.stringify(newGameBoard) === JSON.stringify(expected)).toBe(true);
 });
 
-// In this test the gameBoard is initialised to the below virtual state before the test is run:
-// [ [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 1, 1, 1, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ] ]
+// In this test the gameBoard is initialised to the below virtual state before the test is run
+// and is expected to change as indicated.
+// Before:                               After:
+// [ [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],      [[0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],       [0, 0, 0, 1, 0, 0, 0, 0, 0],
+//   [ 0, 0, 1, 1, 1, 0, 0, 0, 0 ],       [0, 0, 0, 1, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],       [0, 0, 0, 1, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],       [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],       [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],       [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],       [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ] ]      [0, 0, 0, 0, 0, 0, 0, 0, 0] ]
 test("Does updateGameBoard cause the expected change in a gameBoard when at least the following\
       conditions are present:\
       live cells with 1 or 2 live neighbours and dead cells with 0, 1, 2 or 3 live neighbours?", () => {
@@ -194,16 +200,18 @@ test("Does updateGameBoard cause the expected change in a gameBoard when at leas
   expect(JSON.stringify(newGameBoard) === JSON.stringify(expected)).toBe(true);
 });
 
-// In this test the gameBoard is initialised to the below virtual state before the test is run:
-// [ [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 1, 1, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 1, 1, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ] ]
+// In this test the gameBoard is initialised to the below virtual state before the test is run
+// and is expected to change as indicated.
+// Before:                               After:
+// [ [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],      [ [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 1, 1, 0, 0, 0, 0, 0 ],        [0, 0, 1, 1, 0, 0, 0, 0, 0],
+//   [ 0, 0, 1, 1, 0, 0, 0, 0, 0 ],        [0, 0, 1, 1, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ] ]       [0, 0, 0, 0, 0, 0, 0, 0, 0] ]
 test("Does updateGameBoard cause the expected change in a gameBoard when at least the following\
       conditions are present:\
       live cells with 3 live neighbours and dead cells with 0, 1 or 2 live neighbours?", () => {
@@ -320,9 +328,8 @@ test("Does updateGameBoard cause the expected change in a gameBoard when at leas
   expected[2][2] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true};
   expected[3][1] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true};
   expected[2][0] = {quadrant1: true, quadrant2: false, quadrant3: false, quadrant4: false};
-  expected[1][1] = {quadrant1: true, quadrant2: false, quadrant3: false, quadrant4: false};
+  expected[1][1] = {quadrant1: true, quadrant2: false, quadrant3: true, quadrant4: false};
   expected[0][0] = {quadrant1: true, quadrant2: false, quadrant3: false, quadrant4: false};
-  expected[1][1] = {quadrant1: false, quadrant2: false, quadrant3: true, quadrant4: false};
   expected[0][2] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true};
   expected[1][3] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true};
 

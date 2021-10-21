@@ -152,4 +152,4 @@ function showGameBoard(board) {
   console.log(output);
 }
 
-//export {createGameBoard, createUpdateTable, getCellState, setCellState, updateGameBoard};
+export {createGameBoard, createUpdateTable, getCellState, setCellState, updateGameBoard};
