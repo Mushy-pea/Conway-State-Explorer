@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View, TouchableHighlight, Image } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 
 const styles = StyleSheet.create({
   mainScreenContainer: {
@@ -26,8 +26,14 @@ const styles = StyleSheet.create({
     backgroundColor: "rgb(160, 0, 0)"
   },
   mainScreenButton: {
+    height: 100,
     flex: 1,
-    height: 100
+    flexDirection: "row",
+    backgroundColor: "rgb(255, 255, 255)"
+  },
+  mainScreenButtonImage: {
+    height: 100,
+    flex: 1
   }
 });
 
@@ -35,30 +41,30 @@ const mainScreen = () => {
   return (
     <View style={styles.mainScreenContainer}>
       <View style={styles.mainButtonContainer}>
-        <TouchableHighlight>
-          <Image source={require("./assets/playButton.png")} resizeMode="stretch" style={styles.mainScreenButton}/>
-        </TouchableHighlight>
-        <TouchableHighlight>
-          <Image source={require("./assets/resetButton.png")} resizeMode="stretch" style={styles.mainScreenButton}/>
-        </TouchableHighlight>
-        <TouchableHighlight>
-          <Image source={require("./assets/upButton.png")} resizeMode="stretch" style={styles.mainScreenButton}/>
-        </TouchableHighlight>
-        <TouchableHighlight>
-          <Image source={require("./assets/downButton.png")} resizeMode="stretch" style={styles.mainScreenButton}/>
-        </TouchableHighlight>
-        <TouchableHighlight>
-          <Image source={require("./assets/leftButton.png")} resizeMode="stretch" style={styles.mainScreenButton}/>
-        </TouchableHighlight>
-        <TouchableHighlight>
-          <Image source={require("./assets/rightButton.png")} resizeMode="stretch" style={styles.mainScreenButton}/>
-        </TouchableHighlight>
-        <TouchableHighlight>
-          <Image source={require("./assets/plusButton.png")} resizeMode="stretch" style={styles.mainScreenButton}/>
-        </TouchableHighlight>
-        <TouchableHighlight>
-          <Image source={require("./assets/minusButton.png")} resizeMode="stretch" style={styles.mainScreenButton}/>
-        </TouchableHighlight>
+        <TouchableOpacity style={styles.mainScreenButton}>
+          <Image source={require("./assets/playButton.png")} resizeMode="contain"  style={styles.mainScreenButtonImage}/>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.mainScreenButton}>
+          <Image source={require("./assets/resetButton.png")} resizeMode="contain"  style={styles.mainScreenButtonImage}/>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.mainScreenButton}>
+          <Image source={require("./assets/upButton.png")} resizeMode="contain"  style={styles.mainScreenButtonImage}/>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.mainScreenButton}>
+          <Image source={require("./assets/downButton.png")} resizeMode="contain"  style={styles.mainScreenButtonImage}/>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.mainScreenButton}>
+          <Image source={require("./assets/leftButton.png")} resizeMode="contain"  style={styles.mainScreenButtonImage}/>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.mainScreenButton}>
+          <Image source={require("./assets/rightButton.png")} resizeMode="contain"  style={styles.mainScreenButtonImage}/>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.mainScreenButton}>
+          <Image source={require("./assets/plusButton.png")} resizeMode="contain"  style={styles.mainScreenButtonImage}/>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.mainScreenButton}>
+          <Image source={require("./assets/minusButton.png")} resizeMode="contain"  style={styles.mainScreenButtonImage}/>
+        </TouchableOpacity>
       </View>
       <View style={styles.gameBoardContainer} />
       <View style={styles.menuBarContainer} />
