@@ -11,64 +11,74 @@ const styles = StyleSheet.create({
   },
   mainButtonContainer: {
     flex: 0.1,
-    width: 600,
     flexDirection: "row",
     backgroundColor: "rgb(0, 0, 160)"
   },
   gameBoardContainer: {
     flex: 0.8,
-    width: 600,
-    backgroundColor: "rgb(0, 160, 0)"
+    backgroundColor: "rgb(255, 255, 255)"
   },
   menuBarContainer: {
     flex: 0.1,
-    width: 600,
-    backgroundColor: "rgb(160, 0, 0)"
+    backgroundColor: "rgb(0, 0, 0)",
+    flexDirection: "row",
+    justifyContent: "flex-end"
   },
   mainScreenButton: {
-    height: 85,
     flex: 1,
     flexDirection: "row",
     backgroundColor: "rgb(255, 255, 255)"
   },
   mainScreenButtonImage: {
-    height: 85,
     flex: 1
   }
 });
 
 const mainScreen = () => {
   const window = useWindowDimensions();
+  const buttonHeight = window.height * 0.1;
+  const buttonWidth = window.width * 0.125;
   return (
-    <View style={styles.mainScreenContainer}>
+    <View style={[styles.mainScreenContainer, {paddingTop: window.height * 0.04}]}>
       <View style={[styles.mainButtonContainer, {width: window.width}]}>
-        <TouchableOpacity style={[styles.mainScreenButton, {height: window.height * 0.1}]}>
-          <Image source={require("./assets/playButton.png")} resizeMode="cover"  style={[styles.mainScreenButtonImage, {height: window.height * 0.1}]}/>
+        <TouchableOpacity style={[styles.mainScreenButton, {height: buttonHeight}]}>
+          <Image source={require("./assets/playButton.png")} resizeMode="cover"
+                 style={[styles.mainScreenButtonImage, {height: buttonHeight}]}/>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.mainScreenButton, {height: window.height * 0.1}]}>
-          <Image source={require("./assets/resetButton.png")} resizeMode="cover"  style={[styles.mainScreenButtonImage, {height: window.height * 0.1}]}/>
+        <TouchableOpacity style={[styles.mainScreenButton, {height: buttonHeight}]}>
+          <Image source={require("./assets/resetButton.png")} resizeMode="cover"
+                 style={[styles.mainScreenButtonImage, {height: buttonHeight}]}/>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.mainScreenButton, {height: window.height * 0.1}]}>
-          <Image source={require("./assets/upButton.png")} resizeMode="cover"  style={[styles.mainScreenButtonImage, {height: window.height * 0.1}]}/>
+        <TouchableOpacity style={[styles.mainScreenButton, {height: buttonHeight}]}>
+          <Image source={require("./assets/upButton.png")} resizeMode="cover"
+                 style={[styles.mainScreenButtonImage, {height: buttonHeight}]}/>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.mainScreenButton, {height: window.height * 0.1}]}>
-          <Image source={require("./assets/downButton.png")} resizeMode="cover"  style={[styles.mainScreenButtonImage, {height: window.height * 0.1}]}/>
+        <TouchableOpacity style={[styles.mainScreenButton, {height: buttonHeight}]}>
+          <Image source={require("./assets/downButton.png")} resizeMode="cover"
+                 style={[styles.mainScreenButtonImage, {height: buttonHeight}]}/>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.mainScreenButton, {height: window.height * 0.1}]}>
-          <Image source={require("./assets/leftButton.png")} resizeMode="cover"  style={[styles.mainScreenButtonImage, {height: window.height * 0.1}]}/>
+        <TouchableOpacity style={[styles.mainScreenButton, {height: buttonHeight}]}>
+          <Image source={require("./assets/leftButton.png")} resizeMode="cover"
+                 style={[styles.mainScreenButtonImage, {height: buttonHeight}]}/>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.mainScreenButton, {height: window.height * 0.1}]}>
-          <Image source={require("./assets/rightButton.png")} resizeMode="cover"  style={[styles.mainScreenButtonImage, {height: window.height * 0.1}]}/>
+        <TouchableOpacity style={[styles.mainScreenButton, {height: buttonHeight}]}>
+          <Image source={require("./assets/rightButton.png")} resizeMode="cover"
+                 style={[styles.mainScreenButtonImage, {height: buttonHeight}]}/>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.mainScreenButton, {height: window.height * 0.1}]}>
-          <Image source={require("./assets/plusButton.png")} resizeMode="cover"  style={[styles.mainScreenButtonImage, {height: window.height * 0.1}]}/>
+        <TouchableOpacity style={[styles.mainScreenButton, {height: buttonHeight}]}>
+          <Image source={require("./assets/plusButton.png")} resizeMode="cover"
+                 style={[styles.mainScreenButtonImage, {height: buttonHeight}]}/>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.mainScreenButton, {height: window.height * 0.1}]}>
-          <Image source={require("./assets/minusButton.png")} resizeMode="cover"  style={[styles.mainScreenButtonImage, {height: window.height * 0.1}]}/>
+        <TouchableOpacity style={[styles.mainScreenButton, {height: buttonHeight}]}>
+          <Image source={require("./assets/minusButton.png")} resizeMode="cover"
+                 style={[styles.mainScreenButtonImage, {height: buttonHeight}]}/>
         </TouchableOpacity>
       </View>
       <View style={[styles.gameBoardContainer, {width: window.width}]}/>
-      <View style={[styles.menuBarContainer, {width: window.width}]}/>
+      <View style={[styles.menuBarContainer, {width: window.width}]}>
+        <Image source={require("./assets/menuButton.png")}
+               style={{height: buttonHeight, width: buttonWidth}} />
+      </View>
     </View>
   );
 };
