@@ -1,6 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, useWindowDimensions } from 'react-native';
+import onContextCreation from './GameBoardRenderer';
+import {GLView} from 'expo-gl';
 
 const styles = StyleSheet.create({
   mainScreenContainer: {
@@ -74,7 +76,7 @@ const mainScreen = () => {
                  style={[styles.mainScreenButtonImage, {height: buttonHeight}]}/>
         </TouchableOpacity>
       </View>
-      <View style={[styles.gameBoardContainer, {width: window.width}]}/>
+      <GLView style={[styles.gameBoardContainer, {width: window.width}]} onContextCreate={onContextCreation} />
       <View style={[styles.menuBarContainer, {width: window.width}]}>
         <Image source={require("./assets/menuButton.png")}
                style={{height: buttonHeight, width: buttonWidth}} />

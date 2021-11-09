@@ -1,0 +1,6 @@
+attribute vec4 modPosition;
+uniform mat4 modToClip;
+
+void main(void) {
+  gl_Position = modToClip * modPosition;
+}
