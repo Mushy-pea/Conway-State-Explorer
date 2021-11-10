@@ -2,24 +2,12 @@
 // the contents of the corresponding GLView component for each frame.
 
 import {matrix, multiply} from 'mathjs';
-import {GLView} from 'expo-gl';
+import vertexShader from './VertexShader.js';
+import fragmentShader from './FragmentShader.js';
 
-var vertexShader = `
-attribute vec4 modPosition;
-uniform mat4 modToClip;
-
-void main(void) {
-  gl_Position = modToClip * modPosition;
-}
-`
-
-var fragmentShader = `
-uniform highp vec4 colour;
-
-void main(void) {
-  gl_FragColor = colour;
-}
-`
+// This global variable is assigned a reference to the GL context that is created when the game
+// board view is first rendered in App. 
+var glContext;
 
 // This function generates a 4 - vector translation matrix.
 function translate(x, y, z) {
@@ -49,7 +37,7 @@ function genModelTransformFunction(x, y, z, frustumScale0, frustumScale1, zNear,
 
 function onContextCreation(gl) {
   gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-  gl.clearcolor(1, 1, 1, 1);
+  gl.clearColor(1, 1, 1, 1);
 
   const vert = gl.createShader(gl.VERTEX_SHADER);
   gl.shaderSource(vert, vertexShader);
@@ -66,8 +54,13 @@ function onContextCreation(gl) {
   gl.validateProgram(shaderProgram);
   let vertStatus = gl.getShaderParameter(vert, gl.COMPILE_STATUS);
   let fragStatus = gl.getShaderParameter(frag, gl.COMPILE_STATUS);
-  let errorLog = "Vertex shader status: " + vertStatus + " Fragment shader status: " + fragStatus;
-  throw errorLog;
+  let linkStatus = gl.getProgramParameter(shaderProgram, gl.LINK_STATUS);
+  let programValid = gl.getProgramParameter(shaderProgram, gl.VALIDATE_STATUS);
+  console.log("Vertex shader status: " + vertStatus);
+  console.log("Fragment shader status: " + fragStatus);
+  console.log("Program link status: " + linkStatus);
+  console.log("Program validate status: " + programValid);
+  glContext = gl;
 
 }
 
