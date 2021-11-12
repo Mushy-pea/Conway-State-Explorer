@@ -1,6 +1,6 @@
 // The GL fragment shader has its own module for clarity.
 
-var fragmentShader = `
+const fragmentShader = `
 uniform highp vec4 colour;
 
 void main(void) {
