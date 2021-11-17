@@ -20,9 +20,9 @@ const glParameters = {
 };
 
 const frontendState = {
-  mode: "creative",
+  mode: 0,
   cameraPosition: {
-    x: 0, y: 0, z: 5
+    x: 0, y: 0, z: -2
   }
 };
 
@@ -36,8 +36,7 @@ function translate(x, y, z) {
 // This function returns a function that is used to generate the transformation matrix that is
 // passed to the vertex shader for each model rendered.
 function genModelTransformFunction(x, y, z, frustumScale0, frustumScale1, zNear, zFar) {
-  const axesInversion = matrix([[0, -1, 0, 0], [0, 0, 1, 0], [-1, 0, 0, 0], [0, 0, 0, 1]]);
-  const worldToCamera = multiply(axesInversion, translate(x, y, z));
+  const worldToCamera = translate(x, y, z);
   const cameraToClip = matrix([[frustumScale0, 0, 0, 0], [0, frustumScale1, 0, 0], [0, 0,
                                 ((zFar + zNear) / (zNear - zFar)),
                                 ((2 * zFar * zNear) / (zNear - zFar))], [0, 0, -1, 0]]);
@@ -58,6 +57,7 @@ function genModelTransformFunction(x, y, z, frustumScale0, frustumScale1, zNear,
 function onContextCreation(_gl) {
   _gl.viewport(0, 0, _gl.drawingBufferWidth, _gl.drawingBufferHeight);
   _gl.clearColor(1, 1, 1, 1);
+  _gl.clear(_gl.COLOR_BUFFER_BIT);
 
   const vert = _gl.createShader(_gl.VERTEX_SHADER);
   _gl.shaderSource(vert, vertexShader);
@@ -114,13 +114,12 @@ function loadBuffer(vertexArray, elementArray) {
 }
 
 function handleRenderEvent(mode, cameraPosition) {
-  const transformFunction = genModelTransformFunction(cameraPosition.x, cameraPosition.y, cameraPosition.z, 1.25, 1.25, 0.5, 100);
+  const transformFunction = genModelTransformFunction(cameraPosition.x, cameraPosition.y, cameraPosition.z, 1, 1, 0.5, 100);
   renderGameBoard(transformFunction);
 }
 
 function renderGameBoard(transformFunction) {
   const testTransform = transformFunction(0, 0);
-
   gl.bindBuffer(gl.ARRAY_BUFFER, glParameters.vertexBuffer_cellModel);
   gl.vertexAttribPointer(glParameters.attribute_modPosition, 4, gl.FLOAT, false, 0, 0);
   gl.enableVertexAttribArray(glParameters.attribute_modPosition);
@@ -129,7 +128,33 @@ function renderGameBoard(transformFunction) {
   gl.uniform4fv(glParameters.uniform_colour, new Float32Array([0, 0, 1, 1]));
 
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, glParameters.elementBuffer);
-  gl.drawElements(gl.TRIANGLES, 6, gl.FLOAT, 0);
+  gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+  gl.flush();
+  gl.endFrameEXP();
+  
+  if (frontendState.mode === 0) {
+    console.log("\ntransform: " + JSON.stringify(testTransform));
+    const errorLog = gl.getError();
+    console.log("\n:GL error log: " + errorLog);
+    
+    const cellModel0 = matrix([0, 0, 0, 1]);
+    const cellModel1 = matrix([1, 0, 0, 1]);
+    const cellModel2 = matrix([1, 1, 0, 1]);
+    const cellModel3 = matrix([0, 1, 0, 1]);
+
+    const cellModelClip0 = multiply(testTransform, cellModel0);
+    const cellModelClip1 = multiply(testTransform, cellModel1);
+    const cellModelClip2 = multiply(testTransform, cellModel2);
+    const cellModelClip3 = multiply(testTransform, cellModel3);
+
+    console.log("\n\ncellModelClip0: " + JSON.stringify(cellModelClip0));
+    console.log("\ncellModelClip1: " + JSON.stringify(cellModelClip1));
+    console.log("\ncellModelClip2: " + JSON.stringify(cellModelClip2));
+    console.log("\ncellModelClip3: " + JSON.stringify(cellModelClip3));
+    frontendState.mode = 1;
+
+    
+  }
 
 }
 

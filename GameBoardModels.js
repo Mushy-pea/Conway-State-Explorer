@@ -15,6 +15,6 @@ const horizontalLineModel = [-0.1, -128, 0, 1,
                              0.1, 128, 0, 1,
                              -0.1, 128, 0, 1];
 
-const modelElements = [0, 1, 2, 2, 3, 0];
+const modelElements = [0, 1, 2, 0, 2, 3];
 
 export {cellModel, verticalLineModel, horizontalLineModel, modelElements};
