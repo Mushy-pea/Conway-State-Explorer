@@ -22,7 +22,7 @@ const glParameters = {
 const frontendState = {
   mode: 0,
   cameraPosition: {
-    x: 0, y: 0, z: -2
+    x: 0, y: 0, z: -4
   }
 };
 
@@ -45,7 +45,11 @@ function genModelTransformFunction(x, y, z, frustumScale0, frustumScale1, zNear,
   function modelTransformFunction(i, j) {
     const modelToWorld = translate(i, j, 0);
     const modelToClip = multiply(worldToClip, modelToWorld);
-    return modelToClip;
+    let index = 0;
+    const modelToClipArray = Array(16).fill(0);
+    modelToClip.forEach((value) => {modelToClipArray[index] = value;
+                                    index++;});
+    return modelToClipArray;
   }
 
   return modelTransformFunction;
@@ -125,7 +129,7 @@ function renderGameBoard(transformFunction) {
   gl.enableVertexAttribArray(glParameters.attribute_modPosition);
 
   gl.uniformMatrix4fv(glParameters.uniform_modToClip, false, testTransform);
-  gl.uniform4fv(glParameters.uniform_colour, new Float32Array([0, 0, 1, 1]));
+  gl.uniform4fv(glParameters.uniform_colour, [0, 0, 1, 1]);
 
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, glParameters.elementBuffer);
   gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
