@@ -4,24 +4,31 @@
 import {matrix, multiply} from 'mathjs';
 import vertexShader from './VertexShader.js';
 import fragmentShader from './FragmentShader.js';
-import {cellModel, verticalLineModel, horizontalLineModel, modelElements} from './GameBoardModels.js';
+import {cellModel, verticalLineModel, horizontalLineModel, modelElements}
+from './GameBoardModels.js';
 
 // These global variables are assigned values related to the OpenGL context that will be needed to
 // render the game board each frame.
 var gl;
-const glParameters = {
+const glP = {
   uniform_modToClip: 0,
   uniform_colour: 0,
   attribute_modPosition: 0,
   vertexBuffer_cellModel: 0,
   vertexBuffer_verticalLineModel: 0,
   vertexBuffer_horizontalLineModel: 0,
-  elementBuffer: 0
+  elementBuffer: 0,
+
+  frustumScale0: 1,
+  frustumScale1: 1,
+  zNear: 0.5,
+  zFar: 100
 };
 
-const frontendState = {
-  mode: 0,
-  cameraPosition: {
+// These global variables are exposed to App so they can be modified in response to UI inputs.
+const control = {
+  mode: "simulation",
+  cam: {
     x: 0, y: 0, z: -4
   }
 };
@@ -35,11 +42,13 @@ function translate(x, y, z) {
 
 // This function returns a function that is used to generate the transformation matrix that is
 // passed to the vertex shader for each model rendered.
-function genModelTransformFunction(x, y, z, frustumScale0, frustumScale1, zNear, zFar) {
+function genModelTransformFunction(x, y, z) {
   const worldToCamera = translate(x, y, z);
-  const cameraToClip = matrix([[frustumScale0, 0, 0, 0], [0, frustumScale1, 0, 0], [0, 0,
-                                ((zFar + zNear) / (zNear - zFar)),
-                                ((2 * zFar * zNear) / (zNear - zFar))], [0, 0, -1, 0]]);
+  const cameraToClip =
+  matrix([[glP.frustumScale0, 0, 0, 0],
+          [0, glP.frustumScale1, 0, 0],
+          [0, 0, ((glP.zFar + glP.zNear) / (glP.zNear - glP.zFar)), ((2 * glP.zFar * glP.zNear) / (glP.zNear - glP.zFar))],
+          [0, 0, -1, 0]]);
   const worldToClip = multiply(cameraToClip, worldToCamera);
 
   function modelTransformFunction(i, j) {
@@ -57,7 +66,7 @@ function genModelTransformFunction(x, y, z, frustumScale0, frustumScale1, zNear,
 
 // This function is called when the corresponding GLView component is first rendered in App.
 // It creates the single GL shader program used for rendering the game board and assigns values
-// related to the GL context to the global variables gl and glParameters.
+// related to the GL context to the global variables gl and glP.
 function onContextCreation(_gl) {
   _gl.viewport(0, 0, _gl.drawingBufferWidth, _gl.drawingBufferHeight);
   _gl.clearColor(1, 1, 1, 1);
@@ -86,16 +95,16 @@ function onContextCreation(_gl) {
   console.log("Program validate status: " + programValid);
 
   gl = _gl;
-  glParameters.uniform_modToClip = _gl.getUniformLocation(shaderProgram, "modToClip");
-  glParameters.uniform_colour = _gl.getUniformLocation(shaderProgram, "colour");
-  glParameters.attribute_modPosition = _gl.getAttribLocation(shaderProgram, "modPosition");
-  glParameters.vertexBuffer_cellModel = loadBuffer(cellModel, null);
-  glParameters.vertexBuffer_verticalLineModel = loadBuffer(verticalLineModel, null);
-  glParameters.vertexBuffer_horizontalLineModel = loadBuffer(horizontalLineModel, null);
-  glParameters.elementBuffer = loadBuffer(null, modelElements);
+  glP.uniform_modToClip = _gl.getUniformLocation(shaderProgram, "modToClip");
+  glP.uniform_colour = _gl.getUniformLocation(shaderProgram, "colour");
+  glP.attribute_modPosition = _gl.getAttribLocation(shaderProgram, "modPosition");
+  glP.vertexBuffer_cellModel = loadBuffer(cellModel, null);
+  glP.vertexBuffer_verticalLineModel = loadBuffer(verticalLineModel, null);
+  glP.vertexBuffer_horizontalLineModel = loadBuffer(horizontalLineModel, null);
+  glP.elementBuffer = loadBuffer(null, modelElements);
   gl.useProgram(shaderProgram);
 
-  setInterval(handleRenderEvent, 16.67, frontendState.mode, frontendState.cameraPosition);
+  setInterval(handleRenderEvent, 11.11);
 
 }
 
@@ -117,26 +126,27 @@ function loadBuffer(vertexArray, elementArray) {
   return buffer;
 }
 
-function handleRenderEvent(mode, cameraPosition) {
-  const transformFunction = genModelTransformFunction(cameraPosition.x, cameraPosition.y, cameraPosition.z, 1, 1, 0.5, 100);
+function handleRenderEvent() {
+  const transformFunction = genModelTransformFunction(control.cam.x, control.cam.y, control.cam.z);
   renderGameBoard(transformFunction);
+  
 }
 
 function renderGameBoard(transformFunction) {
   const testTransform = transformFunction(0, 0);
-  gl.bindBuffer(gl.ARRAY_BUFFER, glParameters.vertexBuffer_cellModel);
-  gl.vertexAttribPointer(glParameters.attribute_modPosition, 4, gl.FLOAT, false, 0, 0);
-  gl.enableVertexAttribArray(glParameters.attribute_modPosition);
+  gl.bindBuffer(gl.ARRAY_BUFFER, glP.vertexBuffer_cellModel);
+  gl.vertexAttribPointer(glP.attribute_modPosition, 4, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(glP.attribute_modPosition);
 
-  gl.uniformMatrix4fv(glParameters.uniform_modToClip, false, testTransform);
-  gl.uniform4fv(glParameters.uniform_colour, [0, 0, 1, 1]);
+  gl.uniformMatrix4fv(glP.uniform_modToClip, false, testTransform);
+  gl.uniform4fv(glP.uniform_colour, [0, 0, 1, 1]);
 
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, glParameters.elementBuffer);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, glP.elementBuffer);
   gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
   gl.flush();
   gl.endFrameEXP();
   
-  if (frontendState.mode === 0) {
+  if (control.mode === 0) {
     console.log("\ntransform: " + JSON.stringify(testTransform));
     const errorLog = gl.getError();
     console.log("\n:GL error log: " + errorLog);
@@ -155,7 +165,7 @@ function renderGameBoard(transformFunction) {
     console.log("\ncellModelClip1: " + JSON.stringify(cellModelClip1));
     console.log("\ncellModelClip2: " + JSON.stringify(cellModelClip2));
     console.log("\ncellModelClip3: " + JSON.stringify(cellModelClip3));
-    frontendState.mode = 1;
+    control.mode = 1;
 
     
   }
