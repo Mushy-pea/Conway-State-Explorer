@@ -6,6 +6,7 @@ import vertexShader from './VertexShader.js';
 import fragmentShader from './FragmentShader.js';
 import {cellModel, verticalLineModel, horizontalLineModel, modelElements}
 from './GameBoardModels.js';
+import {testGameBoard} from './GameLogic.js';
 
 // These global variables are assigned values related to the OpenGL context that will be needed to
 // render the game board each frame.
@@ -29,7 +30,7 @@ const glP = {
 const control = {
   mode: "simulation",
   cam: {
-    x: 0, y: 0, z: -4
+    x: 0, y: 0, z: -8
   }
 };
 
@@ -104,7 +105,9 @@ function onContextCreation(_gl) {
   glP.elementBuffer = loadBuffer(null, modelElements);
   gl.useProgram(shaderProgram);
 
-  setInterval(handleRenderEvent, 11.11);
+  console.log("About to call setInterval");
+  setInterval(handleRenderEvent, 16.67);
+  console.log("setInterval called");
 
 }
 
@@ -126,50 +129,56 @@ function loadBuffer(vertexArray, elementArray) {
   return buffer;
 }
 
-function handleRenderEvent() {
-  const transformFunction = genModelTransformFunction(control.cam.x, control.cam.y, control.cam.z);
-  renderGameBoard(transformFunction);
-  
+// This function applies the model to clip space transform function to the cell model for each
+// live cell on the game board, thereby allowing a cell model to be rendered in each corresponding
+// position.
+function genCellTransforms(gameBoard, transformFunction, transformArray, i, j, maxI, maxJ) {
+  if (i > maxI) {return;}
+
+  if (gameBoard[i][j].quadrant1) {transformArray.push(transformFunction(i, j));}
+
+  if (gameBoard[i][j].quadrant2) {transformArray.push(transformFunction(i * -1, j));}
+
+  if (gameBoard[i][j].quadrant3) {transformArray.push(transformFunction(i * -1, j * -1));}
+
+  if (gameBoard[i][j].quadrant4) {transformArray.push(transformFunction(i, j * -1));}
+
+  if (j === maxJ) {
+    genCellTransforms(gameBoard, transformFunction, transformArray, i + 1, 0, maxI, maxJ)
+  }
+  else {genCellTransforms(gameBoard, transformFunction, transformArray, i, j + 1, maxI, maxJ)}
 }
 
-function renderGameBoard(transformFunction) {
-  const testTransform = transformFunction(0, 0);
-  gl.bindBuffer(gl.ARRAY_BUFFER, glP.vertexBuffer_cellModel);
-  gl.vertexAttribPointer(glP.attribute_modPosition, 4, gl.FLOAT, false, 0, 0);
-  gl.enableVertexAttribArray(glP.attribute_modPosition);
-
-  gl.uniformMatrix4fv(glP.uniform_modToClip, false, testTransform);
-  gl.uniform4fv(glP.uniform_colour, [0, 0, 1, 1]);
-
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, glP.elementBuffer);
-  gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+function handleRenderEvent() {
+  let transformArray = [];
+  transformFunction = genModelTransformFunction(control.cam.x, control.cam.y, control.cam.z);
+  genCellTransforms(testGameBoard, transformFunction, transformArray, 0, 0, 4, 4);
+  renderModels(1, transformArray);
   gl.flush();
   gl.endFrameEXP();
-  
-  if (control.mode === 0) {
-    console.log("\ntransform: " + JSON.stringify(testTransform));
-    const errorLog = gl.getError();
-    console.log("\n:GL error log: " + errorLog);
-    
-    const cellModel0 = matrix([0, 0, 0, 1]);
-    const cellModel1 = matrix([1, 0, 0, 1]);
-    const cellModel2 = matrix([1, 1, 0, 1]);
-    const cellModel3 = matrix([0, 1, 0, 1]);
+}
 
-    const cellModelClip0 = multiply(testTransform, cellModel0);
-    const cellModelClip1 = multiply(testTransform, cellModel1);
-    const cellModelClip2 = multiply(testTransform, cellModel2);
-    const cellModelClip3 = multiply(testTransform, cellModel3);
-
-    console.log("\n\ncellModelClip0: " + JSON.stringify(cellModelClip0));
-    console.log("\ncellModelClip1: " + JSON.stringify(cellModelClip1));
-    console.log("\ncellModelClip2: " + JSON.stringify(cellModelClip2));
-    console.log("\ncellModelClip3: " + JSON.stringify(cellModelClip3));
-    control.mode = 1;
-
-    
+// This function is used to render all the cell, vertical or horizontal graph line models
+// for the current frame.
+function renderModels(mode, transformArray) {
+  if (mode === 0) {
+    if (transformArray.length === 0) {return;}
+    let transform = transformArray.pop();
+    gl.uniformMatrix4fv(glP.uniform_modToClip, false, transform);
+    gl.uniform4fv(glP.uniform_colour, [0, 0, 1, 1]);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, glP.elementBuffer);
+    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+    renderModels(0, transformArray);
   }
+  else {
+    if (mode === 1) {gl.bindBuffer(gl.ARRAY_BUFFER, glP.vertexBuffer_cellModel);}
+    else if (mode === 2) {gl.bindBuffer(gl.ARRAY_BUFFER, glP.vertexBuffer_verticalLineModel);}
+    else {gl.bindBuffer(gl.ARRAY_BUFFER, glP.vertexBuffer_horizontalLineModel);}
 
+    gl.vertexAttribPointer(glP.attribute_modPosition, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(glP.attribute_modPosition);
+    renderModels(0, transformArray);
+  }
 }
 
 export {onContextCreation};

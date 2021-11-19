@@ -152,4 +152,15 @@ function showGameBoard(board) {
   console.log(output);
 }
 
-export {createGameBoard, createUpdateTable, getCellState, setCellState, updateGameBoard};
+const testGameBoard = Array(5).fill(0).map(() => new Array(5).fill(0));
+createGameBoard(testGameBoard);
+testGameBoard[2][2] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true};
+testGameBoard[3][1] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true};
+testGameBoard[2][0] = {quadrant1: true, quadrant2: false, quadrant3: false, quadrant4: false};
+testGameBoard[1][1] = {quadrant1: true, quadrant2: false, quadrant3: true, quadrant4: false};
+testGameBoard[0][0] = {quadrant1: true, quadrant2: false, quadrant3: false, quadrant4: false};
+testGameBoard[0][2] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true};
+testGameBoard[1][3] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true};
+
+export {createGameBoard, createUpdateTable, getCellState, setCellState, updateGameBoard,
+        testGameBoard};
