@@ -20,7 +20,6 @@ const glP = {
   vertexBuffer_horizontalLineModel: 0,
   elementBuffer: 0,
 
-  frustumScale0: 1,
   frustumScale1: 1,
   zNear: 0.5,
   zFar: 100
@@ -28,7 +27,7 @@ const glP = {
 
 // These global variables are exposed to App so they can be modified in response to UI inputs.
 const control = {
-  mode: "simulation",
+  mode: 0,
   cam: {
     x: 0, y: 0, z: -8
   }
@@ -44,9 +43,11 @@ function translate(x, y, z) {
 // This function returns a function that is used to generate the transformation matrix that is
 // passed to the vertex shader for each model rendered.
 function genModelTransformFunction(x, y, z) {
+  const window = {width: gl.drawingBufferWidth, height: gl.drawingBufferHeight};
+  const axesInversion = matrix([[0, -1, 0, 0], [0, 0, 1, 0], [-1, 0, 0, 0], [0, 0, 0, 1]]);
   const worldToCamera = translate(x, y, z);
   const cameraToClip =
-  matrix([[glP.frustumScale0, 0, 0, 0],
+  matrix([[glP.frustumScale1 / (window.width / window.height), 0, 0, 0],
           [0, glP.frustumScale1, 0, 0],
           [0, 0, ((glP.zFar + glP.zNear) / (glP.zNear - glP.zFar)), ((2 * glP.zFar * glP.zNear) / (glP.zNear - glP.zFar))],
           [0, 0, -1, 0]]);
@@ -105,9 +106,7 @@ function onContextCreation(_gl) {
   glP.elementBuffer = loadBuffer(null, modelElements);
   gl.useProgram(shaderProgram);
 
-  console.log("About to call setInterval");
-  setInterval(handleRenderEvent, 16.67);
-  console.log("setInterval called");
+  setInterval(handleRenderEvent, 11.11);
 
 }
 
@@ -137,16 +136,16 @@ function genCellTransforms(gameBoard, transformFunction, transformArray, i, j, m
 
   if (gameBoard[i][j].quadrant1) {transformArray.push(transformFunction(i, j));}
 
-  if (gameBoard[i][j].quadrant2) {transformArray.push(transformFunction(i * -1, j));}
+  if (gameBoard[i][j].quadrant2) {transformArray.push(transformFunction(-i, j));}
 
-  if (gameBoard[i][j].quadrant3) {transformArray.push(transformFunction(i * -1, j * -1));}
+  if (gameBoard[i][j].quadrant3) {transformArray.push(transformFunction(-i, -j));}
 
-  if (gameBoard[i][j].quadrant4) {transformArray.push(transformFunction(i, j * -1));}
+  if (gameBoard[i][j].quadrant4) {transformArray.push(transformFunction(i, -j));}
 
   if (j === maxJ) {
-    genCellTransforms(gameBoard, transformFunction, transformArray, i + 1, 0, maxI, maxJ)
+    genCellTransforms(gameBoard, transformFunction, transformArray, i + 1, 0, maxI, maxJ);
   }
-  else {genCellTransforms(gameBoard, transformFunction, transformArray, i, j + 1, maxI, maxJ)}
+  else {genCellTransforms(gameBoard, transformFunction, transformArray, i, j + 1, maxI, maxJ);}
 }
 
 function handleRenderEvent() {
@@ -164,7 +163,7 @@ function renderModels(mode, transformArray) {
   if (mode === 0) {
     if (transformArray.length === 0) {return;}
     let transform = transformArray.pop();
-    gl.uniformMatrix4fv(glP.uniform_modToClip, false, transform);
+    gl.uniformMatrix4fv(glP.uniform_modToClip, true, transform);
     gl.uniform4fv(glP.uniform_colour, [0, 0, 1, 1]);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, glP.elementBuffer);
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
