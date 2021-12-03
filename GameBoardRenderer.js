@@ -55,13 +55,64 @@ function glParameters(uniform_modToClip, uniform_colour, attribute_modPosition,
   }
 }
 
-// These global variables are exposed to App so they can be modified in response to UI inputs.
-const control = {
-  mode: 0,
-  cam: {
-    x: 0, y: 0, z: -8
+// The top level application state that can be modified through the UI is encapsulated in the object
+// returned by getControlObject.  This includes everything except the game board state.
+// A reference to this object is assigned to gloabal variable control when the renderer
+// is initialised.
+var control;
+
+function getControlObject() {
+  let mode = "creative";
+  const camera = {
+    x: 0, y: 0, z: -16
+  };
+  let showGrid = true;
+  let scale = Math.abs(camera.z) / 8;
+
+  return {
+    setMode: function(newMode) {
+      mode = newMode;
+    },
+    moveCameraLeft: function() {
+      camera.x += scale;
+    },
+    moveCameraRight: function() {
+      camera.x -= scale;
+    },
+    moveCameraUp: function() {
+      camera.y -= scale;
+    },
+    moveCameraDown: function() {
+      camera.y += scale;
+    },
+    moveCameraBack: function() {
+      camera.z -= 1;
+    },
+    moveCameraForward: function() {
+      camera.z += 1;
+    },
+    setShowGrid: function(newMode) {
+      showGrid = newMode;
+    },
+    getMode: function() {
+      return mode;
+    },
+    getCamera: function() {
+      return {
+        x: camera.x, y: camera.y, z: camera.z
+      };
+    },
+    getShowGrid: function() {
+      return showGrid;
+    }
   }
-};
+}
+
+// This function is called from App before GL context creation so that the controls are ready to
+// use in time.
+function initialiseControls() {
+  control = getControlObject();
+}
 
 // This function generates a 4 - vector translation matrix.
 function translate(x, y, z) {
@@ -159,6 +210,10 @@ function loadBuffer(vertexArray, elementArray, _gl) {
   return buffer;
 }
 
+function genGridTransforms(transformFunction, transformArray, i, j, maxI, maxJ) {
+
+}
+
 // This function applies the model to clip space transform function to the cell model for each
 // live cell on the game board, thereby allowing a cell model to be rendered in each corresponding
 // position.
@@ -179,11 +234,15 @@ function genCellTransforms(gameBoard, transformFunction, transformArray, i, j, m
   else {genCellTransforms(gameBoard, transformFunction, transformArray, i, j + 1, maxI, maxJ);}
 }
 
+// This function is the central branching point of this module and is called through an interval
+// timer.
 function handleRenderEvent() {
   let transformArray = [];
-  transformFunction = genModelTransformFunction(control.cam.x, control.cam.y, control.cam.z,
-                                                glP.frustumScale(), glP.zNear(), glP.zFar());
+  const {x, y, z} = control.getCamera();
+  transformFunction = genModelTransformFunction(x, y, z, glP.frustumScale(), glP.zNear(),
+                                                glP.zFar());
   genCellTransforms(testGameBoard, transformFunction, transformArray, 0, 0, 4, 4);
+  gl.clear(gl.COLOR_BUFFER_BIT);
   renderModels(1, transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
                glP.attribute_modPosition(), glP.vertexBuffer_cellModel(),
                glP.vertexBuffer_verticalLineModel(), glP.vertexBuffer_horizontalLineModel(),
@@ -222,4 +281,4 @@ function renderModels(mode, transformArray, uniform_modToClip, uniform_colour,
   }
 }
 
-export {onContextCreation, control};
+export {onContextCreation, control, initialiseControls};
