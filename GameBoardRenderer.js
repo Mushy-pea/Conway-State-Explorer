@@ -11,19 +11,49 @@ import {testGameBoard} from './GameLogic.js';
 // These global variables are assigned values related to the OpenGL context that will be needed to
 // render the game board each frame.
 var gl;
-const glP = {
-  uniform_modToClip: 0,
-  uniform_colour: 0,
-  attribute_modPosition: 0,
-  vertexBuffer_cellModel: 0,
-  vertexBuffer_verticalLineModel: 0,
-  vertexBuffer_horizontalLineModel: 0,
-  elementBuffer: 0,
+var glP;
 
-  frustumScale1: 1,
-  zNear: 0.5,
-  zFar: 100
-};
+// This function is used to encapsulate values related to the OpenGL context in an object, a
+// reference to which is assigned to global variable glP when the renderer is initialised.
+function glParameters(uniform_modToClip, uniform_colour, attribute_modPosition,
+                      vertexBuffer_cellModel, vertexBuffer_verticalLineModel,
+                      vertexBuffer_horizontalLineModel, elementBuffer) {
+  let frustumScale = 1;
+  let zNear = 0.5;
+  let zFar = 100;
+  return {
+    uniform_modToClip: function() {
+      return uniform_modToClip;
+    },
+    uniform_colour: function() {
+      return uniform_colour;
+    },
+    attribute_modPosition: function() {
+      return attribute_modPosition;
+    },
+    vertexBuffer_cellModel: function() {
+      return vertexBuffer_cellModel;
+    },
+    vertexBuffer_verticalLineModel: function() {
+      return vertexBuffer_verticalLineModel;
+    },
+    vertexBuffer_horizontalLineModel: function() {
+      return vertexBuffer_horizontalLineModel;
+    },
+    elementBuffer: function() {
+      return elementBuffer;
+    },
+    frustumScale: function() {
+      return frustumScale;
+    },
+    zNear: function() {
+      return zNear;
+    },
+    zFar: function() {
+      return zFar;
+    }
+  }
+}
 
 // These global variables are exposed to App so they can be modified in response to UI inputs.
 const control = {
@@ -42,14 +72,13 @@ function translate(x, y, z) {
 
 // This function returns a function that is used to generate the transformation matrix that is
 // passed to the vertex shader for each model rendered.
-function genModelTransformFunction(x, y, z) {
+function genModelTransformFunction(x, y, z, frustumScale, zNear, zFar) {
   const window = {width: gl.drawingBufferWidth, height: gl.drawingBufferHeight};
-  const axesInversion = matrix([[0, -1, 0, 0], [0, 0, 1, 0], [-1, 0, 0, 0], [0, 0, 0, 1]]);
   const worldToCamera = translate(x, y, z);
   const cameraToClip =
-  matrix([[glP.frustumScale1 / (window.width / window.height), 0, 0, 0],
-          [0, glP.frustumScale1, 0, 0],
-          [0, 0, ((glP.zFar + glP.zNear) / (glP.zNear - glP.zFar)), ((2 * glP.zFar * glP.zNear) / (glP.zNear - glP.zFar))],
+  matrix([[frustumScale / (window.width / window.height), 0, 0, 0],
+          [0, frustumScale, 0, 0],
+          [0, 0, ((zFar + zNear) / (zNear - zFar)), ((2 * zFar * zNear) / (zNear - zFar))],
           [0, 0, -1, 0]]);
   const worldToClip = multiply(cameraToClip, worldToCamera);
 
@@ -96,33 +125,35 @@ function onContextCreation(_gl) {
   console.log("Program link status: " + linkStatus);
   console.log("Program validate status: " + programValid);
 
+  const uniform_modToClip = _gl.getUniformLocation(shaderProgram, "modToClip");
+  const uniform_colour = _gl.getUniformLocation(shaderProgram, "colour");
+  const attribute_modPosition = _gl.getAttribLocation(shaderProgram, "modPosition");
+  const vertexBuffer_cellModel = loadBuffer(cellModel, null, _gl);
+  const vertexBuffer_verticalLineModel = loadBuffer(verticalLineModel, null, _gl);
+  const vertexBuffer_horizontalLineModel = loadBuffer(horizontalLineModel, null, _gl);
+  const elementBuffer = loadBuffer(null, modelElements, _gl);
+  glP = glParameters(uniform_modToClip, uniform_colour, attribute_modPosition,
+                     vertexBuffer_cellModel, vertexBuffer_verticalLineModel,
+                     vertexBuffer_horizontalLineModel, elementBuffer);
+  _gl.useProgram(shaderProgram);
+
   gl = _gl;
-  glP.uniform_modToClip = _gl.getUniformLocation(shaderProgram, "modToClip");
-  glP.uniform_colour = _gl.getUniformLocation(shaderProgram, "colour");
-  glP.attribute_modPosition = _gl.getAttribLocation(shaderProgram, "modPosition");
-  glP.vertexBuffer_cellModel = loadBuffer(cellModel, null);
-  glP.vertexBuffer_verticalLineModel = loadBuffer(verticalLineModel, null);
-  glP.vertexBuffer_horizontalLineModel = loadBuffer(horizontalLineModel, null);
-  glP.elementBuffer = loadBuffer(null, modelElements);
-  gl.useProgram(shaderProgram);
-
-  setInterval(handleRenderEvent, 11.11);
-
+  setInterval(handleRenderEvent, 11);
 }
 
 // This function loads vertex and element drawing data into GL buffers, which will be used to
 // perform the rendering for each frame.
-function loadBuffer(vertexArray, elementArray) {
+function loadBuffer(vertexArray, elementArray, _gl) {
   let buffer;
   if (elementArray === null) {
-    buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexArray), gl.STREAM_DRAW);
+    buffer = _gl.createBuffer();
+    _gl.bindBuffer(_gl.ARRAY_BUFFER, buffer);
+    _gl.bufferData(_gl.ARRAY_BUFFER, new Float32Array(vertexArray), _gl.STREAM_DRAW);
   }
   else {
-    buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(elementArray), gl.STREAM_DRAW);
+    buffer = _gl.createBuffer();
+    _gl.bindBuffer(_gl.ELEMENT_ARRAY_BUFFER, buffer);
+    _gl.bufferData(_gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(elementArray), _gl.STREAM_DRAW);
   }
 
   return buffer;
@@ -150,34 +181,45 @@ function genCellTransforms(gameBoard, transformFunction, transformArray, i, j, m
 
 function handleRenderEvent() {
   let transformArray = [];
-  transformFunction = genModelTransformFunction(control.cam.x, control.cam.y, control.cam.z);
+  transformFunction = genModelTransformFunction(control.cam.x, control.cam.y, control.cam.z,
+                                                glP.frustumScale(), glP.zNear(), glP.zFar());
   genCellTransforms(testGameBoard, transformFunction, transformArray, 0, 0, 4, 4);
-  renderModels(1, transformArray);
+  renderModels(1, transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
+               glP.attribute_modPosition(), glP.vertexBuffer_cellModel(),
+               glP.vertexBuffer_verticalLineModel(), glP.vertexBuffer_horizontalLineModel(),
+               glP.elementBuffer());
   gl.flush();
   gl.endFrameEXP();
 }
 
 // This function is used to render all the cell, vertical or horizontal graph line models
 // for the current frame.
-function renderModels(mode, transformArray) {
+function renderModels(mode, transformArray, uniform_modToClip, uniform_colour,
+                      attribute_modPosition, vertexBuffer_cellModel,
+                      vertexBuffer_verticalLineModel, vertexBuffer_horizontalLineModel,
+                      elementBuffer) {
   if (mode === 0) {
     if (transformArray.length === 0) {return;}
     let transform = transformArray.pop();
-    gl.uniformMatrix4fv(glP.uniform_modToClip, true, transform);
-    gl.uniform4fv(glP.uniform_colour, [0, 0, 1, 1]);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, glP.elementBuffer);
+    gl.uniformMatrix4fv(uniform_modToClip, true, transform);
+    gl.uniform4fv(uniform_colour, [0, 0, 1, 1]);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementBuffer);
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
-    renderModels(0, transformArray);
+    renderModels(0, transformArray, uniform_modToClip, uniform_colour, attribute_modPosition,
+                 vertexBuffer_cellModel, vertexBuffer_verticalLineModel,
+                 vertexBuffer_horizontalLineModel, elementBuffer);
   }
   else {
-    if (mode === 1) {gl.bindBuffer(gl.ARRAY_BUFFER, glP.vertexBuffer_cellModel);}
-    else if (mode === 2) {gl.bindBuffer(gl.ARRAY_BUFFER, glP.vertexBuffer_verticalLineModel);}
-    else {gl.bindBuffer(gl.ARRAY_BUFFER, glP.vertexBuffer_horizontalLineModel);}
+    if (mode === 1) {gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer_cellModel);}
+    else if (mode === 2) {gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer_verticalLineModel);}
+    else {gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer_horizontalLineModel);}
 
-    gl.vertexAttribPointer(glP.attribute_modPosition, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(glP.attribute_modPosition);
-    renderModels(0, transformArray);
+    gl.vertexAttribPointer(attribute_modPosition, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(attribute_modPosition);
+    renderModels(0, transformArray, uniform_modToClip, uniform_colour, attribute_modPosition,
+                 vertexBuffer_cellModel, vertexBuffer_verticalLineModel,
+                 vertexBuffer_horizontalLineModel, elementBuffer);
   }
 }
 
-export {onContextCreation};
+export {onContextCreation, control};
