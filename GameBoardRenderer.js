@@ -189,7 +189,7 @@ function onContextCreation(_gl) {
   _gl.useProgram(shaderProgram);
 
   gl = _gl;
-  setInterval(handleRenderEvent, 11);
+  setInterval(handleRenderEvent, 100);
 }
 
 // This function loads vertex and element drawing data into GL buffers, which will be used to
@@ -210,11 +210,18 @@ function loadBuffer(vertexArray, elementArray, _gl) {
   return buffer;
 }
 
-function genGridTransforms(transformFunction, transformArray, i, j, maxI, maxJ) {
-
+// This function is used to apply the model to clip space transform function for each vertical or
+// horizontal grid line on the game board, thereby allowing these grid lines to optionally be
+// rendered.
+function genGridTransforms(transformFunction, transformArray, i, j, diffI, diffJ, cMax) {
+  for (let c = 0; c <= cMax; c++) {
+    transformArray.push(transformFunction(i, j));
+    i += diffI;
+    j += diffJ;
+  }
 }
 
-// This function applies the model to clip space transform function to the cell model for each
+// This function applies the model to clip space transform function for each
 // live cell on the game board, thereby allowing a cell model to be rendered in each corresponding
 // position.
 function genCellTransforms(gameBoard, transformFunction, transformArray, i, j, maxI, maxJ) {
@@ -237,16 +244,22 @@ function genCellTransforms(gameBoard, transformFunction, transformArray, i, j, m
 // This function is the central branching point of this module and is called through an interval
 // timer.
 function handleRenderEvent() {
-  let transformArray = [];
   const {x, y, z} = control.getCamera();
   transformFunction = genModelTransformFunction(x, y, z, glP.frustumScale(), glP.zNear(),
                                                 glP.zFar());
-  genCellTransforms(testGameBoard, transformFunction, transformArray, 0, 0, 4, 4);
   gl.clear(gl.COLOR_BUFFER_BIT);
+  let transformArray = [];
+  genCellTransforms(testGameBoard, transformFunction, transformArray, 0, 0, 4, 4);
   renderModels(1, transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
-               glP.attribute_modPosition(), glP.vertexBuffer_cellModel(),
-               glP.vertexBuffer_verticalLineModel(), glP.vertexBuffer_horizontalLineModel(),
-               glP.elementBuffer());
+               glP.attribute_modPosition(), glP.vertexBuffer_cellModel(), glP.elementBuffer());
+  genGridTransforms(transformFunction, transformArray, -64, 0, 1, 0, 127);
+  renderModels(1, transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
+              glP.attribute_modPosition(), glP.vertexBuffer_horizontalLineModel(),
+              glP.elementBuffer());
+  genGridTransforms(transformFunction, transformArray, 0, -64, 0, 1, 127);
+  renderModels(1, transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
+              glP.attribute_modPosition(), glP.vertexBuffer_verticalLineModel(),
+              glP.elementBuffer());
   gl.flush();
   gl.endFrameEXP();
 }
@@ -254,9 +267,7 @@ function handleRenderEvent() {
 // This function is used to render all the cell, vertical or horizontal graph line models
 // for the current frame.
 function renderModels(mode, transformArray, uniform_modToClip, uniform_colour,
-                      attribute_modPosition, vertexBuffer_cellModel,
-                      vertexBuffer_verticalLineModel, vertexBuffer_horizontalLineModel,
-                      elementBuffer) {
+                      attribute_modPosition, vertexBuffer, elementBuffer) {
   if (mode === 0) {
     if (transformArray.length === 0) {return;}
     let transform = transformArray.pop();
@@ -265,19 +276,14 @@ function renderModels(mode, transformArray, uniform_modToClip, uniform_colour,
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementBuffer);
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
     renderModels(0, transformArray, uniform_modToClip, uniform_colour, attribute_modPosition,
-                 vertexBuffer_cellModel, vertexBuffer_verticalLineModel,
-                 vertexBuffer_horizontalLineModel, elementBuffer);
+                 vertexBuffer, elementBuffer);
   }
   else {
-    if (mode === 1) {gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer_cellModel);}
-    else if (mode === 2) {gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer_verticalLineModel);}
-    else {gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer_horizontalLineModel);}
-
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.vertexAttribPointer(attribute_modPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(attribute_modPosition);
     renderModels(0, transformArray, uniform_modToClip, uniform_colour, attribute_modPosition,
-                 vertexBuffer_cellModel, vertexBuffer_verticalLineModel,
-                 vertexBuffer_horizontalLineModel, elementBuffer);
+                 vertexBuffer, elementBuffer);
   }
 }
 
