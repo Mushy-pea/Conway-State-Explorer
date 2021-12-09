@@ -114,33 +114,20 @@ function initialiseControls() {
   control = getControlObject();
 }
 
-// This function generates a 4 - vector translation matrix.
-function translate(x, y, z) {
-  return (
-    matrix([[1, 0, 0, x], [0, 1, 0, y], [0, 0, 1, z], [0, 0, 0, 1]])
-  );
-}
-
 // This function returns a function that is used to generate the transformation matrix that is
 // passed to the vertex shader for each model rendered.
-function genModelTransformFunction(x, y, z, frustumScale, zNear, zFar) {
+function genModelTransformFunction(x, y, z, frustumTerm1, zNear, zFar) {
   const window = {width: gl.drawingBufferWidth, height: gl.drawingBufferHeight};
-  const worldToCamera = translate(x, y, z);
-  const cameraToClip =
-  matrix([[frustumScale / (window.width / window.height), 0, 0, 0],
-          [0, frustumScale, 0, 0],
-          [0, 0, ((zFar + zNear) / (zNear - zFar)), ((2 * zFar * zNear) / (zNear - zFar))],
-          [0, 0, -1, 0]]);
-  const worldToClip = multiply(cameraToClip, worldToCamera);
+  const frustumTerm0 = frustumTerm1 / (window.width / window.height);
+  const frustumTerm2 = (zFar + zNear) / (zNear - zFar);
+  const frustumTerm3 = (2 * zFar * zNear) / (zNear - zFar);
 
   function modelTransformFunction(i, j) {
-    const modelToWorld = translate(i, j, 0);
-    const modelToClip = multiply(worldToClip, modelToWorld);
-    let index = 0;
-    const modelToClipArray = Array(16).fill(0);
-    modelToClip.forEach((value) => {modelToClipArray[index] = value;
-                                    index++;});
-    return modelToClipArray;
+    const modelToClip = [frustumTerm0, 0, 0, frustumTerm0 * (x + i),
+                         0, frustumTerm1, 0, frustumTerm1 * (y + j),
+                         0, 0, frustumTerm2, frustumTerm2 * z + frustumTerm3,
+                         0, 0, -1, -z];
+    return modelToClip;
   }
 
   return modelTransformFunction;
