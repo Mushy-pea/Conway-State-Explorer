@@ -1,7 +1,6 @@
 // This module contains functions that implement the rendering of the game board by determining
 // the contents of the corresponding GLView component for each frame.
 
-import {matrix, multiply} from 'mathjs';
 import vertexShader from './VertexShader.js';
 import fragmentShader from './FragmentShader.js';
 import {cellModel, verticalLineModel, horizontalLineModel, modelElements}
@@ -12,6 +11,10 @@ import {testGameBoard} from './GameLogic.js';
 // render the game board each frame.
 var gl;
 var glP;
+
+var tickCount = 0;
+var reportSwitch = true;
+var modelCount = 0;
 
 // This function is used to encapsulate values related to the OpenGL context in an object, a
 // reference to which is assigned to global variable glP when the renderer is initialised.
@@ -176,7 +179,7 @@ function onContextCreation(_gl) {
   _gl.useProgram(shaderProgram);
 
   gl = _gl;
-  setInterval(handleRenderEvent, 100);
+  setInterval(handleRenderEvent, 200);
 }
 
 // This function loads vertex and element drawing data into GL buffers, which will be used to
@@ -236,19 +239,23 @@ function handleRenderEvent() {
                                                 glP.zFar());
   gl.clear(gl.COLOR_BUFFER_BIT);
   let transformArray = [];
-  genCellTransforms(testGameBoard, transformFunction, transformArray, 0, 0, 4, 4);
+  genCellTransforms(testGameBoard, transformFunction, transformArray, 0, 0, 30, 30);
   renderModels(1, transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
                glP.attribute_modPosition(), glP.vertexBuffer_cellModel(), glP.elementBuffer());
-  genGridTransforms(transformFunction, transformArray, -64, 0, 1, 0, 127);
-  renderModels(1, transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
-              glP.attribute_modPosition(), glP.vertexBuffer_horizontalLineModel(),
-              glP.elementBuffer());
-  genGridTransforms(transformFunction, transformArray, 0, -64, 0, 1, 127);
-  renderModels(1, transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
-              glP.attribute_modPosition(), glP.vertexBuffer_verticalLineModel(),
-              glP.elementBuffer());
+  // genGridTransforms(transformFunction, transformArray, -64, 0, 1, 0, 127);
+  // renderModels(1, transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
+  //             glP.attribute_modPosition(), glP.vertexBuffer_horizontalLineModel(),
+  //             glP.elementBuffer());
+  // genGridTransforms(transformFunction, transformArray, 0, -64, 0, 1, 127);
+  // renderModels(1, transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
+  //             glP.attribute_modPosition(), glP.vertexBuffer_verticalLineModel(),
+  //             glP.elementBuffer());
   gl.flush();
   gl.endFrameEXP();
+
+  if (tickCount % 5 === 0) {console.log("tickCount: " + tickCount);}
+
+  tickCount++;
 }
 
 // This function is used to render all the cell, vertical or horizontal graph line models
@@ -256,12 +263,18 @@ function handleRenderEvent() {
 function renderModels(mode, transformArray, uniform_modToClip, uniform_colour,
                       attribute_modPosition, vertexBuffer, elementBuffer) {
   if (mode === 0) {
-    if (transformArray.length === 0) {return;}
+    if (transformArray.length === 0) {
+      if (reportSwitch) {
+        console.log("modelCount: " + modelCount);
+        reportSwitch = false;
+      }
+
+      return;
+    }
     let transform = transformArray.pop();
     gl.uniformMatrix4fv(uniform_modToClip, true, transform);
-    gl.uniform4fv(uniform_colour, [0, 0, 1, 1]);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementBuffer);
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+    modelCount++;
     renderModels(0, transformArray, uniform_modToClip, uniform_colour, attribute_modPosition,
                  vertexBuffer, elementBuffer);
   }
@@ -269,6 +282,8 @@ function renderModels(mode, transformArray, uniform_modToClip, uniform_colour,
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.vertexAttribPointer(attribute_modPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(attribute_modPosition);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementBuffer);
+    gl.uniform4fv(uniform_colour, [0, 0, 1, 1]);
     renderModels(0, transformArray, uniform_modToClip, uniform_colour, attribute_modPosition,
                  vertexBuffer, elementBuffer);
   }

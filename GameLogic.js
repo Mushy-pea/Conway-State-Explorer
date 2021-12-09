@@ -4,16 +4,16 @@
 // have the game logic applied to them.
 var gameBoard = Array(5).fill(0).map(() => new Array(5).fill(0));
 var newGameBoard = Array(5).fill(0).map(() => new Array(5).fill(0));
-createGameBoard(gameBoard);
-createGameBoard(newGameBoard);
+//createGameBoard(gameBoard);
+//createGameBoard(newGameBoard);
 var boardUpdateTable = Array(5).fill(0).map(() => new Array(5).fill(0));
 createUpdateTable(boardUpdateTable);
 var gameTime = 0;
 
 // This function is used to initialise the gameBoard and newGameBoard arrays.
 function createGameBoard(board) {
-  for (let i = 0; i <= 4; i++) {
-    for (let j = 0; j <= 4; j++) {
+  for (let i = 0; i <= 30; i++) {
+    for (let j = 0; j <= 30; j++) {
       board[i][j] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: false};
     }
   }
@@ -152,15 +152,17 @@ function showGameBoard(board) {
   console.log(output);
 }
 
-const testGameBoard = Array(5).fill(0).map(() => new Array(5).fill(0));
+function initTestBoard(board) {
+  for (let i = -30; i <= 30; i++) {
+    for (let j = -30; j <= 30; j++) {
+      setCellState(i, j, true, board);
+    }
+  }
+}
+
+const testGameBoard = Array(31).fill(0).map(() => new Array(31).fill(0));
 createGameBoard(testGameBoard);
-testGameBoard[2][2] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true};
-testGameBoard[3][1] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true};
-testGameBoard[2][0] = {quadrant1: true, quadrant2: false, quadrant3: false, quadrant4: false};
-testGameBoard[1][1] = {quadrant1: true, quadrant2: false, quadrant3: true, quadrant4: false};
-testGameBoard[0][0] = {quadrant1: true, quadrant2: false, quadrant3: false, quadrant4: false};
-testGameBoard[0][2] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true};
-testGameBoard[1][3] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true};
+initTestBoard(testGameBoard);
 
 export {createGameBoard, createUpdateTable, getCellState, setCellState, updateGameBoard,
         testGameBoard};
