@@ -2,18 +2,32 @@
 // The boardUpdateTable array holds meta data that allows an optimisation to be applied, such that
 // certain dead cells that have no chance of becoming live at the next game time tick don't
 // have the game logic applied to them.
-var gameBoard = Array(5).fill(0).map(() => new Array(5).fill(0));
-var newGameBoard = Array(5).fill(0).map(() => new Array(5).fill(0));
-//createGameBoard(gameBoard);
-//createGameBoard(newGameBoard);
-var boardUpdateTable = Array(5).fill(0).map(() => new Array(5).fill(0));
-createUpdateTable(boardUpdateTable);
+
+import {testBoardState1} from './TestBoardStates.js';
+
+var gameBoard = Array(26).fill(0).map(() => new Array(26).fill(0));
+var newGameBoard = Array(26).fill(0).map(() => new Array(26).fill(0));
+var boardUpdateTable = Array(26).fill(0).map(() => new Array(26).fill(0));
 var gameTime = 0;
+createGameBoard(gameBoard);
+createGameBoard(newGameBoard);
+createUpdateTable(boardUpdateTable);
+
+initTestBoard(-25, -25, -25, 25);
+
+function initTestBoard(i, j, min, max) {
+  if (i > max) {return;}
+
+  if (testBoardState1.pop() === 1) {setCellState(i, j, true, gameBoard);}
+
+  if (j === max) {initTestBoard(i + 1, min, min, max);}
+  else {initTestBoard(i, j + 1, min, max);}
+}
 
 // This function is used to initialise the gameBoard and newGameBoard arrays.
 function createGameBoard(board) {
-  for (let i = 0; i <= 30; i++) {
-    for (let j = 0; j <= 30; j++) {
+  for (let i = 0; i <= 25; i++) {
+    for (let j = 0; j <= 25; j++) {
       board[i][j] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: false};
     }
   }
@@ -21,8 +35,8 @@ function createGameBoard(board) {
 
 // This function is used to initialise the boardUpdateTable array.
 function createUpdateTable(table) {
-  for (let i = 0; i <= 4; i++) {
-    for (let j = 0; j <= 4; j++) {
+  for (let i = 0; i <= 25; i++) {
+    for (let j = 0; j <= 25; j++) {
       table[i][j] = {quadrant1: 0, quadrant2: 0, quadrant3: 0, quadrant4: 0};
     }
   }
@@ -86,8 +100,8 @@ function setUpdateTable(i, j, gameT, updateTable) {
 // This function applies the game logic to each cell on the board where the corresponding cell
 // in boardUpdateTable >= gameT.
 function updateGameBoard(updateTable, board, newBoard, survivalRules, birthRules,
-                         gameT, i, j, maxI, maxJ) {
-  if (i > maxI) {return true;}
+                         gameT, i, j, min, max) {
+  if (i > max) {return true;}
 
   if (getCellState(i, j, updateTable).cellState >= gameT) {
     let localSurvey = [], boundaryTest;
@@ -95,8 +109,8 @@ function updateGameBoard(updateTable, board, newBoard, survivalRules, birthRules
                      getCellState(i, j + 1, board), getCellState(i, j - 1, board),
                      getCellState(i + 1, j + 1, board), getCellState(i - 1, j + 1, board),
                      getCellState(i - 1, j - 1, board), getCellState(i + 1, j - 1, board));
-    boundaryTest = localSurvey.find(obj => obj.exists === false);
-    if (boundaryTest === {exists: false, cellState: false}) {return false;}
+    //boundaryTest = localSurvey.find(obj => obj.exists === false);
+    //if (boundaryTest === {exists: false, cellState: false}) {return false;}
   
     let localPopulation = localSurvey.reduce((total, obj) => {if (obj.cellState) {return total + 1}
                                                               else {return total;}}, 0);
@@ -112,57 +126,28 @@ function updateGameBoard(updateTable, board, newBoard, survivalRules, birthRules
     }
   }
 
-  if (j === maxJ) {updateGameBoard(updateTable, board, newBoard, survivalRules, birthRules,
-                                   gameT, i + 1, -4, maxI, maxJ);}
+  if (j === max) {updateGameBoard(updateTable, board, newBoard, survivalRules, birthRules,
+                                   gameT, i + 1, min, min, max);}
   else {updateGameBoard(updateTable, board, newBoard, survivalRules, birthRules,
-                        gameT, i, j + 1, maxI, maxJ);}  
-}  
+                        gameT, i, j + 1, min, max);}  
+}
 
 function handleSetEvent(i, j) {
   setCellState(i, j, true, gameBoard);
 }
 
-function handleShowEvent() {
-  showGameBoard(gameBoard);
-}
-
 function handleUpdateEvent() {
   updateGameBoard(boardUpdateTable, gameBoard, newGameBoard,
                  [false, false, true, true, false, false, false, false, false],
-                 [false, false, false, true, false, false, false, false, false], gameTime, -4, -4,
-                 3, 3);
+                 [false, false, false, true, false, false, false, false, false], gameTime, -25, -25,
+                 -25, 25);
   gameBoard = newGameBoard;
-  newGameBoard = Array(5).fill(0).map(() => new Array(5).fill(0));
+  newGameBoard = Array(26).fill(0).map(() => new Array(26).fill(0));
   createGameBoard(newGameBoard);
-  showGameBoard(gameBoard);
   gameTime++;
 }
 
-function showGameBoard(board) {
-  let output = "";
-  for (let i = 4; i >= -4; i--) {
-    for (let j = -4; j <= 4; j++) {
-      if (getCellState(i, j, board).cellState === true) {output += "1 ";}
-      else {output += "0 ";}
+// export {createGameBoard, createUpdateTable, getCellState, setCellState, updateGameBoard,
+//         testGameBoard};
 
-      if (j === 4) {output += "\n";}
-    }
-  }
-
-  console.log(output);
-}
-
-function initTestBoard(board) {
-  for (let i = -30; i <= 30; i++) {
-    for (let j = -30; j <= 30; j++) {
-      setCellState(i, j, true, board);
-    }
-  }
-}
-
-const testGameBoard = Array(31).fill(0).map(() => new Array(31).fill(0));
-createGameBoard(testGameBoard);
-initTestBoard(testGameBoard);
-
-export {createGameBoard, createUpdateTable, getCellState, setCellState, updateGameBoard,
-        testGameBoard};
+export {gameBoard, handleUpdateEvent};

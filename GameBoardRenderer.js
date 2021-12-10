@@ -5,7 +5,7 @@ import vertexShader from './VertexShader.js';
 import fragmentShader from './FragmentShader.js';
 import {cellModel, verticalLineModel, horizontalLineModel, modelElements}
 from './GameBoardModels.js';
-import {testGameBoard} from './GameLogic.js';
+import {gameBoard, handleUpdateEvent} from './GameLogic.js';
 
 // These global variables are assigned values related to the OpenGL context that will be needed to
 // render the game board each frame.
@@ -67,7 +67,7 @@ var control;
 function getControlObject() {
   let mode = "creative";
   const camera = {
-    x: 0, y: 0, z: -16
+    x: 0, y: 0, z: -48
   };
   let showGrid = true;
   let scale = Math.abs(camera.z) / 8;
@@ -234,12 +234,13 @@ function genCellTransforms(gameBoard, transformFunction, transformArray, i, j, m
 // This function is the central branching point of this module and is called through an interval
 // timer.
 function handleRenderEvent() {
+  handleUpdateEvent();
   const {x, y, z} = control.getCamera();
   transformFunction = genModelTransformFunction(x, y, z, glP.frustumScale(), glP.zNear(),
                                                 glP.zFar());
   gl.clear(gl.COLOR_BUFFER_BIT);
   let transformArray = [];
-  genCellTransforms(testGameBoard, transformFunction, transformArray, 0, 0, 30, 30);
+  genCellTransforms(gameBoard, transformFunction, transformArray, 0, 0, 25, 25);
   renderModels(1, transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
                glP.attribute_modPosition(), glP.vertexBuffer_cellModel(), glP.elementBuffer());
   // genGridTransforms(transformFunction, transformArray, -64, 0, 1, 0, 127);
