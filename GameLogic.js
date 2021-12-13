@@ -1,7 +1,7 @@
 // This module contains the game board state and functions that implement the game logic that
 // update it at each game time tick.
 
-import {testBoardState1} from './TestBoardStates.js';
+import {testBoardState3} from './TestBoardStates.js';
 
 // The gameBoard and nextGameBoard arrays hold the state of the game board itself.
 // The boardUpdateTable array holds meta data that allows an optimisation to be applied, such that
@@ -15,7 +15,7 @@ var gameTime;
 function initTestBoard(i, j, min, max) {
   if (i > max) {return;}
 
-  if (testBoardState1.pop() === 1) {setCellState(i, j, true, gameBoard);}
+  if (testBoardState3.pop() === 1) {setCellState(i, j, true, gameBoard);}
 
   if (j === max) {initTestBoard(i + 1, min, min, max);}
   else {initTestBoard(i, j + 1, min, max);}
@@ -135,8 +135,8 @@ function handleSetEvent(i, j) {
 
 // This function is called from GameBoardRenderer to cause a reset of the game board state.
 function handleResetEvent(boardAxisSize) {
-  let max = boardAxisSize - 1;
-  let min = -max;
+  const max = boardAxisSize - 1;
+  const min = -max;
   gameBoard = Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
   nextGameBoard = Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
   boardUpdateTable = Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
@@ -149,8 +149,8 @@ function handleResetEvent(boardAxisSize) {
 
 // This function is called from GameBoardRenderer to cause an update of the game board state.
 function handleUpdateEvent(boardAxisSize) {
-  let max = boardAxisSize - 1;
-  let min = -max;
+  const max = boardAxisSize - 1;
+  const min = -max;
   updateGameBoard(boardUpdateTable, gameBoard, nextGameBoard,
                  [false, false, true, true, false, false, false, false, false],
                  [false, false, false, true, false, false, false, false, false], gameTime, min, min,

@@ -68,11 +68,11 @@ function getControlObject() {
   let mode = "creative";
   let showGrid = true;
   const camera = {
-    x: 0, y: 0, z: -48
+    x: 0, y: 0, z: -72
   };
   let foregroundColour = [0, 0, 1, 1];
   let backgroundColour = [1, 1, 1, 1];
-  let boardAxisSize = 26;
+  let boardAxisSize = 36;
   let scale = Math.abs(camera.z) / 8;
 
   return {
@@ -258,23 +258,24 @@ function genCellTransforms(gameBoard, transformFunction, transformArray, i, j, m
 // timer.
 function handleRenderEvent() {
   const boardAxisSize = control.getBoardAxisSize();
+  const max = boardAxisSize - 1;
   handleUpdateEvent(boardAxisSize);
   const {x, y, z} = control.getCamera();
   transformFunction = genModelTransformFunction(x, y, z, glP.frustumScale(), glP.zNear(),
                                                 glP.zFar());
   gl.clear(gl.COLOR_BUFFER_BIT);
   let transformArray = [];
-  genCellTransforms(gameBoard, transformFunction, transformArray, 0, 0, 25, 25);
+  genCellTransforms(gameBoard, transformFunction, transformArray, 0, 0, max, max);
   renderModels(1, transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
                glP.attribute_modPosition(), glP.vertexBuffer_cellModel(), glP.elementBuffer());
-  // genGridTransforms(transformFunction, transformArray, -64, 0, 1, 0, 127);
-  // renderModels(1, transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
-  //             glP.attribute_modPosition(), glP.vertexBuffer_horizontalLineModel(),
-  //             glP.elementBuffer());
-  // genGridTransforms(transformFunction, transformArray, 0, -64, 0, 1, 127);
-  // renderModels(1, transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
-  //             glP.attribute_modPosition(), glP.vertexBuffer_verticalLineModel(),
-  //             glP.elementBuffer());
+  genGridTransforms(transformFunction, transformArray, -64, 0, 1, 0, 127);
+  renderModels(1, transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
+              glP.attribute_modPosition(), glP.vertexBuffer_horizontalLineModel(),
+              glP.elementBuffer());
+  genGridTransforms(transformFunction, transformArray, 0, -64, 0, 1, 127);
+  renderModels(1, transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
+              glP.attribute_modPosition(), glP.vertexBuffer_verticalLineModel(),
+              glP.elementBuffer());
   gl.flush();
   gl.endFrameEXP();
 
