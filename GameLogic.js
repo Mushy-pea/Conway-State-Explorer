@@ -1,19 +1,16 @@
-// The gameBoard and newGameBoard arrays hold the state of the game board itself.
-// The boardUpdateTable array holds meta data that allows an optimisation to be applied, such that
-// certain dead cells that have no chance of becoming live at the next game time tick don't
-// have the game logic applied to them.
+// This module contains the game board state and functions that implement the game logic that
+// update it at each game time tick.
 
 import {testBoardState1} from './TestBoardStates.js';
 
-var gameBoard = Array(26).fill(0).map(() => new Array(26).fill(0));
-var newGameBoard = Array(26).fill(0).map(() => new Array(26).fill(0));
-var boardUpdateTable = Array(26).fill(0).map(() => new Array(26).fill(0));
-var gameTime = 0;
-createGameBoard(gameBoard);
-createGameBoard(newGameBoard);
-createUpdateTable(boardUpdateTable);
-
-initTestBoard(-25, -25, -25, 25);
+// The gameBoard and nextGameBoard arrays hold the state of the game board itself.
+// The boardUpdateTable array holds meta data that allows an optimisation to be applied, such that
+// certain dead cells that have no chance of becoming live at the next game time tick don't
+// have the game logic applied to them.
+var gameBoard;
+var nextGameBoard;
+var boardUpdateTable;
+var gameTime;
 
 function initTestBoard(i, j, min, max) {
   if (i > max) {return;}
@@ -24,19 +21,19 @@ function initTestBoard(i, j, min, max) {
   else {initTestBoard(i, j + 1, min, max);}
 }
 
-// This function is used to initialise the gameBoard and newGameBoard arrays.
-function createGameBoard(board) {
-  for (let i = 0; i <= 25; i++) {
-    for (let j = 0; j <= 25; j++) {
+// This function is used to initialise the gameBoard and nextGameBoard arrays.
+function createGameBoard(board, max) {
+  for (let i = 0; i <= max; i++) {
+    for (let j = 0; j <= max; j++) {
       board[i][j] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: false};
     }
   }
 }
 
 // This function is used to initialise the boardUpdateTable array.
-function createUpdateTable(table) {
-  for (let i = 0; i <= 25; i++) {
-    for (let j = 0; j <= 25; j++) {
+function createUpdateTable(table, max) {
+  for (let i = 0; i <= max; i++) {
+    for (let j = 0; j <= max; j++) {
       table[i][j] = {quadrant1: 0, quadrant2: 0, quadrant3: 0, quadrant4: 0};
     }
   }
@@ -62,7 +59,7 @@ function getCellState(i, j, board) {
   else {return {exists: true, cellState: board[absoluteI][absoluteJ].quadrant4};}
 }
 
-// This is an accessor function (set) for the newGameBoard and boardUpdateTable arrays.
+// This is an accessor function (set) for the nextGameBoard and boardUpdateTable arrays.
 function setCellState(i, j, state, board) {
   let absoluteI = Math.abs(i);
   let absoluteJ = Math.abs(j);
@@ -136,18 +133,35 @@ function handleSetEvent(i, j) {
   setCellState(i, j, true, gameBoard);
 }
 
-function handleUpdateEvent() {
-  updateGameBoard(boardUpdateTable, gameBoard, newGameBoard,
+// This function is called from GameBoardRenderer to cause a reset of the game board state.
+function handleResetEvent(boardAxisSize) {
+  let max = boardAxisSize - 1;
+  let min = -max;
+  gameBoard = Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
+  nextGameBoard = Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
+  boardUpdateTable = Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
+  gameTime = 0;
+  createGameBoard(gameBoard, max);
+  createGameBoard(nextGameBoard, max);
+  createUpdateTable(boardUpdateTable, max);
+  initTestBoard(min, min, min, max);
+}
+
+// This function is called from GameBoardRenderer to cause an update of the game board state.
+function handleUpdateEvent(boardAxisSize) {
+  let max = boardAxisSize - 1;
+  let min = -max;
+  updateGameBoard(boardUpdateTable, gameBoard, nextGameBoard,
                  [false, false, true, true, false, false, false, false, false],
-                 [false, false, false, true, false, false, false, false, false], gameTime, -25, -25,
-                 -25, 25);
-  gameBoard = newGameBoard;
-  newGameBoard = Array(26).fill(0).map(() => new Array(26).fill(0));
-  createGameBoard(newGameBoard);
+                 [false, false, false, true, false, false, false, false, false], gameTime, min, min,
+                 min, max);
+  gameBoard = nextGameBoard;
+  nextGameBoard = Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
+  createGameBoard(nextGameBoard, max);
   gameTime++;
 }
 
 // export {createGameBoard, createUpdateTable, getCellState, setCellState, updateGameBoard,
 //         testGameBoard};
 
-export {gameBoard, handleUpdateEvent};
+export {gameBoard, handleUpdateEvent, handleResetEvent};

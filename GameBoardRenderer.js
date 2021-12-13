@@ -5,7 +5,7 @@ import vertexShader from './VertexShader.js';
 import fragmentShader from './FragmentShader.js';
 import {cellModel, verticalLineModel, horizontalLineModel, modelElements}
 from './GameBoardModels.js';
-import {gameBoard, handleUpdateEvent} from './GameLogic.js';
+import {gameBoard, handleUpdateEvent, handleResetEvent} from './GameLogic.js';
 
 // These global variables are assigned values related to the OpenGL context that will be needed to
 // render the game board each frame.
@@ -66,15 +66,21 @@ var control;
 
 function getControlObject() {
   let mode = "creative";
+  let showGrid = true;
   const camera = {
     x: 0, y: 0, z: -48
   };
-  let showGrid = true;
+  let foregroundColour = [0, 0, 1, 1];
+  let backgroundColour = [1, 1, 1, 1];
+  let boardAxisSize = 26;
   let scale = Math.abs(camera.z) / 8;
 
   return {
     setMode: function(newMode) {
       mode = newMode;
+    },
+    setShowGrid: function(newMode) {
+      showGrid = newMode;
     },
     moveCameraLeft: function() {
       camera.x += scale;
@@ -94,19 +100,34 @@ function getControlObject() {
     moveCameraForward: function() {
       camera.z += 1;
     },
-    setShowGrid: function(newMode) {
-      showGrid = newMode;
+    setForegroundColour: function(red, green, blue, alpha) {
+      foregroundColour = [red, green, blue, alpha];
+    },
+    setBackgroundColour: function(red, green, blue, alpha) {
+      backgroundColour = [red, green, blue, alpha];
+    },
+    setBoardAxisSize: function(size) {
+      boardAxisSize = size;
     },
     getMode: function() {
       return mode;
+    },
+    getShowGrid: function() {
+      return showGrid;
     },
     getCamera: function() {
       return {
         x: camera.x, y: camera.y, z: camera.z
       };
     },
-    getShowGrid: function() {
-      return showGrid;
+    getForegroundColour: function() {
+      return foregroundColour;
+    },
+    getBackgroundColour: function() {
+      return backgroundColour;
+    },
+    getBoardAxisSize: function() {
+      return boardAxisSize;
     }
   }
 }
@@ -179,6 +200,8 @@ function onContextCreation(_gl) {
   _gl.useProgram(shaderProgram);
 
   gl = _gl;
+  let boardAxisSize = control.getBoardAxisSize();
+  handleResetEvent(boardAxisSize);
   setInterval(handleRenderEvent, 200);
 }
 
@@ -234,7 +257,8 @@ function genCellTransforms(gameBoard, transformFunction, transformArray, i, j, m
 // This function is the central branching point of this module and is called through an interval
 // timer.
 function handleRenderEvent() {
-  handleUpdateEvent();
+  const boardAxisSize = control.getBoardAxisSize();
+  handleUpdateEvent(boardAxisSize);
   const {x, y, z} = control.getCamera();
   transformFunction = genModelTransformFunction(x, y, z, glP.frustumScale(), glP.zNear(),
                                                 glP.zFar());
