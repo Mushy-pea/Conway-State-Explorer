@@ -12,13 +12,12 @@ var nextGameBoard;
 var boardUpdateTable;
 var gameTime;
 
-function initTestBoard(i, j, min, max) {
-  if (i > max) {return;}
-
-  if (testBoardState3.pop() === 1) {setCellState(i, j, true, gameBoard);}
-
-  if (j === max) {initTestBoard(i + 1, min, min, max);}
-  else {initTestBoard(i, j + 1, min, max);}
+function initTestBoard(min, max) {
+  for (let i = min; i <= max; i++) {
+    for (let j = min; j <= max; j++) {
+      if (testBoardState3.pop() === 1) {setCellState(i, j, true, gameBoard);}
+    }
+  }
 }
 
 // This function is used to initialise the gameBoard and nextGameBoard arrays.
@@ -96,37 +95,37 @@ function setUpdateTable(i, j, gameT, updateTable) {
 
 // This function applies the game logic to each cell on the board where the corresponding cell
 // in boardUpdateTable >= gameT.
-function updateGameBoard(updateTable, board, newBoard, survivalRules, birthRules,
-                         gameT, i, j, min, max) {
-  if (i > max) {return true;}
-
-  if (getCellState(i, j, updateTable).cellState >= gameT) {
-    let localSurvey = [], boundaryTest;
-    localSurvey.push(getCellState(i + 1, j, board), getCellState(i - 1, j, board),
-                     getCellState(i, j + 1, board), getCellState(i, j - 1, board),
-                     getCellState(i + 1, j + 1, board), getCellState(i - 1, j + 1, board),
-                     getCellState(i - 1, j - 1, board), getCellState(i + 1, j - 1, board));
-    //boundaryTest = localSurvey.find(obj => obj.exists === false);
-    //if (boundaryTest === {exists: false, cellState: false}) {return false;}
-  
-    let localPopulation = localSurvey.reduce((total, obj) => {if (obj.cellState) {return total + 1}
-                                                              else {return total;}}, 0);
-    if (getCellState(i, j, board).cellState) {
-      survivalRules.forEach((x, index) =>
-        {if (x && index === localPopulation) {setCellState(i, j, true, newBoard);
-                                              setUpdateTable(i, j, gameT + 1, updateTable);}});
-    }
-    else {
-      birthRules.forEach((x, index) =>
-        {if (x && index === localPopulation) {setCellState(i, j, true, newBoard);
-                                              setUpdateTable(i, j, gameT + 1, updateTable);}});
+function updateGameBoard(updateTable, board, newBoard, survivalRules, birthRules, gameT, min, max) {
+  for (let i = min; i <= max; i++) {
+    for (let j = min; j <= max; j++) {
+      if (getCellState(i, j, updateTable).cellState >= gameT) {
+        let localSurvey = [];
+        localSurvey.push(getCellState(i + 1, j, board), getCellState(i - 1, j, board),
+                    getCellState(i, j + 1, board), getCellState(i, j - 1, board),
+                    getCellState(i + 1, j + 1, board), getCellState(i - 1, j + 1, board),
+                    getCellState(i - 1, j - 1, board), getCellState(i + 1, j - 1, board));
+        let localPopulation = localSurvey.reduce((total, obj) => {
+          if (obj.cellState) {return total + 1}
+          else {return total}}, 0);
+        if (getCellState(i, j, board).cellState) {
+          survivalRules.forEach((x, index) => {
+            if (x && index === localPopulation) {
+              setCellState(i, j, true, newBoard);
+              setUpdateTable(i, j, gameT + 1, updateTable);
+            }
+          })
+        }
+        else {
+          birthRules.forEach((x, index) => {
+            if (x && index === localPopulation) {
+              setCellState(i, j, true, newBoard);
+              setUpdateTable(i, j, gameT + 1, updateTable);
+            }
+          })
+        }
+      }
     }
   }
-
-  if (j === max) {updateGameBoard(updateTable, board, newBoard, survivalRules, birthRules,
-                                   gameT, i + 1, min, min, max);}
-  else {updateGameBoard(updateTable, board, newBoard, survivalRules, birthRules,
-                        gameT, i, j + 1, min, max);}  
 }
 
 function handleSetEvent(i, j) {
@@ -144,7 +143,7 @@ function handleResetEvent(boardAxisSize) {
   createGameBoard(gameBoard, max);
   createGameBoard(nextGameBoard, max);
   createUpdateTable(boardUpdateTable, max);
-  initTestBoard(min, min, min, max);
+  initTestBoard(min, max);
 }
 
 // This function is called from GameBoardRenderer to cause an update of the game board state.
@@ -153,7 +152,7 @@ function handleUpdateEvent(boardAxisSize) {
   const min = -max;
   updateGameBoard(boardUpdateTable, gameBoard, nextGameBoard,
                  [false, false, true, true, false, false, false, false, false],
-                 [false, false, false, true, false, false, false, false, false], gameTime, min, min,
+                 [false, false, false, true, false, false, false, false, false], gameTime, 
                  min, max);
   gameBoard = nextGameBoard;
   nextGameBoard = Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));

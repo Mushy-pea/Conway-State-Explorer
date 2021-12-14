@@ -13,8 +13,6 @@ var gl;
 var glP;
 
 var tickCount = 0;
-var reportSwitch = true;
-var modelCount = 0;
 
 // This function is used to encapsulate values related to the OpenGL context in an object, a
 // reference to which is assigned to global variable glP when the renderer is initialised.
@@ -237,21 +235,18 @@ function genGridTransforms(transformFunction, transformArray, i, j, diffI, diffJ
 // This function applies the model to clip space transform function for each
 // live cell on the game board, thereby allowing a cell model to be rendered in each corresponding
 // position.
-function genCellTransforms(gameBoard, transformFunction, transformArray, i, j, maxI, maxJ) {
-  if (i > maxI) {return;}
+function genCellTransforms(transformFunction, transformArray, max) {
+  for (let i = 0; i <= max; i++) {
+    for (let j = 0; j <= max; j++) {
+      if (gameBoard[i][j].quadrant1) {transformArray.push(transformFunction(i, j));}
 
-  if (gameBoard[i][j].quadrant1) {transformArray.push(transformFunction(i, j));}
+      if (gameBoard[i][j].quadrant2) {transformArray.push(transformFunction(-i, j));}
 
-  if (gameBoard[i][j].quadrant2) {transformArray.push(transformFunction(-i, j));}
+      if (gameBoard[i][j].quadrant3) {transformArray.push(transformFunction(-i, -j));}
 
-  if (gameBoard[i][j].quadrant3) {transformArray.push(transformFunction(-i, -j));}
-
-  if (gameBoard[i][j].quadrant4) {transformArray.push(transformFunction(i, -j));}
-
-  if (j === maxJ) {
-    genCellTransforms(gameBoard, transformFunction, transformArray, i + 1, 0, maxI, maxJ);
+      if (gameBoard[i][j].quadrant4) {transformArray.push(transformFunction(i, -j));}
+    }
   }
-  else {genCellTransforms(gameBoard, transformFunction, transformArray, i, j + 1, maxI, maxJ);}
 }
 
 // This function is the central branching point of this module and is called through an interval
@@ -265,15 +260,15 @@ function handleRenderEvent() {
                                                 glP.zFar());
   gl.clear(gl.COLOR_BUFFER_BIT);
   let transformArray = [];
-  genCellTransforms(gameBoard, transformFunction, transformArray, 0, 0, max, max);
-  renderModels(1, transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
+  genCellTransforms(transformFunction, transformArray, max);
+  renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
                glP.attribute_modPosition(), glP.vertexBuffer_cellModel(), glP.elementBuffer());
   genGridTransforms(transformFunction, transformArray, -64, 0, 1, 0, 127);
-  renderModels(1, transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
+  renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
               glP.attribute_modPosition(), glP.vertexBuffer_horizontalLineModel(),
               glP.elementBuffer());
   genGridTransforms(transformFunction, transformArray, 0, -64, 0, 1, 127);
-  renderModels(1, transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
+  renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
               glP.attribute_modPosition(), glP.vertexBuffer_verticalLineModel(),
               glP.elementBuffer());
   gl.flush();
@@ -286,33 +281,19 @@ function handleRenderEvent() {
 
 // This function is used to render all the cell, vertical or horizontal graph line models
 // for the current frame.
-function renderModels(mode, transformArray, uniform_modToClip, uniform_colour,
-                      attribute_modPosition, vertexBuffer, elementBuffer) {
-  if (mode === 0) {
-    if (transformArray.length === 0) {
-      if (reportSwitch) {
-        console.log("modelCount: " + modelCount);
-        reportSwitch = false;
-      }
+function renderModels(transformArray, uniform_modToClip, uniform_colour, attribute_modPosition,
+                      vertexBuffer, elementBuffer) {
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+  gl.vertexAttribPointer(attribute_modPosition, 4, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(attribute_modPosition);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementBuffer);
+  gl.uniform4fv(uniform_colour, [0, 0, 1, 1]);
 
-      return;
-    }
+  do {
     let transform = transformArray.pop();
     gl.uniformMatrix4fv(uniform_modToClip, true, transform);
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
-    modelCount++;
-    renderModels(0, transformArray, uniform_modToClip, uniform_colour, attribute_modPosition,
-                 vertexBuffer, elementBuffer);
-  }
-  else {
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    gl.vertexAttribPointer(attribute_modPosition, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(attribute_modPosition);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementBuffer);
-    gl.uniform4fv(uniform_colour, [0, 0, 1, 1]);
-    renderModels(0, transformArray, uniform_modToClip, uniform_colour, attribute_modPosition,
-                 vertexBuffer, elementBuffer);
-  }
+  } while (transformArray.length != 0)
 }
 
 export {onContextCreation, control, initialiseControls};
