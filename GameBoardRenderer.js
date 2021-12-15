@@ -5,7 +5,7 @@ import vertexShader from './VertexShader.js';
 import fragmentShader from './FragmentShader.js';
 import {cellModel, verticalLineModel, horizontalLineModel, modelElements}
 from './GameBoardModels.js';
-import {gameBoard, handleUpdateEvent, handleResetEvent} from './GameLogic.js';
+import {gameBoardObject, handleUpdateEvent, handleResetEvent} from './GameLogic.js';
 
 // These global variables are assigned values related to the OpenGL context that will be needed to
 // render the game board each frame.
@@ -235,7 +235,7 @@ function genGridTransforms(transformFunction, transformArray, i, j, diffI, diffJ
 // This function applies the model to clip space transform function for each
 // live cell on the game board, thereby allowing a cell model to be rendered in each corresponding
 // position.
-function genCellTransforms(transformFunction, transformArray, max) {
+function genCellTransforms(gameBoard, transformFunction, transformArray, max) {
   for (let i = 0; i <= max; i++) {
     for (let j = 0; j <= max; j++) {
       if (gameBoard[i][j].quadrant1) {transformArray.push(transformFunction(i, j));}
@@ -260,7 +260,7 @@ function handleRenderEvent() {
                                                 glP.zFar());
   gl.clear(gl.COLOR_BUFFER_BIT);
   let transformArray = [];
-  genCellTransforms(transformFunction, transformArray, max);
+  genCellTransforms(gameBoardObject.gameBoard, transformFunction, transformArray, max);
   renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
                glP.attribute_modPosition(), glP.vertexBuffer_cellModel(), glP.elementBuffer());
   genGridTransforms(transformFunction, transformArray, -64, 0, 1, 0, 127);

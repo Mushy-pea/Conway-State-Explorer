@@ -7,119 +7,118 @@ import {testBoardState3} from './TestBoardStates.js';
 // The boardUpdateTable array holds meta data that allows an optimisation to be applied, such that
 // certain dead cells that have no chance of becoming live at the next game time tick don't
 // have the game logic applied to them.
-var gameBoard;
-var nextGameBoard;
-var boardUpdateTable;
-var gameTime;
+const gameBoardObject = {
+  gameBoard: [],
+  nextGameBoard: [],
+  boardUpdateTable: [],
+  gameTime: 0,
+};
 
-function initTestBoard(min, max) {
+function initTestBoard(gameBoard, min, max) {
   for (let i = min; i <= max; i++) {
     for (let j = min; j <= max; j++) {
-      if (testBoardState3.pop() === 1) {setCellState(i, j, true, gameBoard);}
+      if (testBoardState3.pop() === 1) {setCellState(gameBoard, true, i, j);}
     }
   }
 }
 
-// This function is used to initialise the gameBoard and nextGameBoard arrays.
-function createGameBoard(board, max) {
+// This function is used to reset the gameBoard, nextGameBoard and boardUpdateTable arrays with
+// default values.
+function resetBoardArray(arr, def, max) {
   for (let i = 0; i <= max; i++) {
     for (let j = 0; j <= max; j++) {
-      board[i][j] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: false};
-    }
-  }
-}
-
-// This function is used to initialise the boardUpdateTable array.
-function createUpdateTable(table, max) {
-  for (let i = 0; i <= max; i++) {
-    for (let j = 0; j <= max; j++) {
-      table[i][j] = {quadrant1: 0, quadrant2: 0, quadrant3: 0, quadrant4: 0};
+      arr[i][j] = {quadrant1: def, quadrant2: def, quadrant3: def, quadrant4: def};
     }
   }
 }
 
 // This is an accessor function (get) for the gameBoard and boardUpdateTable arrays.
-function getCellState(i, j, board) {
+function getCellState(table, i, j) {
   let absoluteI = Math.abs(i);
   let absoluteJ = Math.abs(j);
-  if (absoluteI >= board.length || absoluteJ >= board.length) {
+  if (absoluteI >= table.length || absoluteJ >= table.length) {
     return {exists: false, cellState: false};
   }
     
   if (i >= 0 && j >= 0) {
-    return {exists: true, cellState: board[absoluteI][absoluteJ].quadrant1};
+    return {exists: true, cellState: table[absoluteI][absoluteJ].quadrant1};
   }
   else if (i < 0 && j >= 0) {
-    return {exists: true, cellState: board[absoluteI][absoluteJ].quadrant2};
+    return {exists: true, cellState: table[absoluteI][absoluteJ].quadrant2};
   }
   else if (i < 0 && j < 0) {
-    return {exists: true, cellState: board[absoluteI][absoluteJ].quadrant3};
+    return {exists: true, cellState: table[absoluteI][absoluteJ].quadrant3};
   }
-  else {return {exists: true, cellState: board[absoluteI][absoluteJ].quadrant4};}
+  else {
+    return {exists: true, cellState: table[absoluteI][absoluteJ].quadrant4};
+  }
 }
 
 // This is an accessor function (set) for the nextGameBoard and boardUpdateTable arrays.
-function setCellState(i, j, state, board) {
+function setCellState(table, state, i, j) {
   let absoluteI = Math.abs(i);
   let absoluteJ = Math.abs(j);
-  if (absoluteI >= board.length || absoluteJ >= board.length) {
+  if (absoluteI >= table.length || absoluteJ >= table.length) {
     return false;
   }
 
   if (i >= 0 && j >= 0) {
-    board[absoluteI][absoluteJ].quadrant1 = state;
+    table[absoluteI][absoluteJ].quadrant1 = state;
   }
   else if (i < 0 && j >= 0) {
-    board[absoluteI][absoluteJ].quadrant2 = state;
+    table[absoluteI][absoluteJ].quadrant2 = state;
   }
   else if (i < 0 && j < 0) {
-    board[absoluteI][absoluteJ].quadrant3 = state;
+    table[absoluteI][absoluteJ].quadrant3 = state;
   }
-  else {board[absoluteI][absoluteJ].quadrant4 = state;}
+  else {
+    table[absoluteI][absoluteJ].quadrant4 = state;
+  }
   return true;
 }
 
 // This function is used by updateGameBoard to set the current cell and each of its neighbours to
 // true in boardUpdateTable.
-function setUpdateTable(i, j, gameT, updateTable) {
-  setCellState(i, j, gameT, updateTable);
-  setCellState(i + 1, j, gameT, updateTable);
-  setCellState(i, j + 1, gameT, updateTable);
-  setCellState(i - 1, j, gameT, updateTable);
-  setCellState(i, j - 1, gameT, updateTable);
-  setCellState(i + 1, j + 1, gameT, updateTable);
-  setCellState(i - 1, j - 1, gameT, updateTable);
-  setCellState(i + 1, j - 1, gameT, updateTable);
-  setCellState(i - 1, j + 1, gameT, updateTable);
+function setUpdateTable(boardUpdateTable, gameTime, i, j) {
+  setCellState(boardUpdateTable, gameTime, i, j);
+  setCellState(boardUpdateTable, gameTime, i + 1, j);
+  setCellState(boardUpdateTable, gameTime, i, j + 1);
+  setCellState(boardUpdateTable, gameTime, i - 1, j);
+  setCellState(boardUpdateTable, gameTime, i, j - 1);
+  setCellState(boardUpdateTable, gameTime, i + 1, j + 1);
+  setCellState(boardUpdateTable, gameTime, i - 1, j - 1);
+  setCellState(boardUpdateTable, gameTime, i + 1, j - 1);
+  setCellState(boardUpdateTable, gameTime, i - 1, j + 1);
 }
 
 // This function applies the game logic to each cell on the board where the corresponding cell
-// in boardUpdateTable >= gameT.
-function updateGameBoard(updateTable, board, newBoard, survivalRules, birthRules, gameT, min, max) {
+// in boardUpdateTable >= gameTime.
+function updateGameBoard(gameBoard, nextGameBoard, boardUpdateTable, survivalRules, birthRules,
+                         gameTime, min, max) {
   for (let i = min; i <= max; i++) {
     for (let j = min; j <= max; j++) {
-      if (getCellState(i, j, updateTable).cellState >= gameT) {
+      if (getCellState(boardUpdateTable, i, j).cellState >= gameTime) {
         let localSurvey = [];
-        localSurvey.push(getCellState(i + 1, j, board), getCellState(i - 1, j, board),
-                    getCellState(i, j + 1, board), getCellState(i, j - 1, board),
-                    getCellState(i + 1, j + 1, board), getCellState(i - 1, j + 1, board),
-                    getCellState(i - 1, j - 1, board), getCellState(i + 1, j - 1, board));
+        localSurvey.push(getCellState(gameBoard, i + 1, j), getCellState(gameBoard, i - 1, j),
+                    getCellState(gameBoard, i, j + 1), getCellState(gameBoard, i, j - 1),
+                    getCellState(gameBoard, i + 1, j + 1), getCellState(gameBoard, i - 1, j + 1),
+                    getCellState(gameBoard, i - 1, j - 1), getCellState(gameBoard, i + 1, j - 1));
         let localPopulation = localSurvey.reduce((total, obj) => {
           if (obj.cellState) {return total + 1}
           else {return total}}, 0);
-        if (getCellState(i, j, board).cellState) {
+        if (getCellState(gameBoard, i, j).cellState) {
           survivalRules.forEach((x, index) => {
             if (x && index === localPopulation) {
-              setCellState(i, j, true, newBoard);
-              setUpdateTable(i, j, gameT + 1, updateTable);
+              setCellState(nextGameBoard, true, i, j);
+              setUpdateTable(boardUpdateTable, gameTime + 1, i, j);
             }
           })
         }
         else {
           birthRules.forEach((x, index) => {
             if (x && index === localPopulation) {
-              setCellState(i, j, true, newBoard);
-              setUpdateTable(i, j, gameT + 1, updateTable);
+              setCellState(nextGameBoard, true, i, j);
+              setUpdateTable(boardUpdateTable, gameTime + 1, i, j);
             }
           })
         }
@@ -128,39 +127,40 @@ function updateGameBoard(updateTable, board, newBoard, survivalRules, birthRules
   }
 }
 
-function handleSetEvent(i, j) {
-  setCellState(i, j, true, gameBoard);
-}
-
 // This function is called from GameBoardRenderer to cause a reset of the game board state.
 function handleResetEvent(boardAxisSize) {
   const max = boardAxisSize - 1;
   const min = -max;
-  gameBoard = Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
-  nextGameBoard = Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
-  boardUpdateTable = Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
-  gameTime = 0;
-  createGameBoard(gameBoard, max);
-  createGameBoard(nextGameBoard, max);
-  createUpdateTable(boardUpdateTable, max);
-  initTestBoard(min, max);
+  gameBoardObject.gameBoard =
+    Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
+  gameBoardObject.nextGameBoard =
+    Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
+  gameBoardObject.boardUpdateTable =
+    Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
+  resetBoardArray(gameBoardObject.gameBoard, false, max);
+  resetBoardArray(gameBoardObject.nextGameBoard, false, max);
+  resetBoardArray(gameBoardObject.boardUpdateTable, 0, max);
+  gameBoardObject.gameTime = 0;
+  initTestBoard(gameBoardObject.gameBoard, min, max);  
 }
 
 // This function is called from GameBoardRenderer to cause an update of the game board state.
 function handleUpdateEvent(boardAxisSize) {
   const max = boardAxisSize - 1;
   const min = -max;
-  updateGameBoard(boardUpdateTable, gameBoard, nextGameBoard,
-                 [false, false, true, true, false, false, false, false, false],
-                 [false, false, false, true, false, false, false, false, false], gameTime, 
-                 min, max);
-  gameBoard = nextGameBoard;
-  nextGameBoard = Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
-  createGameBoard(nextGameBoard, max);
-  gameTime++;
+  updateGameBoard(gameBoardObject.gameBoard, gameBoardObject.nextGameBoard,
+                  gameBoardObject.boardUpdateTable,
+                  [false, false, true, true, false, false, false, false, false],
+                  [false, false, false, true, false, false, false, false, false],
+                  gameBoardObject.gameTime, min, max);
+  gameBoardObject.gameBoard = gameBoardObject.nextGameBoard;
+  gameBoardObject.nextGameBoard =
+    Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
+  resetBoardArray(gameBoardObject.nextGameBoard, false, max);
+  gameBoardObject.gameTime++;
 }
 
 // export {createGameBoard, createUpdateTable, getCellState, setCellState, updateGameBoard,
 //         testGameBoard};
 
-export {gameBoard, handleUpdateEvent, handleResetEvent};
+export {gameBoardObject, handleUpdateEvent, handleResetEvent};
