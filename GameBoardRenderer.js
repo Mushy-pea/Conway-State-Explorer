@@ -58,7 +58,7 @@ function glParameters(uniform_modToClip, uniform_colour, attribute_modPosition,
 
 // The top level application state that can be modified through the UI is encapsulated in the object
 // returned by getControlObject.  This includes everything except the game board state.
-// A reference to this object is assigned to gloabal variable control when the renderer
+// A reference to this object is assigned to global variable control when the renderer
 // is initialised.
 var control;
 
@@ -70,7 +70,10 @@ function getControlObject() {
   };
   let foregroundColour = [0, 0, 1, 1];
   let backgroundColour = [1, 1, 1, 1];
-  let boardAxisSize = 36;
+  let colourFadeSet = {
+    redStart: 0, redRate: 0.067, greenStart: 0, greenRate: 0, blueStart: 1, blueRate: 0
+  };
+  let boardAxisSize = 41;
   let scale = Math.abs(camera.z) / 8;
 
   return {
@@ -123,6 +126,13 @@ function getControlObject() {
     },
     getBackgroundColour: function() {
       return backgroundColour;
+    },
+    getColourFadeSet: function() {
+      return {
+        redStart: colourFadeSet.redStart, redRate: colourFadeSet.redRate,
+        greenStart: colourFadeSet.greenStart, greenRate: colourFadeSet.greenRate,
+        blueStart: colourFadeSet.blueStart, blueRate: colourFadeSet.blueRate
+      };
     },
     getBoardAxisSize: function() {
       return boardAxisSize;
@@ -232,19 +242,40 @@ function genGridTransforms(transformFunction, transformArray, i, j, diffI, diffJ
   }
 }
 
+function applyColourFade(colourFadeSet, lastBornOn, gameTime) {
+  const phase = Math.min(gameTime - lastBornOn, 15);
+  const red = colourFadeSet.redStart + phase * colourFadeSet.redRate;
+  const green = colourFadeSet.greenStart + phase * colourFadeSet.greenRate;
+  const blue = colourFadeSet.blueStart + phase * colourFadeSet.blueRate;
+  return [red, green, blue, 1];
+}
+
 // This function applies the model to clip space transform function for each
 // live cell on the game board, thereby allowing a cell model to be rendered in each corresponding
 // position.
-function genCellTransforms(gameBoard, transformFunction, transformArray, max) {
+function genCellTransforms(gameBoard, gameTime, colourFadeSet, transformFunction, transformArray,
+                           max) {
   for (let i = 0; i <= max; i++) {
     for (let j = 0; j <= max; j++) {
-      if (gameBoard[i][j].quadrant1) {transformArray.push(transformFunction(i, j));}
+      if (gameBoard[i][j].quadrant1) {
+        let cellColour = applyColourFade(colourFadeSet, gameBoard[i][j].q1LastBornOn, gameTime);
+        transformArray.push({transform: transformFunction(i, j), cellColour: cellColour});
+      }
 
-      if (gameBoard[i][j].quadrant2) {transformArray.push(transformFunction(-i, j));}
+      if (gameBoard[i][j].quadrant2) {
+        let cellColour = applyColourFade(colourFadeSet, gameBoard[i][j].q2LastBornOn, gameTime);
+        transformArray.push({transform: transformFunction(-i, j), cellColour: cellColour});
+      }
 
-      if (gameBoard[i][j].quadrant3) {transformArray.push(transformFunction(-i, -j));}
+      if (gameBoard[i][j].quadrant3) {
+        let cellColour = applyColourFade(colourFadeSet, gameBoard[i][j].q3LastBornOn, gameTime);
+        transformArray.push({transform: transformFunction(-i, -j), cellColour: cellColour});
+      }
 
-      if (gameBoard[i][j].quadrant4) {transformArray.push(transformFunction(i, -j));}
+      if (gameBoard[i][j].quadrant4) {
+        let cellColour = applyColourFade(colourFadeSet, gameBoard[i][j].q4LastBornOn, gameTime);
+        transformArray.push({transform: transformFunction(i, -j), cellColour: cellColour});
+      }
     }
   }
 }
@@ -254,28 +285,33 @@ function genCellTransforms(gameBoard, transformFunction, transformArray, max) {
 function handleRenderEvent() {
   const boardAxisSize = control.getBoardAxisSize();
   const max = boardAxisSize - 1;
-  handleUpdateEvent(boardAxisSize);
   const {x, y, z} = control.getCamera();
+  const gameTime = gameBoardObject.gameTime;
+  const colourFadeSet = control.getColourFadeSet();
+  handleUpdateEvent(boardAxisSize);
   transformFunction = genModelTransformFunction(x, y, z, glP.frustumScale(), glP.zNear(),
                                                 glP.zFar());
   gl.clear(gl.COLOR_BUFFER_BIT);
   let transformArray = [];
-  genCellTransforms(gameBoardObject.gameBoard, transformFunction, transformArray, max);
+  genCellTransforms(gameBoardObject.gameBoard, gameTime, colourFadeSet, transformFunction,
+                    transformArray, max);
   renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
                glP.attribute_modPosition(), glP.vertexBuffer_cellModel(), glP.elementBuffer());
-  genGridTransforms(transformFunction, transformArray, -64, 0, 1, 0, 127);
-  renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
-              glP.attribute_modPosition(), glP.vertexBuffer_horizontalLineModel(),
-              glP.elementBuffer());
-  genGridTransforms(transformFunction, transformArray, 0, -64, 0, 1, 127);
-  renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
-              glP.attribute_modPosition(), glP.vertexBuffer_verticalLineModel(),
-              glP.elementBuffer());
+  // genGridTransforms(transformFunction, transformArray, -64, 0, 1, 0, 127);
+  // renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
+  //             glP.attribute_modPosition(), glP.vertexBuffer_horizontalLineModel(),
+  //             glP.elementBuffer());
+  // genGridTransforms(transformFunction, transformArray, 0, -64, 0, 1, 127);
+  // renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
+  //             glP.attribute_modPosition(), glP.vertexBuffer_verticalLineModel(),
+  //             glP.elementBuffer());
   gl.flush();
   gl.endFrameEXP();
 
-  if (tickCount % 5 === 0) {console.log("tickCount: " + tickCount);}
-
+  if (tickCount % 5 === 0) {
+    console.log("tickCount: " + tickCount);
+    console.log("gameTime: " + gameBoardObject.gameTime);
+  }
   tickCount++;
 }
 
@@ -287,11 +323,11 @@ function renderModels(transformArray, uniform_modToClip, uniform_colour, attribu
   gl.vertexAttribPointer(attribute_modPosition, 4, gl.FLOAT, false, 0, 0);
   gl.enableVertexAttribArray(attribute_modPosition);
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementBuffer);
-  gl.uniform4fv(uniform_colour, [0, 0, 1, 1]);
 
   do {
     let transform = transformArray.pop();
-    gl.uniformMatrix4fv(uniform_modToClip, true, transform);
+    gl.uniformMatrix4fv(uniform_modToClip, true, transform.transform);
+    gl.uniform4fv(uniform_colour, transform.cellColour);
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
   } while (transformArray.length != 0)
 }
