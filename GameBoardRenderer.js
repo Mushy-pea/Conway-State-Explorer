@@ -12,8 +12,6 @@ import {gameBoardObject, handleUpdateEvent, handleResetEvent} from './GameLogic.
 var gl;
 var glP;
 
-var tickCount = 0;
-
 // This function is used to encapsulate values related to the OpenGL context in an object, a
 // reference to which is assigned to global variable glP when the renderer is initialised.
 function glParameters(uniform_modToClip, uniform_colour, attribute_modPosition,
@@ -68,8 +66,8 @@ function getControlObject() {
   const camera = {
     x: 0, y: 0, z: -72
   };
-  let foregroundColour = [0, 0, 1, 1];
-  let backgroundColour = [1, 1, 1, 1];
+  let foregroundColour = {red: 0, green: 0, blue: 1, alpha: 1};
+  let backgroundColour = {red: 1, green: 1, blue: 1, alpha: 1};
   let colourFadeSet = {
     redStart: 0, redRate: 0.067, greenStart: 0, greenRate: 0, blueStart: 1, blueRate: 0
   };
@@ -102,10 +100,16 @@ function getControlObject() {
       camera.z += 1;
     },
     setForegroundColour: function(red, green, blue, alpha) {
-      foregroundColour = [red, green, blue, alpha];
+      foregroundColour.red = red;
+      foregroundColour.green = green;
+      foregroundColour.blue = blue;
+      foregroundColour.alpha = alpha;
     },
     setBackgroundColour: function(red, green, blue, alpha) {
-      backgroundColour = [red, green, blue, alpha];
+      backgroundColour.red = red;
+      backgroundColour.green = green;
+      backgroundColour.blue = blue;
+      backgroundColour.alpha = alpha;
     },
     setBoardAxisSize: function(size) {
       boardAxisSize = size;
@@ -122,10 +126,12 @@ function getControlObject() {
       };
     },
     getForegroundColour: function() {
-      return foregroundColour;
+      return [foregroundColour.red, foregroundColour.green, foregroundColour.blue,
+              foregroundColour.alpha];
     },
     getBackgroundColour: function() {
-      return backgroundColour;
+      return [backgroundColour.red, backgroundColour.green, backgroundColour.blue,
+              backgroundColour.alpha];
     },
     getColourFadeSet: function() {
       return {
@@ -235,13 +241,16 @@ function loadBuffer(vertexArray, elementArray, _gl) {
 // horizontal grid line on the game board, thereby allowing these grid lines to optionally be
 // rendered.
 function genGridTransforms(transformFunction, transformArray, i, j, diffI, diffJ, cMax) {
+  let gridColour = control.getForegroundColour();
   for (let c = 0; c <= cMax; c++) {
-    transformArray.push(transformFunction(i, j));
+    transformArray.push({transform: transformFunction(i, j), colour: gridColour});
     i += diffI;
     j += diffJ;
   }
 }
 
+// This function determines the colour of cells when the stability colour fade option is enabled.
+// Cells fade over a user defined range depending on how long they've been alive.
 function applyColourFade(colourFadeSet, lastBornOn, gameTime) {
   const phase = Math.min(gameTime - lastBornOn, 15);
   const red = colourFadeSet.redStart + phase * colourFadeSet.redRate;
@@ -250,31 +259,34 @@ function applyColourFade(colourFadeSet, lastBornOn, gameTime) {
   return [red, green, blue, 1];
 }
 
-// This function applies the model to clip space transform function for each
-// live cell on the game board, thereby allowing a cell model to be rendered in each corresponding
-// position.
+// This function applies the model to clip space transform function for each live cell on the
+// game board, thereby allowing a cell model to be rendered in each corresponding position.
 function genCellTransforms(gameBoard, gameTime, colourFadeSet, transformFunction, transformArray,
                            max) {
   for (let i = 0; i <= max; i++) {
     for (let j = 0; j <= max; j++) {
       if (gameBoard[i][j].quadrant1) {
-        let cellColour = applyColourFade(colourFadeSet, gameBoard[i][j].q1LastBornOn, gameTime);
-        transformArray.push({transform: transformFunction(i, j), cellColour: cellColour});
+        let cellColour =
+          applyColourFade(colourFadeSet, gameBoard[i][j].q1LastBornOn, gameTime, i, j);
+        transformArray.push({transform: transformFunction(i, j), colour: cellColour});
       }
 
       if (gameBoard[i][j].quadrant2) {
-        let cellColour = applyColourFade(colourFadeSet, gameBoard[i][j].q2LastBornOn, gameTime);
-        transformArray.push({transform: transformFunction(-i, j), cellColour: cellColour});
+        let cellColour =
+          applyColourFade(colourFadeSet, gameBoard[i][j].q2LastBornOn, gameTime, -i, j);
+        transformArray.push({transform: transformFunction(-i, j), colour: cellColour});
       }
 
       if (gameBoard[i][j].quadrant3) {
-        let cellColour = applyColourFade(colourFadeSet, gameBoard[i][j].q3LastBornOn, gameTime);
-        transformArray.push({transform: transformFunction(-i, -j), cellColour: cellColour});
+        let cellColour =
+          applyColourFade(colourFadeSet, gameBoard[i][j].q3LastBornOn, gameTime, -i, -j);
+        transformArray.push({transform: transformFunction(-i, -j), colour: cellColour});
       }
 
       if (gameBoard[i][j].quadrant4) {
-        let cellColour = applyColourFade(colourFadeSet, gameBoard[i][j].q4LastBornOn, gameTime);
-        transformArray.push({transform: transformFunction(i, -j), cellColour: cellColour});
+        let cellColour =
+          applyColourFade(colourFadeSet, gameBoard[i][j].q4LastBornOn, gameTime, i, -j);
+        transformArray.push({transform: transformFunction(i, -j), colour: cellColour});
       }
     }
   }
@@ -297,22 +309,16 @@ function handleRenderEvent() {
                     transformArray, max);
   renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
                glP.attribute_modPosition(), glP.vertexBuffer_cellModel(), glP.elementBuffer());
-  // genGridTransforms(transformFunction, transformArray, -64, 0, 1, 0, 127);
-  // renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
-  //             glP.attribute_modPosition(), glP.vertexBuffer_horizontalLineModel(),
-  //             glP.elementBuffer());
-  // genGridTransforms(transformFunction, transformArray, 0, -64, 0, 1, 127);
-  // renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
-  //             glP.attribute_modPosition(), glP.vertexBuffer_verticalLineModel(),
-  //             glP.elementBuffer());
+  genGridTransforms(transformFunction, transformArray, -64, 0, 1, 0, 127);
+  renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
+              glP.attribute_modPosition(), glP.vertexBuffer_horizontalLineModel(),
+              glP.elementBuffer());
+  genGridTransforms(transformFunction, transformArray, 0, -64, 0, 1, 127);
+  renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
+              glP.attribute_modPosition(), glP.vertexBuffer_verticalLineModel(),
+              glP.elementBuffer());
   gl.flush();
   gl.endFrameEXP();
-
-  if (tickCount % 5 === 0) {
-    console.log("tickCount: " + tickCount);
-    console.log("gameTime: " + gameBoardObject.gameTime);
-  }
-  tickCount++;
 }
 
 // This function is used to render all the cell, vertical or horizontal graph line models
@@ -327,7 +333,7 @@ function renderModels(transformArray, uniform_modToClip, uniform_colour, attribu
   do {
     let transform = transformArray.pop();
     gl.uniformMatrix4fv(uniform_modToClip, true, transform.transform);
-    gl.uniform4fv(uniform_colour, transform.cellColour);
+    gl.uniform4fv(uniform_colour, transform.colour);
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
   } while (transformArray.length != 0)
 }

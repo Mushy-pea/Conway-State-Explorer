@@ -14,20 +14,33 @@ const gameBoardObject = {
   gameTime: 0,
 };
 
+// These two global objects are convenience holders for the cellUpdaterQ1_1... functions defined
+// later.
+const cellUpdaterFunctions1 = {
+  quadrant1: cellUpdaterQ1_1, quadrant2: cellUpdaterQ2_1, quadrant3: cellUpdaterQ3_1,
+  quadrant4: cellUpdaterQ4_1
+};
+
+const cellUpdaterFunctions2 = {
+  quadrant1: cellUpdaterQ1_2, quadrant2: cellUpdaterQ2_2, quadrant3: cellUpdaterQ3_2,
+  quadrant4: cellUpdaterQ4_2
+};
+
 function initTestBoard(gameBoard, min, max) {
   for (let i = min; i <= max; i++) {
     for (let j = min; j <= max; j++) {
-      if (testBoardState4.pop() === 1) {setCellState(gameBoard, true, 0, i, j);}
+      if (testBoardState4.pop() === 1) {setCellState(gameBoard, true, 0, cellUpdaterFunctions1,
+                                        i, j);}
     }
   }
 }
 
-// These two functions are constructors for the object types used to populate the gameBoard and
+// These two functions are constructors for the types used to populate the gameBoard and
 // boardUpdateTable arrays, respectively.
-function BoardCell() {
+function BoardCell(q1 = 0, q2 = 0, q3 = 0, q4 = 0) {
   return {
     quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: false,
-    q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0
+    q1LastBornOn: q1, q2LastBornOn: q2, q3LastBornOn: q3, q4LastBornOn: q4
   };
 }
 
@@ -38,11 +51,18 @@ function UpdateTableCell() {
 }
 
 // This function is used to reset the gameBoard, nextGameBoard and boardUpdateTable arrays with
-// default values.
-function resetBoardArray(arr, constructor, max) {
+// default values.  It also copies the q1LastBornOn... properties from gameBoard to nextGameBoard.
+function resetBoardArray(arr, constructor, max, newGameBoard) {
+  let q1LastBornOn, q2LastBornOn, q3LastBornOn, q4LastBornOn;
   for (let i = 0; i <= max; i++) {
     for (let j = 0; j <= max; j++) {
-      arr[i][j] = constructor();
+      if (newGameBoard !== null) {
+        q1LastBornOn = newGameBoard[i][j].q1LastBornOn;
+        q2LastBornOn = newGameBoard[i][j].q2LastBornOn;
+        q3LastBornOn = newGameBoard[i][j].q3LastBornOn;
+        q4LastBornOn = newGameBoard[i][j].q4LastBornOn;
+      }
+      arr[i][j] = constructor(q1LastBornOn, q2LastBornOn, q3LastBornOn, q4LastBornOn);
     }
   }
 }
@@ -69,8 +89,46 @@ function getCellState(table, i, j) {
   }
 }
 
+// The cell updater functions are passed to setCellState to specialise its functionality at
+// call time.
+function cellUpdaterQ1_1(table, state, i, j) {
+  table[i][j].quadrant1 = state;
+}
+
+function cellUpdaterQ2_1(table, state, i, j) {
+  table[i][j].quadrant2 = state;
+}
+
+function cellUpdaterQ3_1(table, state, i, j) {
+  table[i][j].quadrant3 = state;
+}
+
+function cellUpdaterQ4_1(table, state, i, j) {
+  table[i][j].quadrant4 = state;
+}
+
+function cellUpdaterQ1_2(table, state, i, j, gameTime) {
+  table[i][j].quadrant1 = state;
+  table[i][j].q1LastBornOn = gameTime;
+}
+
+function cellUpdaterQ2_2(table, state, i, j, gameTime) {
+  table[i][j].quadrant2 = state;
+  table[i][j].q2LastBornOn = gameTime;
+}
+
+function cellUpdaterQ3_2(table, state, i, j, gameTime) {
+  table[i][j].quadrant3 = state;
+  table[i][j].q3LastBornOn = gameTime;
+}
+
+function cellUpdaterQ4_2(table, state, i, j, gameTime) {
+  table[i][j].quadrant4 = state;
+  table[i][j].q4LastBornOn = gameTime;
+}
+
 // This is an accessor function (set) for the nextGameBoard and boardUpdateTable arrays.
-function setCellState(table, state, gameTime, i, j) {
+function setCellState(table, state, gameTime, updaterFunctions, i, j) {
   let absoluteI = Math.abs(i);
   let absoluteJ = Math.abs(j);
   if (absoluteI >= table.length || absoluteJ >= table.length) {
@@ -78,20 +136,16 @@ function setCellState(table, state, gameTime, i, j) {
   }
 
   if (i >= 0 && j >= 0) {
-    table[absoluteI][absoluteJ].quadrant1 = state;
-    table[absoluteI][absoluteJ].q1LastBornOn = gameTime;
+    updaterFunctions.quadrant1(table, state, absoluteI, absoluteJ, gameTime);
   }
   else if (i < 0 && j >= 0) {
-    table[absoluteI][absoluteJ].quadrant2 = state;
-    table[absoluteI][absoluteJ].q2LastBornOn = gameTime;
+    updaterFunctions.quadrant2(table, state, absoluteI, absoluteJ, gameTime);
   }
   else if (i < 0 && j < 0) {
-    table[absoluteI][absoluteJ].quadrant3 = state;
-    table[absoluteI][absoluteJ].q3LastBornOn = gameTime;
+    updaterFunctions.quadrant3(table, state, absoluteI, absoluteJ, gameTime);
   }
   else {
-    table[absoluteI][absoluteJ].quadrant4 = state;
-    table[absoluteI][absoluteJ].q4LastBornOn = gameTime;
+    updaterFunctions.quadrant4(table, state, absoluteI, absoluteJ, gameTime);
   }
   return true;
 }
@@ -99,15 +153,15 @@ function setCellState(table, state, gameTime, i, j) {
 // This function is used by updateGameBoard to set the current cell and each of its neighbours to
 // true in boardUpdateTable.
 function setUpdateTable(boardUpdateTable, gameTime, i, j) {
-  setCellState(boardUpdateTable, gameTime, gameTime, i, j);
-  setCellState(boardUpdateTable, gameTime, gameTime, i + 1, j);
-  setCellState(boardUpdateTable, gameTime, gameTime, i, j + 1);
-  setCellState(boardUpdateTable, gameTime, gameTime, i - 1, j);
-  setCellState(boardUpdateTable, gameTime, gameTime, i, j - 1);
-  setCellState(boardUpdateTable, gameTime, gameTime, i + 1, j + 1);
-  setCellState(boardUpdateTable, gameTime, gameTime, i - 1, j - 1);
-  setCellState(boardUpdateTable, gameTime, gameTime, i + 1, j - 1);
-  setCellState(boardUpdateTable, gameTime, gameTime, i - 1, j + 1);
+  setCellState(boardUpdateTable, gameTime, null, cellUpdaterFunctions1, i, j);
+  setCellState(boardUpdateTable, gameTime, null, cellUpdaterFunctions1, i + 1, j);
+  setCellState(boardUpdateTable, gameTime, null, cellUpdaterFunctions1, i, j + 1);
+  setCellState(boardUpdateTable, gameTime, null, cellUpdaterFunctions1, i - 1, j);
+  setCellState(boardUpdateTable, gameTime, null, cellUpdaterFunctions1, i, j - 1);
+  setCellState(boardUpdateTable, gameTime, null, cellUpdaterFunctions1, i + 1, j + 1);
+  setCellState(boardUpdateTable, gameTime, null, cellUpdaterFunctions1, i - 1, j - 1);
+  setCellState(boardUpdateTable, gameTime, null, cellUpdaterFunctions1, i + 1, j - 1);
+  setCellState(boardUpdateTable, gameTime, null, cellUpdaterFunctions1, i - 1, j + 1);
 }
 
 // This function applies the game logic to each cell on the board where the corresponding cell
@@ -128,7 +182,7 @@ function updateGameBoard(gameBoard, nextGameBoard, boardUpdateTable, survivalRul
         if (getCellState(gameBoard, i, j).cellState) {
           survivalRules.forEach((x, index) => {
             if (x && index === localPopulation) {
-              setCellState(nextGameBoard, true, 0, i, j);
+              setCellState(nextGameBoard, true, null, cellUpdaterFunctions1, i, j);
               setUpdateTable(boardUpdateTable, gameTime + 1, i, j);
             }
           })
@@ -136,7 +190,7 @@ function updateGameBoard(gameBoard, nextGameBoard, boardUpdateTable, survivalRul
         else {
           birthRules.forEach((x, index) => {
             if (x && index === localPopulation) {
-              setCellState(nextGameBoard, true, gameTime, i, j);
+              setCellState(nextGameBoard, true, gameTime, cellUpdaterFunctions2, i, j);
               setUpdateTable(boardUpdateTable, gameTime + 1, i, j);
             }
           })
@@ -156,11 +210,11 @@ function handleResetEvent(boardAxisSize) {
     Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
   gameBoardObject.boardUpdateTable =
     Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
-  resetBoardArray(gameBoardObject.gameBoard, BoardCell, max);
-  resetBoardArray(gameBoardObject.nextGameBoard, BoardCell, max);
-  resetBoardArray(gameBoardObject.boardUpdateTable, UpdateTableCell, max);
+  resetBoardArray(gameBoardObject.gameBoard, BoardCell, max, null);
+  resetBoardArray(gameBoardObject.nextGameBoard, BoardCell, max, null);
+  resetBoardArray(gameBoardObject.boardUpdateTable, UpdateTableCell, max, null);
   gameBoardObject.gameTime = 0;
-  initTestBoard(gameBoardObject.gameBoard, min, max);  
+  initTestBoard(gameBoardObject.gameBoard, min, max);
 }
 
 // This function is called from GameBoardRenderer to cause an update of the game board state.
@@ -175,7 +229,7 @@ function handleUpdateEvent(boardAxisSize) {
   gameBoardObject.gameBoard = gameBoardObject.nextGameBoard;
   gameBoardObject.nextGameBoard =
     Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
-  resetBoardArray(gameBoardObject.nextGameBoard, BoardCell, max);
+  resetBoardArray(gameBoardObject.nextGameBoard, BoardCell, max, gameBoardObject.gameBoard);
   gameBoardObject.gameTime++;
 }
 
