@@ -201,15 +201,15 @@ function updateGameBoard(gameBoard, nextGameBoard, boardUpdateTable, survivalRul
 }
 
 // This function is called from GameBoardRenderer to cause a reset of the game board state.
-function handleResetEvent(boardAxisSize) {
-  const max = boardAxisSize - 1;
+function handleResetEvent(boardArraySize) {
+  const max = boardArraySize - 1;
   const min = -max;
   gameBoardObject.gameBoard =
-    Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
+    Array(boardArraySize).fill(0).map(() => new Array(boardArraySize).fill(0));
   gameBoardObject.nextGameBoard =
-    Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
+    Array(boardArraySize).fill(0).map(() => new Array(boardArraySize).fill(0));
   gameBoardObject.boardUpdateTable =
-    Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
+    Array(boardArraySize).fill(0).map(() => new Array(boardArraySize).fill(0));
   resetBoardArray(gameBoardObject.gameBoard, BoardCell, max, null);
   resetBoardArray(gameBoardObject.nextGameBoard, BoardCell, max, null);
   resetBoardArray(gameBoardObject.boardUpdateTable, UpdateTableCell, max, null);
@@ -218,8 +218,8 @@ function handleResetEvent(boardAxisSize) {
 }
 
 // This function is called from GameBoardRenderer to cause an update of the game board state.
-function handleUpdateEvent(boardAxisSize) {
-  const max = boardAxisSize - 1;
+function handleUpdateEvent(boardArraySize) {
+  const max = boardArraySize - 1;
   const min = -max;
   updateGameBoard(gameBoardObject.gameBoard, gameBoardObject.nextGameBoard,
                   gameBoardObject.boardUpdateTable,
@@ -228,7 +228,7 @@ function handleUpdateEvent(boardAxisSize) {
                   gameBoardObject.gameTime, min, max);
   gameBoardObject.gameBoard = gameBoardObject.nextGameBoard;
   gameBoardObject.nextGameBoard =
-    Array(boardAxisSize).fill(0).map(() => new Array(boardAxisSize).fill(0));
+    Array(boardArraySize).fill(0).map(() => new Array(boardArraySize).fill(0));
   resetBoardArray(gameBoardObject.nextGameBoard, BoardCell, max, gameBoardObject.gameBoard);
   gameBoardObject.gameTime++;
 }

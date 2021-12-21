@@ -3,8 +3,7 @@
 
 import vertexShader from './VertexShader.js';
 import fragmentShader from './FragmentShader.js';
-import {cellModel, verticalLineModel, horizontalLineModel, modelElements}
-from './GameBoardModels.js';
+import {cellModel, getLineModels, modelElements} from './GameBoardModels.js';
 import {gameBoardObject, handleUpdateEvent, handleResetEvent} from './GameLogic.js';
 
 // These global variables are assigned values related to the OpenGL context that will be needed to
@@ -71,7 +70,7 @@ function getControlObject() {
   let colourFadeSet = {
     redStart: 0, redRate: 0.067, greenStart: 0, greenRate: 0, blueStart: 1, blueRate: 0
   };
-  let boardAxisSize = 41;
+  let boardArraySize = 41;
   let scale = Math.abs(camera.z) / 8;
 
   return {
@@ -112,7 +111,7 @@ function getControlObject() {
       backgroundColour.alpha = alpha;
     },
     setBoardAxisSize: function(size) {
-      boardAxisSize = size;
+      boardArraySize = size;
     },
     getMode: function() {
       return mode;
@@ -140,8 +139,8 @@ function getControlObject() {
         blueStart: colourFadeSet.blueStart, blueRate: colourFadeSet.blueRate
       };
     },
-    getBoardAxisSize: function() {
-      return boardAxisSize;
+    getBoardArraySize: function() {
+      return boardArraySize;
     }
   }
 }
@@ -205,17 +204,18 @@ function onContextCreation(_gl) {
   const uniform_colour = _gl.getUniformLocation(shaderProgram, "colour");
   const attribute_modPosition = _gl.getAttribLocation(shaderProgram, "modPosition");
   const vertexBuffer_cellModel = loadBuffer(cellModel, null, _gl);
-  const vertexBuffer_verticalLineModel = loadBuffer(verticalLineModel, null, _gl);
-  const vertexBuffer_horizontalLineModel = loadBuffer(horizontalLineModel, null, _gl);
+  const boardArraySize = control.getBoardArraySize();
+  const lineModels = getLineModels(boardArraySize);
+  const vertexBuffer_verticalLineModel = loadBuffer(lineModels.verticalLineModel, null, _gl);
+  const vertexBuffer_horizontalLineModel = loadBuffer(lineModels.horizontalLineModel, null, _gl);
   const elementBuffer = loadBuffer(null, modelElements, _gl);
   glP = glParameters(uniform_modToClip, uniform_colour, attribute_modPosition,
                      vertexBuffer_cellModel, vertexBuffer_verticalLineModel,
                      vertexBuffer_horizontalLineModel, elementBuffer);
   _gl.useProgram(shaderProgram);
 
-  gl = _gl;
-  let boardAxisSize = control.getBoardAxisSize();
-  handleResetEvent(boardAxisSize);
+  gl = _gl;  
+  handleResetEvent(boardArraySize);
   setInterval(handleRenderEvent, 200);
 }
 
@@ -237,13 +237,16 @@ function loadBuffer(vertexArray, elementArray, _gl) {
   return buffer;
 }
 
-// This function is used to apply the model to clip space transform function for each vertical or
+// This function is used to apply the model to clip space transform function for each vertical and
 // horizontal grid line on the game board, thereby allowing these grid lines to optionally be
-// rendered.
+// rendered.  The boundary of the board is always rendered.
 function genGridTransforms(transformFunction, transformArray, i, j, diffI, diffJ, cMax) {
   let gridColour = control.getForegroundColour();
+  let showGrid = control.getShowGrid();
   for (let c = 0; c <= cMax; c++) {
-    transformArray.push({transform: transformFunction(i, j), colour: gridColour});
+    if (showGrid || c === 0 || c === cMax) {
+      transformArray.push({transform: transformFunction(i, j), colour: gridColour});
+    }
     i += diffI;
     j += diffJ;
   }
@@ -251,7 +254,7 @@ function genGridTransforms(transformFunction, transformArray, i, j, diffI, diffJ
 
 // This function determines the colour of cells when the stability colour fade option is enabled.
 // Cells fade over a user defined range depending on how long they've been alive.
-function applyColourFade(colourFadeSet, lastBornOn, gameTime) {
+function applyColourFade(colourFadeSet, gameTime, lastBornOn) {
   const phase = Math.min(gameTime - lastBornOn, 15);
   const red = colourFadeSet.redStart + phase * colourFadeSet.redRate;
   const green = colourFadeSet.greenStart + phase * colourFadeSet.greenRate;
@@ -263,29 +266,26 @@ function applyColourFade(colourFadeSet, lastBornOn, gameTime) {
 // game board, thereby allowing a cell model to be rendered in each corresponding position.
 function genCellTransforms(gameBoard, gameTime, colourFadeSet, transformFunction, transformArray,
                            max) {
+  const colourRange = lastBornOn => applyColourFade(colourFadeSet, gameTime, lastBornOn);
   for (let i = 0; i <= max; i++) {
     for (let j = 0; j <= max; j++) {
       if (gameBoard[i][j].quadrant1) {
-        let cellColour =
-          applyColourFade(colourFadeSet, gameBoard[i][j].q1LastBornOn, gameTime, i, j);
+        let cellColour = colourRange(gameBoard[i][j].q1LastBornOn);
         transformArray.push({transform: transformFunction(i, j), colour: cellColour});
       }
 
       if (gameBoard[i][j].quadrant2) {
-        let cellColour =
-          applyColourFade(colourFadeSet, gameBoard[i][j].q2LastBornOn, gameTime, -i, j);
+        let cellColour = colourRange(gameBoard[i][j].q2LastBornOn);
         transformArray.push({transform: transformFunction(-i, j), colour: cellColour});
       }
 
       if (gameBoard[i][j].quadrant3) {
-        let cellColour =
-          applyColourFade(colourFadeSet, gameBoard[i][j].q3LastBornOn, gameTime, -i, -j);
+        let cellColour = colourRange(gameBoard[i][j].q3LastBornOn);
         transformArray.push({transform: transformFunction(-i, -j), colour: cellColour});
       }
 
       if (gameBoard[i][j].quadrant4) {
-        let cellColour =
-          applyColourFade(colourFadeSet, gameBoard[i][j].q4LastBornOn, gameTime, i, -j);
+        let cellColour = colourRange(gameBoard[i][j].q4LastBornOn);
         transformArray.push({transform: transformFunction(i, -j), colour: cellColour});
       }
     }
@@ -295,12 +295,14 @@ function genCellTransforms(gameBoard, gameTime, colourFadeSet, transformFunction
 // This function is the central branching point of this module and is called through an interval
 // timer.
 function handleRenderEvent() {
-  const boardAxisSize = control.getBoardAxisSize();
-  const max = boardAxisSize - 1;
+  const boardArraySize = control.getBoardArraySize();
+  const max = boardArraySize - 1;
+  const min = -max;
+  const boardAxisSize = (boardArraySize - 1) * 2 + 1;
   const {x, y, z} = control.getCamera();
   const gameTime = gameBoardObject.gameTime;
   const colourFadeSet = control.getColourFadeSet();
-  handleUpdateEvent(boardAxisSize);
+  handleUpdateEvent(boardArraySize);
   transformFunction = genModelTransformFunction(x, y, z, glP.frustumScale(), glP.zNear(),
                                                 glP.zFar());
   gl.clear(gl.COLOR_BUFFER_BIT);
@@ -309,11 +311,11 @@ function handleRenderEvent() {
                     transformArray, max);
   renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
                glP.attribute_modPosition(), glP.vertexBuffer_cellModel(), glP.elementBuffer());
-  genGridTransforms(transformFunction, transformArray, -64, 0, 1, 0, 127);
+  genGridTransforms(transformFunction, transformArray, min, 0, 1, 0, boardAxisSize);
   renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
               glP.attribute_modPosition(), glP.vertexBuffer_horizontalLineModel(),
               glP.elementBuffer());
-  genGridTransforms(transformFunction, transformArray, 0, -64, 0, 1, 127);
+  genGridTransforms(transformFunction, transformArray, 0, min, 0, 1, boardAxisSize);
   renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
               glP.attribute_modPosition(), glP.vertexBuffer_verticalLineModel(),
               glP.elementBuffer());
