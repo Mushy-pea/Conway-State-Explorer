@@ -27,10 +27,12 @@ const cellUpdaterFunctions2 = {
 };
 
 function initTestBoard(gameBoard, min, max) {
+  let k = 0;
   for (let i = min; i <= max; i++) {
     for (let j = min; j <= max; j++) {
-      if (testBoardState4.pop() === 1) {setCellState(gameBoard, true, 0, cellUpdaterFunctions1,
+      if (testBoardState4[k] === 1) {setCellState(gameBoard, true, 0, cellUpdaterFunctions1,
                                         i, j);}
+      k++;
     }
   }
 }

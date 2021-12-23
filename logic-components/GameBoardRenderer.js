@@ -60,8 +60,8 @@ function glParameters(uniform_modToClip, uniform_colour, attribute_modPosition,
 var control;
 
 function getControlObject() {
-  let mode = "creative";
-  let showGrid = true;
+  let mode = "simulation";
+  let showGrid = false;
   const camera = {
     x: 0, y: 0, z: -72
   };
@@ -74,8 +74,20 @@ function getControlObject() {
   let scale = Math.abs(camera.z) / 8;
 
   return {
-    setMode: function(newMode) {
-      mode = newMode;
+    changeMode: function(resetSwitch) {
+      if (resetSwitch) {
+        if (mode !== "reset") {
+          mode = "reset";
+          return;
+        }
+        else {
+          mode = "creative";
+          return;
+        }
+      }
+
+      if (mode === "creative") {mode = "simulation"}
+      else {mode = "creative"}
     },
     setShowGrid: function(newMode) {
       showGrid = newMode;
@@ -302,7 +314,13 @@ function handleRenderEvent() {
   const {x, y, z} = control.getCamera();
   const gameTime = gameBoardObject.gameTime;
   const colourFadeSet = control.getColourFadeSet();
-  handleUpdateEvent(boardArraySize);
+
+  if (control.getMode() === "simulation") {handleUpdateEvent(boardArraySize)}
+  else if (control.getMode() === "reset") {
+    handleResetEvent(boardArraySize);
+    control.changeMode(true);
+  }
+  
   transformFunction = genModelTransformFunction(x, y, z, glP.frustumScale(), glP.zNear(),
                                                 glP.zFar());
   gl.clear(gl.COLOR_BUFFER_BIT);
@@ -332,12 +350,12 @@ function renderModels(transformArray, uniform_modToClip, uniform_colour, attribu
   gl.enableVertexAttribArray(attribute_modPosition);
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementBuffer);
 
-  do {
+  while (transformArray.length != 0) {
     let transform = transformArray.pop();
     gl.uniformMatrix4fv(uniform_modToClip, true, transform.transform);
     gl.uniform4fv(uniform_colour, transform.colour);
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
-  } while (transformArray.length != 0)
+  } 
 }
 
 export {onContextCreation, control, initialiseControls};
