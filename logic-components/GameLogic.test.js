@@ -173,8 +173,8 @@ test("Does updateGameBoard cause the expected change in a gameBoard when at leas
 //   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],       [0, 0, 0, 0, 0, 0, 0, 0, 0],
 //   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ] ]      [0, 0, 0, 0, 0, 0, 0, 0, 0] ]
 test("Does updateGameBoard cause the expected change in a gameBoard when at least the following\
-      conditions are present:\
-      live cells with 1 or 2 live neighbours and dead cells with 0, 1, 2 or 3 live neighbours?", () => {
+      conditions are present: live cells with 1 or 2 live neighbours and dead cells with\
+      0, 1, 2 or 3 live neighbours?", () => {
   let gameBoard = Array(5).fill(0).map(() => new Array(5).fill(0));
   let newGameBoard = Array(5).fill(0).map(() => new Array(5).fill(0));
   createGameBoard(gameBoard);
@@ -255,8 +255,8 @@ test("Does updateGameBoard cause the expected change in a gameBoard when at leas
 //   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],        [0, 0, 0, 0, 0, 0, 0, 0, 0],
 //   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ] ]       [0, 0, 0, 0, 0, 0, 0, 0, 0] ]
 test("Does updateGameBoard cause the expected change in a gameBoard when at least the following\
-      conditions are present:\
-      live cells with 2, 3 or 4 live neighbours and dead cells with 0, 1, 2 or 3 live neighbours?", () => {
+      conditions are present: live cells with 2, 3 or 4 live neighbours and dead cells with\
+      0, 1, 2 or 3 live neighbours?", () => {
   let gameBoard = Array(5).fill(0).map(() => new Array(5).fill(0));
   let newGameBoard = Array(5).fill(0).map(() => new Array(5).fill(0));
   createGameBoard(gameBoard);
@@ -299,8 +299,8 @@ test("Does updateGameBoard cause the expected change in a gameBoard when at leas
 //   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],        [0, 0, 0, 0, 0, 0, 0, 0, 0],
 //   [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ] ]       [0, 0, 0, 0, 0, 0, 0, 0, 0] ]
 test("Does updateGameBoard cause the expected change in a gameBoard when at least the following\
-      conditions are present:\
-      live cells with 2 or 4 live neighbours and dead cells with 0, 1, 2, 3 or 8 live neighbours?", () => {
+      conditions are present: live cells with 2 or 4 live neighbours and dead cells with\
+      0, 1, 2, 3 or 8 live neighbours?", () => {
   let gameBoard = Array(5).fill(0).map(() => new Array(5).fill(0));
   let newGameBoard = Array(5).fill(0).map(() => new Array(5).fill(0));
   createGameBoard(gameBoard);

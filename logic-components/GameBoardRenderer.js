@@ -3,8 +3,9 @@
 
 import vertexShader from './VertexShader.js';
 import fragmentShader from './FragmentShader.js';
-import {cellModel, getLineModels, modelElements} from './GameBoardModels.js';
-import {gameBoardObject, handleUpdateEvent, handleResetEvent} from './GameLogic.js';
+import { cellModel, getLineModels, modelElements } from './GameBoardModels.js';
+import { gameBoardObject, handleUpdateEvent, handleResetEvent } from './GameLogic.js';
+import { control } from './StateControler.js';
 
 // These global variables are assigned values related to the OpenGL context that will be needed to
 // render the game board each frame.
@@ -51,116 +52,6 @@ function glParameters(uniform_modToClip, uniform_colour, attribute_modPosition,
       return zFar;
     }
   }
-}
-
-// The top level application state that can be modified through the UI is encapsulated in the object
-// returned by getControlObject.  This includes everything except the game board state.
-// A reference to this object is assigned to global variable control when the renderer
-// is initialised.
-var control;
-
-function getControlObject() {
-  let mode = "simulation";
-  let showGrid = false;
-  const camera = {
-    x: 0, y: 0, z: -72
-  };
-  let foregroundColour = {red: 0, green: 0, blue: 1, alpha: 1};
-  let backgroundColour = {red: 1, green: 1, blue: 1, alpha: 1};
-  let colourFadeSet = {
-    redStart: 0, redRate: 0.067, greenStart: 0, greenRate: 0, blueStart: 1, blueRate: 0
-  };
-  let boardArraySize = 41;
-  let scale = Math.abs(camera.z) / 8;
-
-  return {
-    changeMode: function(resetSwitch) {
-      if (resetSwitch) {
-        if (mode !== "reset") {
-          mode = "reset";
-          return;
-        }
-        else {
-          mode = "creative";
-          return;
-        }
-      }
-
-      if (mode === "creative") {mode = "simulation"}
-      else {mode = "creative"}
-    },
-    setShowGrid: function(newMode) {
-      showGrid = newMode;
-    },
-    moveCameraLeft: function() {
-      camera.x += scale;
-    },
-    moveCameraRight: function() {
-      camera.x -= scale;
-    },
-    moveCameraUp: function() {
-      camera.y -= scale;
-    },
-    moveCameraDown: function() {
-      camera.y += scale;
-    },
-    moveCameraBack: function() {
-      camera.z -= 1;
-    },
-    moveCameraForward: function() {
-      camera.z += 1;
-    },
-    setForegroundColour: function(red, green, blue, alpha) {
-      foregroundColour.red = red;
-      foregroundColour.green = green;
-      foregroundColour.blue = blue;
-      foregroundColour.alpha = alpha;
-    },
-    setBackgroundColour: function(red, green, blue, alpha) {
-      backgroundColour.red = red;
-      backgroundColour.green = green;
-      backgroundColour.blue = blue;
-      backgroundColour.alpha = alpha;
-    },
-    setBoardAxisSize: function(size) {
-      boardArraySize = size;
-    },
-    getMode: function() {
-      return mode;
-    },
-    getShowGrid: function() {
-      return showGrid;
-    },
-    getCamera: function() {
-      return {
-        x: camera.x, y: camera.y, z: camera.z
-      };
-    },
-    getForegroundColour: function() {
-      return [foregroundColour.red, foregroundColour.green, foregroundColour.blue,
-              foregroundColour.alpha];
-    },
-    getBackgroundColour: function() {
-      return [backgroundColour.red, backgroundColour.green, backgroundColour.blue,
-              backgroundColour.alpha];
-    },
-    getColourFadeSet: function() {
-      return {
-        redStart: colourFadeSet.redStart, redRate: colourFadeSet.redRate,
-        greenStart: colourFadeSet.greenStart, greenRate: colourFadeSet.greenRate,
-        blueStart: colourFadeSet.blueStart, blueRate: colourFadeSet.blueRate
-      };
-    },
-    getBoardArraySize: function() {
-      return boardArraySize;
-    }
-  }
-}
-
-// This function is called from App before GL context creation so that the controls are ready to
-// use in time.
-function initialiseControls() {
-  control = getControlObject();
 }
 
 // This function returns a function that is used to generate the transformation matrix that is
@@ -283,22 +174,22 @@ function genCellTransforms(gameBoard, gameTime, colourFadeSet, transformFunction
     for (let j = 0; j <= max; j++) {
       if (gameBoard[i][j].quadrant1) {
         let cellColour = colourRange(gameBoard[i][j].q1LastBornOn);
-        transformArray.push({transform: transformFunction(i, j), colour: cellColour});
+        transformArray.push({transform: transformFunction(j, -i), colour: cellColour});
       }
 
       if (gameBoard[i][j].quadrant2) {
         let cellColour = colourRange(gameBoard[i][j].q2LastBornOn);
-        transformArray.push({transform: transformFunction(-i, j), colour: cellColour});
+        transformArray.push({transform: transformFunction(j, i), colour: cellColour});
       }
 
       if (gameBoard[i][j].quadrant3) {
         let cellColour = colourRange(gameBoard[i][j].q3LastBornOn);
-        transformArray.push({transform: transformFunction(-i, -j), colour: cellColour});
+        transformArray.push({transform: transformFunction(-j, i), colour: cellColour});
       }
 
       if (gameBoard[i][j].quadrant4) {
         let cellColour = colourRange(gameBoard[i][j].q4LastBornOn);
-        transformArray.push({transform: transformFunction(i, -j), colour: cellColour});
+        transformArray.push({transform: transformFunction(-j, -i), colour: cellColour});
       }
     }
   }
@@ -358,4 +249,4 @@ function renderModels(transformArray, uniform_modToClip, uniform_colour, attribu
   } 
 }
 
-export {onContextCreation, control, initialiseControls};
+export {onContextCreation};

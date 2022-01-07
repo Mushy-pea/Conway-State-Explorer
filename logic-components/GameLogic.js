@@ -1,7 +1,7 @@
 // This module contains the game board state and functions that implement the game logic that
 // update it at each game time tick.
 
-import {testBoardState4} from './TestBoardStates.js';
+import testBoardState5 from './TestBoardStates.js';
 
 // The gameBoard and nextGameBoard arrays hold the state of the game board itself.
 // The boardUpdateTable array holds meta data that allows an optimisation to be applied, such that
@@ -30,7 +30,7 @@ function initTestBoard(gameBoard, min, max) {
   let k = 0;
   for (let i = min; i <= max; i++) {
     for (let j = min; j <= max; j++) {
-      if (testBoardState4[k] === 1) {setCellState(gameBoard, true, 0, cellUpdaterFunctions1,
+      if (testBoardState5[k] === 1) {setCellState(gameBoard, true, 0, cellUpdaterFunctions1,
                                         i, j);}
       k++;
     }
@@ -238,4 +238,5 @@ function handleUpdateEvent(boardArraySize) {
 // export {createGameBoard, createUpdateTable, getCellState, setCellState, updateGameBoard,
 //         testGameBoard};
 
-export {gameBoardObject, handleUpdateEvent, handleResetEvent};
+export {gameBoardObject, getCellState, setCellState, setUpdateTable, cellUpdaterFunctions1,
+        cellUpdaterFunctions2, handleUpdateEvent, handleResetEvent};
