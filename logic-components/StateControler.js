@@ -9,14 +9,14 @@ function getControlObject() {
   let mode = "creative";
   let showGrid = true;
   const camera = {
-    x: -0.499499, y: 2.331000, z: -7.299999
+    x: -0.499499, y: 2.331000, z: -65.699991
   };
   const foregroundColour = {red: 0, green: 0, blue: 1, alpha: 1};
   const backgroundColour = {red: 1, green: 1, blue: 1, alpha: 1};
   const colourFadeSet = {
     redStart: 0, redRate: 0.067, greenStart: 0, greenRate: 0, blueStart: 1, blueRate: 0
   };
-  let boardArraySize = 11;
+  let boardArraySize = 51;
   let scale = Math.abs(camera.z) / 50;
   let lastCellTouched = null;
 
@@ -41,27 +41,23 @@ function getControlObject() {
     },
     moveCameraLeft: function() {
       camera.x += scale;
-      console.log(`camera.x: ${camera.x} camera.y: ${camera.y} camera.z: ${camera.z}`);
     },
     moveCameraRight: function() {
       camera.x -= scale;
-      console.log(`camera.x: ${camera.x} camera.y: ${camera.y}  camera.z: ${camera.z}`);
     },
     moveCameraUp: function() {
       camera.y -= scale;
-      console.log(`camera.x: ${camera.x} camera.y: ${camera.y}  camera.z: ${camera.z}`);
     },
     moveCameraDown: function() {
       camera.y += scale;
-      console.log(`camera.x: ${camera.x} camera.y: ${camera.y}  camera.z: ${camera.z}`);
     },
     moveCameraBack: function() {
-      camera.z -= 1;
-      console.log(`camera.x: ${camera.x} camera.y: ${camera.y}  camera.z: ${camera.z}`);
+      if (camera.z <= -64.699991) {camera.z = -65.699991}
+      else {camera.z -= 1}
     },
     moveCameraForward: function() {
-      camera.z += 1;
-      console.log(`camera.x: ${camera.x} camera.y: ${camera.y}  camera.z: ${camera.z}`);
+      if (camera.z >= -6) {camera.z = -5}
+      else {camera.z += 1}
     },
     setForegroundColour: function(red, green, blue, alpha) {
       foregroundColour.red = red;
@@ -86,7 +82,7 @@ function getControlObject() {
     },
     getCamera: function() {
       return {
-        x: camera.x, y: camera.y, z: camera.z
+        cameraX: camera.x, cameraY: camera.y, cameraZ: camera.z
       };
     },
     getForegroundColour: function() {
@@ -108,38 +104,45 @@ function getControlObject() {
       return boardArraySize;
     },
     flipCellStateOnTouch: function(event, window, touch) {
-      const applyTruncation = x => {
-        if (x < 0) {return Math.trunc(x) - 1}
-        else {return Math.trunc(x)}
-      };
-      const flipCell = (i, j) => {
-        const nextCellState = ! getCellState(gameBoardObject.gameBoard, i, j).cellState;
-        setCellState(gameBoardObject.gameBoard, nextCellState, gameBoardObject.gameTime,
-                     cellUpdaterFunctions2, i, j);
-        setUpdateTable(gameBoardObject.boardUpdateTable, gameBoardObject.gameTime, i, j);
-      };
-      const cameraXYDiff = {x: camera.x + 0.499499, y: camera.y - 2.331000};
-      const cameraZRatio = camera.z / -7.299999;
-      const cameraZDiff = {x: -((9 * cameraZRatio) - 9) / 2, y: -((14 * cameraZRatio) - 14) / 2};
-      const scaling = window.width / (9 * cameraZRatio);
-      const i = applyTruncation(touch.y / scaling + cameraXYDiff.y + cameraZDiff.y - 4);
-      const j = applyTruncation(touch.x / scaling - cameraXYDiff.x + cameraZDiff.x - 4);
-      console.log(`flipCellStateOnTouch -> event: ${event} i: ${i} j: ${j}`);
-      if (event === "touchReleased") {
-        flipCell(i, j);
-        lastCellTouched = null;
-      }
-      else if (event === "touchMoved" && lastCellTouched !== null) {
-        if (! (i === lastCellTouched.i && j === lastCellTouched.j)) {
-          flipCell(lastCellTouched.i, lastCellTouched.j);
-          lastCellTouched = {i: i, j: j};
-        }
-      }
-      else {
-        lastCellTouched = {i: i, j: j};
-      }
+      lastCellTouched = flipCellStateOnTouch(event, window, touch, camera, lastCellTouched);
     }
   }
+}
+
+// This function processes touch input captured by the game board container component in MainScreen
+// and updates the state of the game board accordingly.
+function flipCellStateOnTouch(event, window, touch, camera, lastCellTouched) {
+  const applyTruncation = x => {
+    if (x < 0) {return Math.trunc(x) - 1}
+    else {return Math.trunc(x)}
+  };
+  const flipCell = (i, j) => {
+    const nextCellState = ! getCellState(gameBoardObject.gameBoard, i, j).cellState;
+    setCellState(gameBoardObject.gameBoard, nextCellState, gameBoardObject.gameTime,
+                 cellUpdaterFunctions2, i, j);
+    setUpdateTable(gameBoardObject.boardUpdateTable, gameBoardObject.gameTime, i, j);
+  };
+  const cameraXYDiff = {x: camera.x + 0.499499, y: camera.y - 2.331000};
+  const cameraZRatio = camera.z / -7.299999;
+  const cameraZDiff = {x: -((9 * cameraZRatio) - 9) / 2, y: -((14 * cameraZRatio) - 14) / 2};
+  const scaling = window.width / (9 * cameraZRatio);
+  const i = applyTruncation(touch.y / scaling + cameraXYDiff.y + cameraZDiff.y - 4);
+  const j = applyTruncation(touch.x / scaling - cameraXYDiff.x + cameraZDiff.x - 4);
+  if (event === "touchReleased") {
+    flipCell(i, j);
+    lastCellTouched = null;
+  }
+  else if (event === "touchMoved" && lastCellTouched !== null) {
+    if (! (i === lastCellTouched.i && j === lastCellTouched.j)) {
+      flipCell(lastCellTouched.i, lastCellTouched.j);
+      lastCellTouched = {i: i, j: j};
+    }
+  }
+  else {
+    lastCellTouched = {i: i, j: j};
+  }
+
+  return lastCellTouched;
 }
 
 // This function is called from MainScreen before GL context creation so that the controls are ready

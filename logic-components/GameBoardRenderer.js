@@ -168,26 +168,26 @@ function applyColourFade(colourFadeSet, gameTime, lastBornOn) {
 // This function applies the model to clip space transform function for each live cell on the
 // game board, thereby allowing a cell model to be rendered in each corresponding position.
 function genCellTransforms(gameBoard, gameTime, colourFadeSet, transformFunction, transformArray,
-                           max) {
+                           arrayMax, minI, maxI, minJ, maxJ) {
   const colourRange = lastBornOn => applyColourFade(colourFadeSet, gameTime, lastBornOn);
-  for (let i = 0; i <= max; i++) {
-    for (let j = 0; j <= max; j++) {
-      if (gameBoard[i][j].quadrant1) {
+  for (let i = 0; i <= arrayMax; i++) {
+    for (let j = 0; j <= arrayMax; j++) {
+      if (gameBoard[i][j].quadrant1 && i <= maxI && j <= maxJ) {
         let cellColour = colourRange(gameBoard[i][j].q1LastBornOn);
         transformArray.push({transform: transformFunction(j, -i), colour: cellColour});
       }
 
-      if (gameBoard[i][j].quadrant2) {
+      if (gameBoard[i][j].quadrant2 && -i >= minI && j <= maxJ) {
         let cellColour = colourRange(gameBoard[i][j].q2LastBornOn);
         transformArray.push({transform: transformFunction(j, i), colour: cellColour});
       }
 
-      if (gameBoard[i][j].quadrant3) {
+      if (gameBoard[i][j].quadrant3 && -i >= minI && -j >= minJ) {
         let cellColour = colourRange(gameBoard[i][j].q3LastBornOn);
         transformArray.push({transform: transformFunction(-j, i), colour: cellColour});
       }
 
-      if (gameBoard[i][j].quadrant4) {
+      if (gameBoard[i][j].quadrant4 && i <= maxI && -j >= minJ) {
         let cellColour = colourRange(gameBoard[i][j].q4LastBornOn);
         transformArray.push({transform: transformFunction(-j, -i), colour: cellColour});
       }
@@ -202,32 +202,37 @@ function handleRenderEvent() {
   const max = boardArraySize - 1;
   const min = -max;
   const boardAxisSize = (boardArraySize - 1) * 2 + 1;
-  const {x, y, z} = control.getCamera();
-  const gameTime = gameBoardObject.gameTime;
+  const {cameraX, cameraY, cameraZ} = control.getCamera();
   const colourFadeSet = control.getColourFadeSet();
-
+  
   if (control.getMode() === "simulation") {handleUpdateEvent(boardArraySize)}
   else if (control.getMode() === "reset") {
     handleResetEvent(boardArraySize);
     control.changeMode(true);
   }
   
-  transformFunction = genModelTransformFunction(x, y, z, glP.frustumScale(), glP.zNear(),
-                                                glP.zFar());
+  transformFunction = genModelTransformFunction(cameraX, cameraY, cameraZ, glP.frustumScale(),
+                                                glP.zNear(), glP.zFar());
   gl.clear(gl.COLOR_BUFFER_BIT);
   let transformArray = [];
-  genCellTransforms(gameBoardObject.gameBoard, gameTime, colourFadeSet, transformFunction,
-                    transformArray, max);
+  const aspectRatio = 2.222222;
+  const renderRange = {minI: Math.trunc(cameraY - 2.331000 - 40 * aspectRatio),
+                       maxI: Math.trunc(cameraY - 2.331000 + 40 * aspectRatio),
+                       minJ: Math.trunc(-(cameraX + 0.499499) - 40),
+                       maxJ: Math.trunc(-(cameraX + 0.499499) + 40)};
+  genCellTransforms(gameBoardObject.gameBoard, gameBoardObject.gameTime, colourFadeSet,
+                    transformFunction, transformArray, max, renderRange.minI, renderRange.maxI,
+                    renderRange.minJ, renderRange.maxJ);
   renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
                glP.attribute_modPosition(), glP.vertexBuffer_cellModel(), glP.elementBuffer());
   genGridTransforms(transformFunction, transformArray, min, 0, 1, 0, boardAxisSize);
   renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
-              glP.attribute_modPosition(), glP.vertexBuffer_horizontalLineModel(),
-              glP.elementBuffer());
+               glP.attribute_modPosition(), glP.vertexBuffer_horizontalLineModel(),
+               glP.elementBuffer());
   genGridTransforms(transformFunction, transformArray, 0, min, 0, 1, boardAxisSize);
   renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
-              glP.attribute_modPosition(), glP.vertexBuffer_verticalLineModel(),
-              glP.elementBuffer());
+               glP.attribute_modPosition(), glP.vertexBuffer_verticalLineModel(),
+               glP.elementBuffer());
   gl.flush();
   gl.endFrameEXP();
 }
