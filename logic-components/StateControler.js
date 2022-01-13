@@ -17,7 +17,7 @@ function getControlObject() {
     redStart: 0, redRate: 0.067, greenStart: 0, greenRate: 0, blueStart: 1, blueRate: 0
   };
   let boardArraySize = 51;
-  let scale = Math.abs(camera.z) / 50;
+  let scale = Math.abs(camera.z) / 20;
   let lastCellTouched = null;
 
   return {
@@ -54,10 +54,12 @@ function getControlObject() {
     moveCameraBack: function() {
       if (camera.z <= -64.699991) {camera.z = -65.699991}
       else {camera.z -= 1}
+      scale = Math.abs(camera.z) / 20;
     },
     moveCameraForward: function() {
       if (camera.z >= -6) {camera.z = -5}
       else {camera.z += 1}
+      scale = Math.abs(camera.z) / 20;
     },
     setForegroundColour: function(red, green, blue, alpha) {
       foregroundColour.red = red;

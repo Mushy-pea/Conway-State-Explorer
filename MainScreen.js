@@ -39,34 +39,6 @@ function handleTouchMove(window, evt) {
                                {x: evt.nativeEvent.locationX, y: evt.nativeEvent.locationY});
 }
 
-// This component defines the layout of the application's main screen, which contains an
-// interactive view of the game board and a number of controls.
-const MainScreen = () => {
-  const window = useWindowDimensions();
-  const buttonHeight = window.height * 0.1;
-  initialiseControls();
-
-  return (
-    <View style={[styles.mainScreenContainer, {paddingTop: window.height * 0.04}]}>
-      <ControlBar buttonHeight={buttonHeight} window={window} />
-      <GLView style={[styles.gameBoardContainer, {width: window.width}]}
-              onContextCreate={onContextCreation}
-              onStartShouldSetResponder={(evt) => {return true}}
-              onMoveShouldSetResponder={(evt) => {return true}}
-              onResponderRelease={(evt) => handleTouchRelease(window, evt)}
-              onResponderMove={(evt) => handleTouchMove(window, evt)}
-               />
-      <View style={[styles.topControlBar, {width: window.width}]}>
-        <ControlBarPlaceHolder buttonHeight={buttonHeight} flex={7} colour={"rgb(0, 0, 0)"} />
-        <ControlBarButton buttonHeight={buttonHeight}
-                          imageSource={require("./assets/menuButton.png")}
-                          onPress={null}
-                          disabled={false} />
-      </View>
-    </View>
-  );
-};
-
 // This component is a container for eight buttons that appear at the bottom of the screen.
 const ControlBar = ({buttonHeight, window}) => {
   const [mode, setMode] = useState("creative");
@@ -114,6 +86,34 @@ const ControlBar = ({buttonHeight, window}) => {
                         imageSource={require("./assets/minusButton.png")}
                         onPress={control.moveCameraBack}
                         disabled={false} />
+    </View>
+  );
+};
+
+// This component defines the layout of the application's main screen, which contains an
+// interactive view of the game board and a number of controls.
+const MainScreen = ({navigation}) => {
+  const window = useWindowDimensions();
+  const buttonHeight = window.height * 0.1;
+  initialiseControls();
+
+  return (
+    <View style={[styles.mainScreenContainer, {paddingTop: window.height * 0.04}]}>
+      <ControlBar buttonHeight={buttonHeight} window={window} />
+      <GLView style={[styles.gameBoardContainer, {width: window.width}]}
+              onContextCreate={onContextCreation}
+              onStartShouldSetResponder={(evt) => {return true}}
+              onMoveShouldSetResponder={(evt) => {return true}}
+              onResponderRelease={(evt) => handleTouchRelease(window, evt)}
+              onResponderMove={(evt) => handleTouchMove(window, evt)}
+               />
+      <View style={[styles.topControlBar, {width: window.width}]}>
+        <ControlBarPlaceHolder buttonHeight={buttonHeight} flex={7} colour={"rgb(0, 0, 0)"} />
+        <ControlBarButton buttonHeight={buttonHeight}
+                          imageSource={require("./assets/menuButton.png")}
+                          onPress={() => {navigation.navigate("MainMenu")}}
+                          disabled={false} />
+      </View>
     </View>
   );
 };

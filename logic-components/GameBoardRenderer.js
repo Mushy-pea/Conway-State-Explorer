@@ -17,9 +17,9 @@ var glP;
 function glParameters(uniform_modToClip, uniform_colour, attribute_modPosition,
                       vertexBuffer_cellModel, vertexBuffer_verticalLineModel,
                       vertexBuffer_horizontalLineModel, elementBuffer) {
-  let frustumScale = 1;
-  let zNear = 0.5;
-  let zFar = 100;
+  const frustumScale = 1;
+  const zNear = 0.5;
+  const zFar = 100;
   return {
     uniform_modToClip: function() {
       return uniform_modToClip;
@@ -73,55 +73,6 @@ function genModelTransformFunction(x, y, z, frustumTerm1, zNear, zFar) {
   return modelTransformFunction;
 }
 
-// This function is called when the corresponding GLView component is first rendered in App.
-// It creates the single GL shader program used for rendering the game board and assigns values
-// related to the GL context to the global variables gl and glP.
-function onContextCreation(_gl) {
-  _gl.viewport(0, 0, _gl.drawingBufferWidth, _gl.drawingBufferHeight);
-  _gl.clearColor(1, 1, 1, 1);
-  _gl.clear(_gl.COLOR_BUFFER_BIT);
-
-  const vert = _gl.createShader(_gl.VERTEX_SHADER);
-  _gl.shaderSource(vert, vertexShader);
-  _gl.compileShader(vert);
-
-  const frag = _gl.createShader(_gl.FRAGMENT_SHADER);
-  _gl.shaderSource(frag, fragmentShader);
-  _gl.compileShader(frag);
-
-  const shaderProgram = _gl.createProgram();
-  _gl.attachShader(shaderProgram, vert);
-  _gl.attachShader(shaderProgram, frag);
-  _gl.linkProgram(shaderProgram);
-  _gl.validateProgram(shaderProgram);
-  const vertStatus = _gl.getShaderParameter(vert, _gl.COMPILE_STATUS);
-  const fragStatus = _gl.getShaderParameter(frag, _gl.COMPILE_STATUS);
-  const linkStatus = _gl.getProgramParameter(shaderProgram, _gl.LINK_STATUS);
-  const programValid = _gl.getProgramParameter(shaderProgram, _gl.VALIDATE_STATUS);
-  console.log("Vertex shader status: " + vertStatus);
-  console.log("Fragment shader status: " + fragStatus);
-  console.log("Program link status: " + linkStatus);
-  console.log("Program validate status: " + programValid);
-
-  const uniform_modToClip = _gl.getUniformLocation(shaderProgram, "modToClip");
-  const uniform_colour = _gl.getUniformLocation(shaderProgram, "colour");
-  const attribute_modPosition = _gl.getAttribLocation(shaderProgram, "modPosition");
-  const vertexBuffer_cellModel = loadBuffer(cellModel, null, _gl);
-  const boardArraySize = control.getBoardArraySize();
-  const lineModels = getLineModels(boardArraySize);
-  const vertexBuffer_verticalLineModel = loadBuffer(lineModels.verticalLineModel, null, _gl);
-  const vertexBuffer_horizontalLineModel = loadBuffer(lineModels.horizontalLineModel, null, _gl);
-  const elementBuffer = loadBuffer(null, modelElements, _gl);
-  glP = glParameters(uniform_modToClip, uniform_colour, attribute_modPosition,
-                     vertexBuffer_cellModel, vertexBuffer_verticalLineModel,
-                     vertexBuffer_horizontalLineModel, elementBuffer);
-  _gl.useProgram(shaderProgram);
-
-  gl = _gl;  
-  handleResetEvent(boardArraySize);
-  setInterval(handleRenderEvent, 200);
-}
-
 // This function loads vertex and element drawing data into GL buffers, which will be used to
 // perform the rendering for each frame.
 function loadBuffer(vertexArray, elementArray, _gl) {
@@ -138,21 +89,6 @@ function loadBuffer(vertexArray, elementArray, _gl) {
   }
 
   return buffer;
-}
-
-// This function is used to apply the model to clip space transform function for each vertical and
-// horizontal grid line on the game board, thereby allowing these grid lines to optionally be
-// rendered.  The boundary of the board is always rendered.
-function genGridTransforms(transformFunction, transformArray, i, j, diffI, diffJ, cMax) {
-  let gridColour = control.getForegroundColour();
-  let showGrid = control.getShowGrid();
-  for (let c = 0; c <= cMax; c++) {
-    if (showGrid || c === 0 || c === cMax) {
-      transformArray.push({transform: transformFunction(i, j), colour: gridColour});
-    }
-    i += diffI;
-    j += diffJ;
-  }
 }
 
 // This function determines the colour of cells when the stability colour fade option is enabled.
@@ -195,46 +131,19 @@ function genCellTransforms(gameBoard, gameTime, colourFadeSet, transformFunction
   }
 }
 
-// This function is the central branching point of this module and is called through an interval
-// timer.
-function handleRenderEvent() {
-  const boardArraySize = control.getBoardArraySize();
-  const max = boardArraySize - 1;
-  const min = -max;
-  const boardAxisSize = (boardArraySize - 1) * 2 + 1;
-  const {cameraX, cameraY, cameraZ} = control.getCamera();
-  const colourFadeSet = control.getColourFadeSet();
-  
-  if (control.getMode() === "simulation") {handleUpdateEvent(boardArraySize)}
-  else if (control.getMode() === "reset") {
-    handleResetEvent(boardArraySize);
-    control.changeMode(true);
+// This function is used to apply the model to clip space transform function for each vertical and
+// horizontal grid line on the game board, thereby allowing these grid lines to optionally be
+// rendered.  The boundary of the board is always rendered.
+function genGridTransforms(transformFunction, transformArray, i, j, diffI, diffJ, cMax) {
+  const gridColour = control.getForegroundColour();
+  const showGrid = control.getShowGrid();
+  for (let c = 0; c <= cMax; c++) {
+    if (showGrid || c === 0 || c === cMax) {
+      transformArray.push({transform: transformFunction(i, j), colour: gridColour});
+    }
+    i += diffI;
+    j += diffJ;
   }
-  
-  transformFunction = genModelTransformFunction(cameraX, cameraY, cameraZ, glP.frustumScale(),
-                                                glP.zNear(), glP.zFar());
-  gl.clear(gl.COLOR_BUFFER_BIT);
-  let transformArray = [];
-  const aspectRatio = 2.222222;
-  const renderRange = {minI: Math.trunc(cameraY - 2.331000 - 40 * aspectRatio),
-                       maxI: Math.trunc(cameraY - 2.331000 + 40 * aspectRatio),
-                       minJ: Math.trunc(-(cameraX + 0.499499) - 40),
-                       maxJ: Math.trunc(-(cameraX + 0.499499) + 40)};
-  genCellTransforms(gameBoardObject.gameBoard, gameBoardObject.gameTime, colourFadeSet,
-                    transformFunction, transformArray, max, renderRange.minI, renderRange.maxI,
-                    renderRange.minJ, renderRange.maxJ);
-  renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
-               glP.attribute_modPosition(), glP.vertexBuffer_cellModel(), glP.elementBuffer());
-  genGridTransforms(transformFunction, transformArray, min, 0, 1, 0, boardAxisSize);
-  renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
-               glP.attribute_modPosition(), glP.vertexBuffer_horizontalLineModel(),
-               glP.elementBuffer());
-  genGridTransforms(transformFunction, transformArray, 0, min, 0, 1, boardAxisSize);
-  renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
-               glP.attribute_modPosition(), glP.vertexBuffer_verticalLineModel(),
-               glP.elementBuffer());
-  gl.flush();
-  gl.endFrameEXP();
 }
 
 // This function is used to render all the cell, vertical or horizontal graph line models
@@ -252,6 +161,93 @@ function renderModels(transformArray, uniform_modToClip, uniform_colour, attribu
     gl.uniform4fv(uniform_colour, transform.colour);
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
   } 
+}
+
+// This function is the central branching point of this module and is called through an interval
+// timer.
+function handleRenderEvent() {
+  const boardArraySize = control.getBoardArraySize();
+  
+  if (control.getMode() === "simulation") {handleUpdateEvent(boardArraySize)}
+  else if (control.getMode() === "reset") {
+    handleResetEvent(boardArraySize);
+    control.changeMode(true);
+  }
+  
+  const {cameraX, cameraY, cameraZ} = control.getCamera();
+  transformFunction = genModelTransformFunction(cameraX, cameraY, cameraZ, glP.frustumScale(),
+                                                glP.zNear(), glP.zFar());
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  const aspectRatio = 2.222222;
+  const renderRange = {minI: Math.trunc(cameraY - 2.331000 - 40 * aspectRatio),
+                       maxI: Math.trunc(cameraY - 2.331000 + 40 * aspectRatio),
+                       minJ: Math.trunc(-(cameraX + 0.499499) - 40),
+                       maxJ: Math.trunc(-(cameraX + 0.499499) + 40)};
+  const max = boardArraySize - 1;
+  const min = -max;
+  const colourFadeSet = control.getColourFadeSet();
+  let transformArray = [];
+  genCellTransforms(gameBoardObject.gameBoard, gameBoardObject.gameTime, colourFadeSet,
+                    transformFunction, transformArray, max, renderRange.minI, renderRange.maxI,
+                    renderRange.minJ, renderRange.maxJ);
+  renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
+               glP.attribute_modPosition(), glP.vertexBuffer_cellModel(), glP.elementBuffer());
+  const boardAxisSize = (boardArraySize - 1) * 2 + 1;
+  genGridTransforms(transformFunction, transformArray, min, 0, 1, 0, boardAxisSize);
+  renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
+               glP.attribute_modPosition(), glP.vertexBuffer_horizontalLineModel(),
+               glP.elementBuffer());
+  genGridTransforms(transformFunction, transformArray, 0, min, 0, 1, boardAxisSize);
+  renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
+               glP.attribute_modPosition(), glP.vertexBuffer_verticalLineModel(),
+               glP.elementBuffer());
+  gl.flush();
+  gl.endFrameEXP();
+}
+
+// This function is called when the corresponding GLView component is first rendered in App.
+// It creates the single GL shader program used for rendering the game board and assigns values
+// related to the GL context to the global variables gl and glP.
+function onContextCreation(_gl) {
+  _gl.viewport(0, 0, _gl.drawingBufferWidth, _gl.drawingBufferHeight);
+  _gl.clearColor(1, 1, 1, 1);
+  _gl.clear(_gl.COLOR_BUFFER_BIT);
+
+  const vert = _gl.createShader(_gl.VERTEX_SHADER);
+  _gl.shaderSource(vert, vertexShader);
+  _gl.compileShader(vert);
+
+  const frag = _gl.createShader(_gl.FRAGMENT_SHADER);
+  _gl.shaderSource(frag, fragmentShader);
+  _gl.compileShader(frag);
+
+  const shaderProgram = _gl.createProgram();
+  _gl.attachShader(shaderProgram, vert);
+  _gl.attachShader(shaderProgram, frag);
+  _gl.linkProgram(shaderProgram);
+  _gl.validateProgram(shaderProgram);
+  console.log(`Vertex shader status: ${_gl.getShaderParameter(vert, _gl.COMPILE_STATUS)}`);
+  console.log(`Fragment shader status: ${_gl.getShaderParameter(frag, _gl.COMPILE_STATUS)}`);
+  console.log(`Program link status: ${_gl.getProgramParameter(shaderProgram, _gl.LINK_STATUS)}`);
+  console.log(`Program validate status:
+               ${_gl.getProgramParameter(shaderProgram, _gl.VALIDATE_STATUS)}`);
+  const uniform_modToClip = _gl.getUniformLocation(shaderProgram, "modToClip");
+  const uniform_colour = _gl.getUniformLocation(shaderProgram, "colour");
+  const attribute_modPosition = _gl.getAttribLocation(shaderProgram, "modPosition");
+  const vertexBuffer_cellModel = loadBuffer(cellModel, null, _gl);
+  const boardArraySize = control.getBoardArraySize();
+  const lineModels = getLineModels(boardArraySize);
+  const vertexBuffer_verticalLineModel = loadBuffer(lineModels.verticalLineModel, null, _gl);
+  const vertexBuffer_horizontalLineModel = loadBuffer(lineModels.horizontalLineModel, null, _gl);
+  const elementBuffer = loadBuffer(null, modelElements, _gl);
+  glP = glParameters(uniform_modToClip, uniform_colour, attribute_modPosition,
+                     vertexBuffer_cellModel, vertexBuffer_verticalLineModel,
+                     vertexBuffer_horizontalLineModel, elementBuffer);
+  _gl.useProgram(shaderProgram);
+
+  gl = _gl;  
+  handleResetEvent(boardArraySize);
+  setInterval(handleRenderEvent, 200);
 }
 
 export {onContextCreation};

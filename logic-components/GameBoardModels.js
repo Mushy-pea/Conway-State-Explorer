@@ -9,8 +9,8 @@ const cellModel = [0, 0, 0, 1,
 // This function generates models for the game board grid lines based on the size
 // of the gameBoard array.
 function getLineModels(boardArraySize) {
-  let max = boardArraySize;
-  let min = -max + 1;
+  const max = boardArraySize;
+  const min = -max + 1;
   return {
     verticalLineModel: [
       min, -0.1, 0, 1,
