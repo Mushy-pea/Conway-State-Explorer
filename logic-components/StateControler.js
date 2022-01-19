@@ -7,16 +7,17 @@ var control;
 
 function getControlObject() {
   let mode = "creative";
+  let intervalID = null;
   let showGrid = true;
   const camera = {
-    x: -0.499499, y: 2.331000, z: -65.699991
+    x: -0.611501, y: 1.478003, z: -45
   };
   const foregroundColour = {red: 0, green: 0, blue: 1, alpha: 1};
   const backgroundColour = {red: 1, green: 1, blue: 1, alpha: 1};
   const colourFadeSet = {
     redStart: 0, redRate: 0.067, greenStart: 0, greenRate: 0, blueStart: 1, blueRate: 0
   };
-  let boardArraySize = 51;
+  let boardArraySize = 41;
   let scale = Math.abs(camera.z) / 20;
   let lastCellTouched = null;
 
@@ -52,7 +53,7 @@ function getControlObject() {
       camera.y += scale;
     },
     moveCameraBack: function() {
-      if (camera.z <= -64.699991) {camera.z = -65.699991}
+      if (camera.z <= -44) {camera.z = -45}
       else {camera.z -= 1}
       scale = Math.abs(camera.z) / 20;
     },
@@ -107,6 +108,12 @@ function getControlObject() {
     },
     flipCellStateOnTouch: function(event, window, touch) {
       lastCellTouched = flipCellStateOnTouch(event, window, touch, camera, lastCellTouched);
+    },
+    setIntervalID: function(id) {
+      intervalID = id;
+    },
+    getIntervalID: function() {
+      return intervalID;
     }
   }
 }
@@ -114,6 +121,7 @@ function getControlObject() {
 // This function processes touch input captured by the game board container component in MainScreen
 // and updates the state of the game board accordingly.
 function flipCellStateOnTouch(event, window, touch, camera, lastCellTouched) {
+  if (control.getMode() === "simulation") {return null}
   const applyTruncation = x => {
     if (x < 0) {return Math.trunc(x) - 1}
     else {return Math.trunc(x)}
@@ -124,13 +132,13 @@ function flipCellStateOnTouch(event, window, touch, camera, lastCellTouched) {
                  cellUpdaterFunctions2, i, j);
     setUpdateTable(gameBoardObject.boardUpdateTable, gameBoardObject.gameTime, i, j);
   };
-  const cameraXYDiff = {x: camera.x + 0.499499, y: camera.y - 2.331000};
-  const cameraZRatio = camera.z / -7.299999;
-  const cameraZDiff = {x: -((9 * cameraZRatio) - 9) / 2, y: -((14 * cameraZRatio) - 14) / 2};
+  const cameraXYDiff = {x: camera.x - 35.48849883999984, y: camera.y + 36.02199604000001};
+  const cameraZRatio = camera.z / -5;
+  const cameraZDiff = {x: -((9 * cameraZRatio) - 9) / 2, y: -((9.9 * cameraZRatio) - 9.9) / 2};
   const scaling = window.width / (9 * cameraZRatio);
-  const i = applyTruncation(touch.y / scaling + cameraXYDiff.y + cameraZDiff.y - 4);
-  const j = applyTruncation(touch.x / scaling - cameraXYDiff.x + cameraZDiff.x - 4);
-  if (event === "touchReleased") {
+  const i = applyTruncation(touch.y / scaling + cameraXYDiff.y + cameraZDiff.y - 40);
+  const j = applyTruncation(touch.x / scaling - cameraXYDiff.x + cameraZDiff.x - 40);
+  if (event === "touchReleased" ) {
     flipCell(i, j);
     lastCellTouched = null;
   }

@@ -178,11 +178,11 @@ function handleRenderEvent() {
   transformFunction = genModelTransformFunction(cameraX, cameraY, cameraZ, glP.frustumScale(),
                                                 glP.zNear(), glP.zFar());
   gl.clear(gl.COLOR_BUFFER_BIT);
-  const aspectRatio = 2.222222;
-  const renderRange = {minI: Math.trunc(cameraY - 2.331000 - 40 * aspectRatio),
-                       maxI: Math.trunc(cameraY - 2.331000 + 40 * aspectRatio),
-                       minJ: Math.trunc(-(cameraX + 0.499499) - 40),
-                       maxJ: Math.trunc(-(cameraX + 0.499499) + 40)};
+  const aspectRatio = gl.drawingBufferHeight / gl.drawingBufferWidth;
+  const renderRange = {minI: Math.trunc(cameraY - 1.478003 - 41),
+                       maxI: Math.trunc(cameraY - 1.478003 + 41 + 80 * (aspectRatio - 1)),
+                       minJ: Math.trunc(-(cameraX + 0.611501) - 41),
+                       maxJ: Math.trunc(-(cameraX + 0.611501) + 41)};
   const max = boardArraySize - 1;
   const min = -max;
   const colourFadeSet = control.getColourFadeSet();
@@ -245,9 +245,10 @@ function onContextCreation(_gl) {
                      vertexBuffer_horizontalLineModel, elementBuffer);
   _gl.useProgram(shaderProgram);
 
-  gl = _gl;  
-  handleResetEvent(boardArraySize);
-  setInterval(handleRenderEvent, 200);
+  gl = _gl;
+  if (control.getIntervalID() === null) {handleResetEvent(boardArraySize)}
+  let intervalID = setInterval(handleRenderEvent, 200);
+  control.setIntervalID(intervalID);
 }
 
 export {onContextCreation};

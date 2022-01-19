@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, View, Text, useWindowDimensions } from 'react-native';
 import { GLView } from 'expo-gl';
 import { ControlBarButton, ControlBarPlaceHolder } from './react-components/ControlBar.js';
 import { onContextCreation } from './logic-components/GameBoardRenderer.js';
@@ -18,7 +18,13 @@ const styles = StyleSheet.create({
   },
   gameBoardContainer: {
     flex: 0.8,
-    backgroundColor: "rgb(255, 255, 255)"
+    justifyContent: "flex-start",
+    alignItems: "center",
+    backgroundColor: "rgb(0, 180, 0)"
+  },
+  metaDataBar: {
+    flex: 1,
+    backgroundColor: "rgb(0, 0, 180)"
   },
   topControlBar: {
     flex: 0.1,
@@ -100,18 +106,25 @@ const MainScreen = ({navigation}) => {
   return (
     <View style={[styles.mainScreenContainer, {paddingTop: window.height * 0.04}]}>
       <ControlBar buttonHeight={buttonHeight} window={window} />
-      <GLView style={[styles.gameBoardContainer, {width: window.width}]}
-              onContextCreate={onContextCreation}
-              onStartShouldSetResponder={(evt) => {return true}}
-              onMoveShouldSetResponder={(evt) => {return true}}
-              onResponderRelease={(evt) => handleTouchRelease(window, evt)}
-              onResponderMove={(evt) => handleTouchMove(window, evt)}
-               />
+      <View style={[styles.gameBoardContainer, {width: window.width}]}>
+        <GLView style={{width: window.width, height: window.width * 1.1}}
+                onContextCreate={onContextCreation}
+                onStartShouldSetResponder={(evt) => {return true}}
+                onMoveShouldSetResponder={(evt) => {return true}}
+                onResponderRelease={(evt) => handleTouchRelease(window, evt)}
+                onResponderMove={(evt) => handleTouchMove(window, evt)}/>
+        <View style={[styles.metaDataBar, {width: window.width}]}>
+          <Text>Does it work?</Text>
+        </View>
+      </View>
       <View style={[styles.topControlBar, {width: window.width}]}>
         <ControlBarPlaceHolder buttonHeight={buttonHeight} flex={7} colour={"rgb(0, 0, 0)"} />
         <ControlBarButton buttonHeight={buttonHeight}
                           imageSource={require("./assets/menuButton.png")}
-                          onPress={() => {navigation.navigate("MainMenu")}}
+                          onPress={() => {
+                            clearInterval(control.getIntervalID());
+                            navigation.navigate("MainMenu");
+                          }}
                           disabled={false} />
       </View>
     </View>
