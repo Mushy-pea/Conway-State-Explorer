@@ -247,8 +247,7 @@ function onContextCreation(_gl) {
 
   gl = _gl;
   if (control.getIntervalID() === null) {handleResetEvent(boardArraySize)}
-  let intervalID = setInterval(handleRenderEvent, 200);
-  control.setIntervalID(intervalID);
+  control.setIntervalID(setInterval(handleRenderEvent, 200));
 }
 
 export {onContextCreation};

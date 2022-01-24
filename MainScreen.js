@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, useWindowDimensions } from 'react-native';
+import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { GLView } from 'expo-gl';
 import { ControlBarButton, ControlBarPlaceHolder } from './react-components/ControlBar.js';
+import { MetaDataBar } from './react-components/MetaDataBar.js';
 import { onContextCreation } from './logic-components/GameBoardRenderer.js';
 import { control, initialiseControls } from './logic-components/StateControler.js';
 
@@ -24,7 +25,7 @@ const styles = StyleSheet.create({
   },
   metaDataBar: {
     flex: 1,
-    backgroundColor: "rgb(0, 0, 180)"
+    backgroundColor: "rgb(0, 180, 0)"
   },
   topControlBar: {
     flex: 0.1,
@@ -113,9 +114,15 @@ const MainScreen = ({navigation}) => {
                 onMoveShouldSetResponder={(evt) => {return true}}
                 onResponderRelease={(evt) => handleTouchRelease(window, evt)}
                 onResponderMove={(evt) => handleTouchMove(window, evt)}/>
-        <View style={[styles.metaDataBar, {width: window.width}]}>
-          <Text>Does it work?</Text>
-        </View>
+        <MetaDataBar style={[styles.metaDataBar, {width: window.width}]}
+                     getState1={control.getBoardDimensions}
+                     stateName1={"Board dimensions"}
+                     getState2={control.getGameTime}
+                     stateName2={"Generation"}
+                     getState3={control.getTotalPopulation}
+                     stateName3={"Population"}
+                     period={200}
+                     />
       </View>
       <View style={[styles.topControlBar, {width: window.width}]}>
         <ControlBarPlaceHolder buttonHeight={buttonHeight} flex={7} colour={"rgb(0, 0, 0)"} />

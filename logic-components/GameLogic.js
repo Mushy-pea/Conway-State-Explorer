@@ -12,6 +12,7 @@ const gameBoardObject = {
   nextGameBoard: [],
   boardUpdateTable: [],
   gameTime: 0,
+  totalPopulation: 0
 };
 
 // The cell updater functions are passed to setCellState to specialise its functionality at
@@ -171,6 +172,7 @@ function setUpdateTable(boardUpdateTable, gameTime, i, j) {
 // in boardUpdateTable >= gameTime.
 function updateGameBoard(gameBoard, nextGameBoard, boardUpdateTable, survivalRules, birthRules,
                          gameTime, min, max) {
+  let totalPopulation = 0;
   for (let i = min; i <= max; i++) {
     for (let j = min; j <= max; j++) {
       if (getCellState(boardUpdateTable, i, j).cellState >= gameTime) {
@@ -187,6 +189,7 @@ function updateGameBoard(gameBoard, nextGameBoard, boardUpdateTable, survivalRul
             if (x && index === localPopulation) {
               setCellState(nextGameBoard, true, null, cellUpdaterFunctions1, i, j);
               setUpdateTable(boardUpdateTable, gameTime + 1, i, j);
+              totalPopulation++;
             }
           })
         }
@@ -195,12 +198,14 @@ function updateGameBoard(gameBoard, nextGameBoard, boardUpdateTable, survivalRul
             if (x && index === localPopulation) {
               setCellState(nextGameBoard, true, gameTime, cellUpdaterFunctions2, i, j);
               setUpdateTable(boardUpdateTable, gameTime + 1, i, j);
+              totalPopulation++;
             }
           })
         }
       }
     }
   }
+  return totalPopulation;
 }
 
 // This function is called from GameBoardRenderer to cause a reset of the game board state.
@@ -217,6 +222,7 @@ function handleResetEvent(boardArraySize) {
   resetBoardArray(gameBoardObject.nextGameBoard, BoardCell, max, null);
   resetBoardArray(gameBoardObject.boardUpdateTable, UpdateTableCell, max, null);
   gameBoardObject.gameTime = 0;
+  gameBoardObject.totalPopulation = 0;
   initTestBoard(gameBoardObject.gameBoard, min, max);
 }
 
@@ -224,11 +230,12 @@ function handleResetEvent(boardArraySize) {
 function handleUpdateEvent(boardArraySize) {
   const max = boardArraySize - 1;
   const min = -max;
-  updateGameBoard(gameBoardObject.gameBoard, gameBoardObject.nextGameBoard,
-                  gameBoardObject.boardUpdateTable,
-                  [false, false, true, true, false, false, false, false, false],
-                  [false, false, false, true, false, false, false, false, false],
-                  gameBoardObject.gameTime, min, max);
+  gameBoardObject.totalPopulation =
+    updateGameBoard(gameBoardObject.gameBoard, gameBoardObject.nextGameBoard,
+                    gameBoardObject.boardUpdateTable,
+                    [false, false, true, true, false, false, false, false, false],
+                    [false, false, false, true, false, false, false, false, false],
+                    gameBoardObject.gameTime, min, max);
   gameBoardObject.gameBoard = gameBoardObject.nextGameBoard;
   gameBoardObject.nextGameBoard =
     Array(boardArraySize).fill(0).map(() => new Array(boardArraySize).fill(0));

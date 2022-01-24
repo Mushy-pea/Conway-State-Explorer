@@ -106,6 +106,16 @@ function getControlObject() {
     getBoardArraySize: function() {
       return boardArraySize;
     },
+    getBoardDimensions: function() {
+      const dimension = (boardArraySize - 1) * 2 + 1;
+      return (`${dimension} * ${dimension}`);
+    },
+    getGameTime: function() {
+      return (`${gameBoardObject.gameTime}`);
+    },
+    getTotalPopulation: function() {
+      return (`${gameBoardObject.totalPopulation}`);
+    },
     flipCellStateOnTouch: function(event, window, touch) {
       lastCellTouched = flipCellStateOnTouch(event, window, touch, camera, lastCellTouched);
     },
