@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   controlBarButton: {
@@ -9,6 +9,17 @@ const styles = StyleSheet.create({
   },
   controlBarButtonImage: {
     flex: 1
+  },
+  textStyle: {
+    color: "rgb(255, 255, 255)",
+    fontSize: 13
+  }
+});
+
+const textStyles = StyleSheet.create({
+  textStyle: {
+    color: "rgb(255, 255, 255)",
+    fontSize: 13
   }
 });
 
@@ -26,10 +37,12 @@ const ControlBarButton = ({buttonHeight, imageSource, onPress, disabled}) => {
   );
 };
 
-const ControlBarPlaceHolder = ({buttonHeight, flex, colour}) => {
+const ControlBarPlaceHolder = ({buttonHeight, flex, colour, content}) => {
   return (
     <View style={[styles.controlBarButton,
-                 {height: buttonHeight, flex: flex, backgroundColor: colour}]} />
+                 {height: buttonHeight, flex: flex, backgroundColor: colour, padding: 10}]} >
+      <Text style={styles.textStyle}>{content}</Text>
+    </View>
   );
 };
 

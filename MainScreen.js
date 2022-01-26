@@ -25,7 +25,8 @@ const styles = StyleSheet.create({
   },
   metaDataBar: {
     flex: 1,
-    backgroundColor: "rgb(0, 180, 0)"
+    backgroundColor: "rgb(0, 180, 0)",
+    padding: 10
   },
   topControlBar: {
     flex: 0.1,
@@ -115,6 +116,7 @@ const MainScreen = ({navigation}) => {
                 onResponderRelease={(evt) => handleTouchRelease(window, evt)}
                 onResponderMove={(evt) => handleTouchMove(window, evt)}/>
         <MetaDataBar style={[styles.metaDataBar, {width: window.width}]}
+                     window={window}
                      getState1={control.getBoardDimensions}
                      stateName1={"Board dimensions"}
                      getState2={control.getGameTime}
@@ -125,7 +127,10 @@ const MainScreen = ({navigation}) => {
                      />
       </View>
       <View style={[styles.topControlBar, {width: window.width}]}>
-        <ControlBarPlaceHolder buttonHeight={buttonHeight} flex={7} colour={"rgb(0, 0, 0)"} />
+        <ControlBarPlaceHolder buttonHeight={buttonHeight}
+                               flex={7}
+                               colour={"rgb(0, 0, 0)"}
+                               content={`Pattern name: ${control.getPatternName()}`}/>
         <ControlBarButton buttonHeight={buttonHeight}
                           imageSource={require("./assets/menuButton.png")}
                           onPress={() => {

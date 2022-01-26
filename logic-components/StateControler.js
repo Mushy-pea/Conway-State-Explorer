@@ -20,6 +20,9 @@ function getControlObject() {
   let boardArraySize = 41;
   let scale = Math.abs(camera.z) / 20;
   let lastCellTouched = null;
+  let tpsT1 = null;
+  let lastFrameTime = null;
+  let patternName = "[userName defined]";
 
   return {
     changeMode: function(resetSwitch) {
@@ -74,8 +77,11 @@ function getControlObject() {
       backgroundColour.blue = blue;
       backgroundColour.alpha = alpha;
     },
-    setBoardAxisSize: function(size) {
+    setBoardArraySize: function(size) {
       boardArraySize = size;
+    },
+    setPatternName: function(name) {
+      patternName = name;
     },
     getMode: function() {
       return mode;
@@ -115,6 +121,23 @@ function getControlObject() {
     },
     getTotalPopulation: function() {
       return (`${gameBoardObject.totalPopulation}`);
+    },
+    getFrameCheckInterval: function() {
+      if (gameBoardObject.gameTime % 5 !== 0) {return `${lastFrameTime} ms`}
+      const t2 = new Date();
+      if (tpsT1 === null) {
+        tpsT1 = t2;
+        return null;
+      }
+      else {
+        const frameTime = (t2.getMilliseconds() - tpsT1.getMilliseconds()) / 5;
+        tpsT1 = t2;
+        lastFrameTime = frameTime;
+        return (`${t2.getMilliseconds() - tpsT1.getMilliseconds()} ms`);
+      }
+    },
+    getPatternName: function() {
+      return patternName;
     },
     flipCellStateOnTouch: function(event, window, touch) {
       lastCellTouched = flipCellStateOnTouch(event, window, touch, camera, lastCellTouched);
