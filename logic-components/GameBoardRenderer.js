@@ -5,7 +5,7 @@ import vertexShader from './VertexShader.js';
 import fragmentShader from './FragmentShader.js';
 import { cellModel, getLineModels, modelElements } from './GameBoardModels.js';
 import { gameBoardObject, handleUpdateEvent, handleResetEvent } from './GameLogic.js';
-import { control } from './StateControler.js';
+import { control } from './StateController.js';
 
 // These global variables are assigned values related to the OpenGL context that will be needed to
 // render the game board each frame.
@@ -135,7 +135,7 @@ function genCellTransforms(gameBoard, gameTime, colourFadeSet, transformFunction
 // horizontal grid line on the game board, thereby allowing these grid lines to optionally be
 // rendered.  The boundary of the board is always rendered.
 function genGridTransforms(transformFunction, transformArray, i, j, diffI, diffJ, cMax) {
-  const gridColour = control.getForegroundColour();
+  const gridColour = control.getGridColour();
   const showGrid = control.getShowGrid();
   for (let c = 0; c <= cMax; c++) {
     if (showGrid || c === 0 || c === cMax) {

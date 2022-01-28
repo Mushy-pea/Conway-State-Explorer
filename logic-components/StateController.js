@@ -12,7 +12,7 @@ function getControlObject() {
   const camera = {
     x: -0.611501, y: 1.478003, z: -45
   };
-  const foregroundColour = {red: 0, green: 0, blue: 1, alpha: 1};
+  const gridColour = {red: 0, green: 0, blue: 1, alpha: 1};
   const backgroundColour = {red: 1, green: 1, blue: 1, alpha: 1};
   const colourFadeSet = {
     redStart: 0, redRate: 0.067, greenStart: 0, greenRate: 0, blueStart: 1, blueRate: 0
@@ -65,11 +65,11 @@ function getControlObject() {
       else {camera.z += 1}
       scale = Math.abs(camera.z) / 20;
     },
-    setForegroundColour: function(red, green, blue, alpha) {
-      foregroundColour.red = red;
-      foregroundColour.green = green;
-      foregroundColour.blue = blue;
-      foregroundColour.alpha = alpha;
+    setGridColour: function(red, green, blue, alpha) {
+      gridColour.red = red;
+      gridColour.green = green;
+      gridColour.blue = blue;
+      gridColour.alpha = alpha;
     },
     setBackgroundColour: function(red, green, blue, alpha) {
       backgroundColour.red = red;
@@ -94,9 +94,8 @@ function getControlObject() {
         cameraX: camera.x, cameraY: camera.y, cameraZ: camera.z
       };
     },
-    getForegroundColour: function() {
-      return [foregroundColour.red, foregroundColour.green, foregroundColour.blue,
-              foregroundColour.alpha];
+    getGridColour: function() {
+      return [gridColour.red, gridColour.green, gridColour.blue, gridColour.alpha];
     },
     getBackgroundColour: function() {
       return [backgroundColour.red, backgroundColour.green, backgroundColour.blue,

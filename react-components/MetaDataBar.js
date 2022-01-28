@@ -27,7 +27,6 @@ const MetaDataBar = ({style, window, getState1, getState2, getState3, stateName1
   const [report2, setReport2] = useState("null");
   const [report3, setReport3] = useState("null");
   const aspectRatio = window.height / window.width;
-  console.log(`aspectRatio: ${aspectRatio}`);
   useEffect(() => scheduleUpdate(getState1, getState2, getState3, setReport1, setReport2,
                                  setReport3, period), []);
   if (aspectRatio < 1.877777) {

@@ -5,7 +5,8 @@ function disabledCheck(text, route) {
   if (text === null || route === null) {return true}
 }
 
-function createMenuArray(route0, text0, route1, text1, route2, text2, route3, text3) {
+// The MenuArray type is used to configure the Menu component.
+function MenuArray(route0, text0, route1, text1, route2, text2, route3, text3) {
   return [
     {
       text: text0,
@@ -38,38 +39,43 @@ function createMenuArray(route0, text0, route1, text1, route2, text2, route3, te
   ];
 }
 
+// All the menu screens are constructed here using the Menu component and imported by App for
+// use in the stack navigator.
 const MainMenu = ({navigation}) => {
+  const menuArray = new MenuArray("DisplayMenu", "Display options",
+                                  "GameMenu", "Game options",
+                                  null, "",
+                                  null, "");
   return (
     <>
       <Menu navigation={navigation}
-            menuArray={createMenuArray("DisplayMenu", "Display options",
-                                       "GameMenu", "Game options",
-                                       null, "",
-                                       null, "")}/>
+            menuArray={menuArray}/>
     </>
   );
 };
 
 const DisplayMenu = ({navigation}) => {
+  const menuArray = new MenuArray("ColourOptionsScreen", "Colour options",
+                                  "GraphOptionsScreen", "Graph options",
+                                  null, "",
+                                  null, "");
   return (
     <>
       <Menu navigation={navigation}
-            menuArray={createMenuArray("ColourOptions", "Colour options",
-                                       "GraphOptions", "Graph options",
-                                       null, "",
-                                       null, "")}/>
+            menuArray={menuArray}/>
     </>
   );
 };
 
 const GameMenu = ({navigation}) => {
+  const menuArray = new MenuArray("BoardSize", "Board size",
+                                  "LoadPattern", "Load pattern",
+                                  "SavePattern", "Save pattern",
+                                  "SetGameRules", "Set game rules");
   return (
     <>
       <Menu navigation={navigation}
-            menuArray={createMenuArray("BoardSize", "Board size",
-                                       "LoadPattern", "Load pattern",
-                                       "SavePattern", "Save pattern",
-                                       "SetGameRules", "Set game rules")}/>
+            menuArray={menuArray}/>
     </>
   );
 };

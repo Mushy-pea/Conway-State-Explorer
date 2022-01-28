@@ -4,7 +4,7 @@ import { GLView } from 'expo-gl';
 import { ControlBarButton, ControlBarPlaceHolder } from './react-components/ControlBar.js';
 import { MetaDataBar } from './react-components/MetaDataBar.js';
 import { onContextCreation } from './logic-components/GameBoardRenderer.js';
-import { control, initialiseControls } from './logic-components/StateControler.js';
+import { control, initialiseControls } from './logic-components/StateController.js';
 
 const styles = StyleSheet.create({
   mainScreenContainer: {
