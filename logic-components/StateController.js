@@ -95,11 +95,12 @@ function getControlObject() {
       };
     },
     getGridColour: function() {
-      return [gridColour.red, gridColour.green, gridColour.blue, gridColour.alpha];
+      return {red: gridColour.red, green: gridColour.green, blue: gridColour.blue,
+              alpha: gridColour.alpha};
     },
     getBackgroundColour: function() {
-      return [backgroundColour.red, backgroundColour.green, backgroundColour.blue,
-              backgroundColour.alpha];
+      return {red: backgroundColour.red, green: backgroundColour.green, blue: backgroundColour.blue,
+              alpha: backgroundColour.alpha};
     },
     getColourFadeSet: function() {
       return {

@@ -135,7 +135,8 @@ function genCellTransforms(gameBoard, gameTime, colourFadeSet, transformFunction
 // horizontal grid line on the game board, thereby allowing these grid lines to optionally be
 // rendered.  The boundary of the board is always rendered.
 function genGridTransforms(transformFunction, transformArray, i, j, diffI, diffJ, cMax) {
-  const gridColour = control.getGridColour();
+  const gridColour_ = control.getGridColour();
+  const gridColour = [gridColour_.red, gridColour_.green, gridColour_.blue, gridColour_.alpha];
   const showGrid = control.getShowGrid();
   for (let c = 0; c <= cMax; c++) {
     if (showGrid || c === 0 || c === cMax) {
@@ -210,7 +211,8 @@ function handleRenderEvent() {
 // related to the GL context to the global variables gl and glP.
 function onContextCreation(_gl) {
   _gl.viewport(0, 0, _gl.drawingBufferWidth, _gl.drawingBufferHeight);
-  _gl.clearColor(1, 1, 1, 1);
+  const {red, green, blue, alpha} = control.getBackgroundColour();
+  _gl.clearColor(red, green, blue, alpha);
   _gl.clear(_gl.COLOR_BUFFER_BIT);
 
   const vert = _gl.createShader(_gl.VERTEX_SHADER);

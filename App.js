@@ -2,8 +2,8 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MainScreen from './MainScreen.js';
-import ColourOptionsScreen from './ColourOptionsScreen.js';
-import { MainMenu, DisplayMenu, GameMenu } from './MenuStructure.js';
+import { GridColourScreen, BackgroundColourScreen } from './ColourOptionsScreens.js';
+import { MainMenu, DisplayMenu, GameMenu, ColourOptionsMenu } from './MenuStructure.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -15,7 +15,9 @@ const App = () => {
         <Stack.Screen name="MainMenu" component={MainMenu}/>
         <Stack.Screen name="DisplayMenu" component={DisplayMenu}/>
         <Stack.Screen name="GameMenu" component={GameMenu}/>
-        <Stack.Screen name="ColourOptionsScreen" component={ColourOptionsScreen}/>
+        <Stack.Screen name="ColourOptionsMenu" component={ColourOptionsMenu}/>
+        <Stack.Screen name="GridColourScreen" component={GridColourScreen}/>
+        <Stack.Screen name="BackgroundColourScreen" component={BackgroundColourScreen}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
