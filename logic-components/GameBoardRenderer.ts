@@ -1,11 +1,11 @@
 // This module contains functions that implement the rendering of the game board by determining
 // the contents of the corresponding GLView component for each frame.
 
-import vertexShader from './VertexShader.js';
-import fragmentShader from './FragmentShader.js';
-import { cellModel, getLineModels, modelElements } from './GameBoardModels.js';
-import { gameBoardObject, handleUpdateEvent, handleResetEvent } from './GameLogic.js';
-import { control } from './StateController.js';
+import vertexShader from './VertexShader.ts';
+import fragmentShader from './FragmentShader.ts';
+import { cellModel, getLineModels, modelElements } from './GameBoardModels.ts';
+import { gameBoardObject, handleUpdateEvent, handleResetEvent } from './GameLogic.ts';
+import { control } from './StateController.ts';
 
 // These global variables are assigned values related to the OpenGL context that will be needed to
 // render the game board each frame.

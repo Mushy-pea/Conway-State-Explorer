@@ -1,7 +1,7 @@
 // This module contains the game board state and functions that implement the game logic that
 // update it at each game time tick.
 
-import testBoardState5 from './TestBoardStates.js';
+import testBoardState5 from './TestBoardStates.ts';
 
 // The gameBoard and nextGameBoard arrays hold the state of the game board itself.
 // The boardUpdateTable array holds meta data that allows an optimisation to be applied, such that

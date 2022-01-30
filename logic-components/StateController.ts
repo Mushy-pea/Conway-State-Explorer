@@ -1,5 +1,5 @@
 import { gameBoardObject, getCellState, setCellState, setUpdateTable, cellUpdaterFunctions2 }
-from './GameLogic.js';
+from './GameLogic.ts';
 
 // The top level application state that can be modified through the UI is encapsulated in the object
 // returned by getControlObject.  This includes everything except the game board state.

@@ -1,6 +1,6 @@
 import React from 'react';
-import Menu from './react-components/MenuScreen.js';
-import { control } from './logic-components/StateController.js';
+import Menu from './react-components/MenuScreen.tsx';
+import { control } from './logic-components/StateController.ts';
 
 function disabledCheck(text, route) {
   if (text === null || route === null) {return true}
