@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, View, useWindowDimensions, GestureResponderEvent } from 'react-native';
 import { GLView } from 'expo-gl';
 import { ControlBarButton, ControlBarPlaceHolder } from './react-components/ControlBar';
 import { MetaDataBar } from './react-components/MetaDataBar';
@@ -37,12 +37,14 @@ const styles = StyleSheet.create({
 
 // These functions are handlers for touch input received by the GLView component that contains
 // the game board.
-function handleTouchRelease(window, evt) {
+function handleTouchRelease(window : {width: number, height: number}, evt : GestureResponderEvent)
+                           : void {
   control.flipCellStateOnTouch("touchReleased", window, 
                                {x: evt.nativeEvent.locationX, y: evt.nativeEvent.locationY});
 }
 
-function handleTouchMove(window, evt) {
+function handleTouchMove(window : {width: number, height: number}, evt : GestureResponderEvent)
+                        : void {
   control.flipCellStateOnTouch("touchMoved", window, 
                                {x: evt.nativeEvent.locationX, y: evt.nativeEvent.locationY});
 }

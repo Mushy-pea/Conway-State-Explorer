@@ -3,7 +3,7 @@
 
 import vertexShader from './VertexShader';
 import fragmentShader from './FragmentShader';
-import { cellModel, getLineModels, modelElements } from './GameBoardModels';
+import { cellModel, LineModels, modelElements } from './GameBoardModels';
 import { gameBoardObject, handleUpdateEvent, handleResetEvent } from './GameLogic';
 import { control } from './StateController';
 
@@ -95,7 +95,7 @@ function loadBuffer(vertexArray, elementArray, _gl) {
 
 // This function determines the colour of cells when the stability colour fade option is enabled.
 // Cells fade over a user defined range depending on how long they've been alive.
-function applyColourFade(colourFadeSet, gameTime : number, lastBornOn : number) {
+function applyColourFade(colourFadeSet, gameTime : number, lastBornOn : number) : number[] {
   const phase = Math.min(gameTime - lastBornOn, 15);
   const red = colourFadeSet.redStart + phase * colourFadeSet.redRate;
   const green = colourFadeSet.greenStart + phase * colourFadeSet.greenRate;
@@ -140,7 +140,7 @@ function genCellTransforms(gameBoard : object[], gameTime : number, colourFadeSe
 // rendered.  The boundary of the board is always rendered.
 function genGridTransforms(transformFunction : (i: number, j: number) => number[],
                            transformArray : object[], i : number, j : number, diffI : number,
-                           diffJ : number, cMax : number) {
+                           diffJ : number, cMax : number) : void {
   const gridColour_ = control.getGridColour();
   const gridColour = [gridColour_.red, gridColour_.green, gridColour_.blue, gridColour_.alpha];
   const showGrid = control.getShowGrid();
@@ -244,7 +244,7 @@ function onContextCreation(_gl) : void {
   const attribute_modPosition = _gl.getAttribLocation(shaderProgram, "modPosition");
   const vertexBuffer_cellModel = loadBuffer(cellModel, null, _gl);
   const boardArraySize = control.getBoardArraySize();
-  const lineModels = getLineModels(boardArraySize);
+  const lineModels = new LineModels(boardArraySize);
   const vertexBuffer_verticalLineModel = loadBuffer(lineModels.verticalLineModel, null, _gl);
   const vertexBuffer_horizontalLineModel = loadBuffer(lineModels.horizontalLineModel, null, _gl);
   const elementBuffer = loadBuffer(null, modelElements, _gl);

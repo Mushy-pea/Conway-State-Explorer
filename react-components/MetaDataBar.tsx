@@ -9,8 +9,12 @@ const styles = StyleSheet.create({
 });
 
 // This is a helper function to allow the component function to be simpler.
-function scheduleUpdate(getState1, getState2, getState3, setReport1, setReport2, setReport3,
-                        period) {
+function scheduleUpdate(getState1 : () => String, getState2 : () => String,
+                        getState3 : () => String,
+                        setReport1 : React.Dispatch<React.SetStateAction<String>>,
+                        setReport2 : React.Dispatch<React.SetStateAction<String>>,
+                        setReport3 : React.Dispatch<React.SetStateAction<String>>,
+                        period : number) : () => void {
   const intervalID = setInterval(() => {
     setReport1(getState1());
     setReport2(getState2());

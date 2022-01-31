@@ -16,7 +16,9 @@ const styles = StyleSheet.create({
 
 // This function converts the hex colour string provided by the ColorPicker component into the
 // RGB representation used with OpenGL in GameBoardRenderer.
-function setColour(colourString, setColour) {
+function setColour(colourString : String,
+                   setColour : (red: number, green: number, blue: number, alpha: number) => void)
+                   : void {
   const redHex = colourString.substring(1, 3);
   const greenHex = colourString.substring(3, 5);
   const blueHex = colourString.substring(5);

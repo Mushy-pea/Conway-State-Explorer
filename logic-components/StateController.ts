@@ -165,7 +165,7 @@ function getControlObject() {
 function flipCellStateOnTouch(event: String, window: {width : number, height: number},
                               touch: {x : number, y: number},
                               camera: {x: number, y: number, z: number},
-                              lastCellTouched: {i: number, j: number}) {
+                              lastCellTouched: {i: number, j: number}) : {i: number, j: number} {
   if (control.getMode() === "simulation") {return null}
   const applyTruncation = x => {
     if (x < 0) {return Math.trunc(x) - 1}

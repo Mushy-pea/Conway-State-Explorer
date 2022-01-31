@@ -17,22 +17,22 @@ const gameBoardObject = {
 
 // The cell updater functions are passed to setCellState to specialise its functionality at
 // call time.
-function cellUpdaterQ1_1(table : typeof BoardCell[], state: Boolean | Number,
+function cellUpdaterQ1_1(table : typeof BoardCell[], state: Boolean | number,
                          i : number, j : number) : void {
   table[i][j].quadrant1 = state;
 }
 
-function cellUpdaterQ2_1(table : typeof BoardCell[], state: Boolean | Number,
+function cellUpdaterQ2_1(table : typeof BoardCell[], state: Boolean | number,
                          i : number, j : number) : void {
   table[i][j].quadrant2 = state;
 }
 
-function cellUpdaterQ3_1(table : typeof BoardCell[], state: Boolean | Number,
+function cellUpdaterQ3_1(table : typeof BoardCell[], state: Boolean | number,
                          i : number, j : number) : void {
   table[i][j].quadrant3 = state;
 }
 
-function cellUpdaterQ4_1(table : typeof BoardCell[], state: Boolean | Number,
+function cellUpdaterQ4_1(table : typeof BoardCell[], state: Boolean | number,
                          i : number, j : number) : void {
   table[i][j].quadrant4 = state;
 }
@@ -87,7 +87,7 @@ function initTestBoard(gameBoard, min, max) {
 
 // These two functions are constructors for the types used to populate the gameBoard and
 // boardUpdateTable arrays, respectively.
-function BoardCell(q1 : Number = 0, q2 : Number = 0, q3 : Number = 0, q4 : Number = 0) : void {
+function BoardCell(q1 : number = 0, q2 : number = 0, q3 : number = 0, q4 : number = 0) : void {
   this. quadrant1 = false;
   this. quadrant2 = false;
   this. quadrant3 = false;
@@ -98,7 +98,8 @@ function BoardCell(q1 : Number = 0, q2 : Number = 0, q3 : Number = 0, q4 : Numbe
   this.q4LastBornOn = q4;
 }
 
-function UpdateTableCell(q1 : Number = 0, q2 : Number = 0, q3 : Number = 0, q4 : Number = 0) : void {
+function UpdateTableCell(q1 : number = 0, q2 : number = 0, q3 : number = 0, q4 : number = 0)
+                        : void {
   this. quadrant1 = q1;
   this. quadrant2 = q2;
   this. quadrant3 = q3;
@@ -107,13 +108,13 @@ function UpdateTableCell(q1 : Number = 0, q2 : Number = 0, q3 : Number = 0, q4 :
 
 // This function is used to reset the gameBoard, nextGameBoard and boardUpdateTable arrays with
 // default values.  It also copies the q1LastBornOn... properties from gameBoard to nextGameBoard.
-function resetBoardArray(arr : typeof BoardCell[],
-                         constructor : (q1 : Number, q2 : Number, q3 : Number, q4 : Number) => void,
-                         max : Number, newGameBoard : typeof BoardCell[]) {
+function resetBoardArray(arr : typeof BoardCell[] | typeof UpdateTableCell[],
+                         constructor : (q1 : number, q2 : number, q3 : number, q4 : number) => void,
+                         max : number, newGameBoard : typeof BoardCell[]) : void {
   for (let i = 0; i <= max; i++) {
     for (let j = 0; j <= max; j++) {
-      let q1LastBornOn : Number, q2LastBornOn : Number, q3LastBornOn : Number
-      let q4LastBornOn : Number;
+      let q1LastBornOn : number, q2LastBornOn : number, q3LastBornOn : number;
+      let q4LastBornOn : number;
       if (newGameBoard !== null) {
         q1LastBornOn = newGameBoard[i][j].q1LastBornOn;
         q2LastBornOn = newGameBoard[i][j].q2LastBornOn;
@@ -126,7 +127,8 @@ function resetBoardArray(arr : typeof BoardCell[],
 }
 
 // This is an accessor function (get) for the gameBoard and boardUpdateTable arrays.
-function getCellState(table : typeof BoardCell[], i : number, j : number) {
+function getCellState(table : typeof BoardCell[] | typeof UpdateTableCell[], i : number, j : number)
+                     : {exists: Boolean, cellState: Boolean | number} {
   const absoluteI = Math.abs(i);
   const absoluteJ = Math.abs(j);
   if (absoluteI >= table.length || absoluteJ >= table.length) {
@@ -148,8 +150,9 @@ function getCellState(table : typeof BoardCell[], i : number, j : number) {
 }
 
 // This is an accessor function (set) for the nextGameBoard and boardUpdateTable arrays.
-function setCellState(table : typeof BoardCell[], state: Boolean | Number, gameTime : Number,
-                      updaterFunctions, i : number, j : number) {
+function setCellState(table : typeof BoardCell[] | typeof UpdateTableCell[],
+                      state: Boolean | number, gameTime : number, updaterFunctions,
+                      i : number, j : number) : Boolean {
   const absoluteI = Math.abs(i);
   const absoluteJ = Math.abs(j);
   if (absoluteI >= table.length || absoluteJ >= table.length) {
@@ -173,8 +176,8 @@ function setCellState(table : typeof BoardCell[], state: Boolean | Number, gameT
 
 // This function is used by updateGameBoard to set the current cell and each of its neighbours to
 // true in boardUpdateTable.
-function setUpdateTable(boardUpdateTable : typeof UpdateTableCell[], gameTime : Number,
-                        i : number, j : number) {
+function setUpdateTable(boardUpdateTable : typeof UpdateTableCell[], gameTime : number,
+                        i : number, j : number) : void {
   setCellState(boardUpdateTable, gameTime, null, cellUpdaterFunctions1, i, j);
   setCellState(boardUpdateTable, gameTime, null, cellUpdaterFunctions1, i + 1, j);
   setCellState(boardUpdateTable, gameTime, null, cellUpdaterFunctions1, i, j + 1);
@@ -190,7 +193,8 @@ function setUpdateTable(boardUpdateTable : typeof UpdateTableCell[], gameTime : 
 // in boardUpdateTable >= gameTime.
 function updateGameBoard(gameBoard : typeof BoardCell[], nextGameBoard : typeof BoardCell[],
                         boardUpdateTable : typeof UpdateTableCell[], survivalRules : Boolean[],
-                        birthRules : Boolean[], gameTime : number, min : number, max : number) {
+                        birthRules : Boolean[], gameTime : number, min : number, max : number)
+                        : number {
   let totalPopulation = 0;
   for (let i = min; i <= max; i++) {
     for (let j = min; j <= max; j++) {
@@ -228,7 +232,7 @@ function updateGameBoard(gameBoard : typeof BoardCell[], nextGameBoard : typeof 
 }
 
 // This function is called from GameBoardRenderer to cause a reset of the game board state.
-function handleResetEvent(boardArraySize : number) {
+function handleResetEvent(boardArraySize : number) : void {
   gameBoardObject.gameBoard =
     Array(boardArraySize).fill(0).map(() => new Array(boardArraySize).fill(0));
   gameBoardObject.nextGameBoard =
@@ -247,7 +251,7 @@ function handleResetEvent(boardArraySize : number) {
 }
 
 // This function is called from GameBoardRenderer to cause an update of the game board state.
-function handleUpdateEvent(boardArraySize : number) {
+function handleUpdateEvent(boardArraySize : number) : void {
   const max = boardArraySize - 1;
   const min = -max;
   gameBoardObject.totalPopulation =
