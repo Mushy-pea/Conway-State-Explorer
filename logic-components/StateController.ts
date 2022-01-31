@@ -1,9 +1,20 @@
 import { gameBoardObject, getCellState, setCellState, setUpdateTable, cellUpdaterFunctions2 }
-from './GameLogic.ts';
+from './GameLogic';
 
 // The top level application state that can be modified through the UI is encapsulated in the object
 // returned by getControlObject.  This includes everything except the game board state.
 var control;
+
+function ColourFadeSet(redStart : number, redRate : number, greenStart : number,
+                       greenRate : number, blueStart : number,
+                       blueRate : number) : void {
+  this.redStart = redStart;
+  this.greenStart = greenStart;
+  this.blueStart = blueStart;
+  this.redRate = redRate;
+  this.greenRate = greenRate;
+  this.blueRate = blueRate;
+}
 
 function getControlObject() {
   let mode = "creative";
@@ -14,9 +25,7 @@ function getControlObject() {
   };
   const gridColour = {red: 0, green: 0, blue: 1, alpha: 1};
   const backgroundColour = {red: 1, green: 1, blue: 1, alpha: 1};
-  const colourFadeSet = {
-    redStart: 0, redRate: 0.067, greenStart: 0, greenRate: 0, blueStart: 1, blueRate: 0
-  };
+  const colourFadeSet = new ColourFadeSet(0, 0.067, 0, 0, 1, 0);
   let boardArraySize = 41;
   let scale = Math.abs(camera.z) / 20;
   let lastCellTouched = null;
@@ -153,7 +162,10 @@ function getControlObject() {
 
 // This function processes touch input captured by the game board container component in MainScreen
 // and updates the state of the game board accordingly.
-function flipCellStateOnTouch(event, window, touch, camera, lastCellTouched) {
+function flipCellStateOnTouch(event: String, window: {width : number, height: number},
+                              touch: {x : number, y: number},
+                              camera: {x: number, y: number, z: number},
+                              lastCellTouched: {i: number, j: number}) {
   if (control.getMode() === "simulation") {return null}
   const applyTruncation = x => {
     if (x < 0) {return Math.trunc(x) - 1}

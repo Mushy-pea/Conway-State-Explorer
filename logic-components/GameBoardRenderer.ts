@@ -1,11 +1,11 @@
 // This module contains functions that implement the rendering of the game board by determining
 // the contents of the corresponding GLView component for each frame.
 
-import vertexShader from './VertexShader.ts';
-import fragmentShader from './FragmentShader.ts';
-import { cellModel, getLineModels, modelElements } from './GameBoardModels.ts';
-import { gameBoardObject, handleUpdateEvent, handleResetEvent } from './GameLogic.ts';
-import { control } from './StateController.ts';
+import vertexShader from './VertexShader';
+import fragmentShader from './FragmentShader';
+import { cellModel, getLineModels, modelElements } from './GameBoardModels';
+import { gameBoardObject, handleUpdateEvent, handleResetEvent } from './GameLogic';
+import { control } from './StateController';
 
 // These global variables are assigned values related to the OpenGL context that will be needed to
 // render the game board each frame.
@@ -56,13 +56,15 @@ function glParameters(uniform_modToClip, uniform_colour, attribute_modPosition,
 
 // This function returns a function that is used to generate the transformation matrix that is
 // passed to the vertex shader for each model rendered.
-function genModelTransformFunction(x, y, z, frustumTerm1, zNear, zFar) {
+function genModelTransformFunction(x : number, y : number, z : number, frustumTerm1 : number,
+                                   zNear : number, zFar: number)
+                                  : (i: number, j: number) => number[] {
   const window = {width: gl.drawingBufferWidth, height: gl.drawingBufferHeight};
   const frustumTerm0 = frustumTerm1 / (window.width / window.height);
   const frustumTerm2 = (zFar + zNear) / (zNear - zFar);
   const frustumTerm3 = (2 * zFar * zNear) / (zNear - zFar);
 
-  function modelTransformFunction(i, j) {
+  function modelTransformFunction(i : number, j: number) {
     const modelToClip = [frustumTerm0, 0, 0, frustumTerm0 * (x + i),
                          0, frustumTerm1, 0, frustumTerm1 * (y + j),
                          0, 0, frustumTerm2, frustumTerm2 * z + frustumTerm3,
@@ -93,7 +95,7 @@ function loadBuffer(vertexArray, elementArray, _gl) {
 
 // This function determines the colour of cells when the stability colour fade option is enabled.
 // Cells fade over a user defined range depending on how long they've been alive.
-function applyColourFade(colourFadeSet, gameTime, lastBornOn) {
+function applyColourFade(colourFadeSet, gameTime : number, lastBornOn : number) {
   const phase = Math.min(gameTime - lastBornOn, 15);
   const red = colourFadeSet.redStart + phase * colourFadeSet.redRate;
   const green = colourFadeSet.greenStart + phase * colourFadeSet.greenRate;
@@ -103,8 +105,10 @@ function applyColourFade(colourFadeSet, gameTime, lastBornOn) {
 
 // This function applies the model to clip space transform function for each live cell on the
 // game board, thereby allowing a cell model to be rendered in each corresponding position.
-function genCellTransforms(gameBoard, gameTime, colourFadeSet, transformFunction, transformArray,
-                           arrayMax, minI, maxI, minJ, maxJ) {
+function genCellTransforms(gameBoard : object[], gameTime : number, colourFadeSet,
+                           transformFunction : (i: number, j: number) => number[],
+                          transformArray : object[], arrayMax : number, minI : number,
+                          maxI : number, minJ : number, maxJ : number) : void {
   const colourRange = lastBornOn => applyColourFade(colourFadeSet, gameTime, lastBornOn);
   for (let i = 0; i <= arrayMax; i++) {
     for (let j = 0; j <= arrayMax; j++) {
@@ -134,7 +138,9 @@ function genCellTransforms(gameBoard, gameTime, colourFadeSet, transformFunction
 // This function is used to apply the model to clip space transform function for each vertical and
 // horizontal grid line on the game board, thereby allowing these grid lines to optionally be
 // rendered.  The boundary of the board is always rendered.
-function genGridTransforms(transformFunction, transformArray, i, j, diffI, diffJ, cMax) {
+function genGridTransforms(transformFunction : (i: number, j: number) => number[],
+                           transformArray : object[], i : number, j : number, diffI : number,
+                           diffJ : number, cMax : number) {
   const gridColour_ = control.getGridColour();
   const gridColour = [gridColour_.red, gridColour_.green, gridColour_.blue, gridColour_.alpha];
   const showGrid = control.getShowGrid();
@@ -149,8 +155,8 @@ function genGridTransforms(transformFunction, transformArray, i, j, diffI, diffJ
 
 // This function is used to render all the cell, vertical or horizontal graph line models
 // for the current frame.
-function renderModels(transformArray, uniform_modToClip, uniform_colour, attribute_modPosition,
-                      vertexBuffer, elementBuffer) {
+function renderModels(transformArray, uniform_modToClip, uniform_colour,
+                      attribute_modPosition, vertexBuffer, elementBuffer) {
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
   gl.vertexAttribPointer(attribute_modPosition, 4, gl.FLOAT, false, 0, 0);
   gl.enableVertexAttribArray(attribute_modPosition);
@@ -166,7 +172,7 @@ function renderModels(transformArray, uniform_modToClip, uniform_colour, attribu
 
 // This function is the central branching point of this module and is called through an interval
 // timer.
-function handleRenderEvent() {
+function handleRenderEvent() : void {
   const boardArraySize = control.getBoardArraySize();
   
   if (control.getMode() === "simulation") {handleUpdateEvent(boardArraySize)}
@@ -176,7 +182,7 @@ function handleRenderEvent() {
   }
   
   const {cameraX, cameraY, cameraZ} = control.getCamera();
-  transformFunction = genModelTransformFunction(cameraX, cameraY, cameraZ, glP.frustumScale(),
+  const transformFunction = genModelTransformFunction(cameraX, cameraY, cameraZ, glP.frustumScale(),
                                                 glP.zNear(), glP.zFar());
   gl.clear(gl.COLOR_BUFFER_BIT);
   const aspectRatio = gl.drawingBufferHeight / gl.drawingBufferWidth;
@@ -209,7 +215,7 @@ function handleRenderEvent() {
 // This function is called when the corresponding GLView component is first rendered in App.
 // It creates the single GL shader program used for rendering the game board and assigns values
 // related to the GL context to the global variables gl and glP.
-function onContextCreation(_gl) {
+function onContextCreation(_gl) : void {
   _gl.viewport(0, 0, _gl.drawingBufferWidth, _gl.drawingBufferHeight);
   const {red, green, blue, alpha} = control.getBackgroundColour();
   _gl.clearColor(red, green, blue, alpha);

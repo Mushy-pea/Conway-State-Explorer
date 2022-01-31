@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { GLView } from 'expo-gl';
-import { ControlBarButton, ControlBarPlaceHolder } from './react-components/ControlBar.tsx';
-import { MetaDataBar } from './react-components/MetaDataBar.tsx';
-import { onContextCreation } from './logic-components/GameBoardRenderer.ts';
-import { control, initialiseControls } from './logic-components/StateController.ts';
+import { ControlBarButton, ControlBarPlaceHolder } from './react-components/ControlBar';
+import { MetaDataBar } from './react-components/MetaDataBar';
+import { onContextCreation } from './logic-components/GameBoardRenderer';
+import { control, initialiseControls } from './logic-components/StateController';
 
 const styles = StyleSheet.create({
   mainScreenContainer: {

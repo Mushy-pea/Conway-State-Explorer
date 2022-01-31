@@ -1,9 +1,9 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import MainScreen from './MainScreen.tsx';
-import { GridColourScreen, BackgroundColourScreen } from './ColourOptionsScreens.tsx';
-import { MainMenu, DisplayMenu, GameMenu, ColourOptionsMenu } from './MenuStructure.tsx';
+import MainScreen from './MainScreen';
+import { GridColourScreen, BackgroundColourScreen } from './ColourOptionsScreens';
+import { MainMenu, DisplayMenu, GameMenu, ColourOptionsMenu } from './MenuStructure';
 
 const Stack = createNativeStackNavigator();
 

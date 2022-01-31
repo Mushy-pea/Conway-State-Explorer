@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { ColorPicker } from 'react-native-color-picker';
-import { control } from './logic-components/StateController.ts';
+import { control } from './logic-components/StateController';
 
 const styles = StyleSheet.create({
   colourOptionsContainer: {
