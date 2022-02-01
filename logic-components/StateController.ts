@@ -5,17 +5,6 @@ from './GameLogic';
 // returned by getControlObject.  This includes everything except the game board state.
 var control;
 
-function ColourFadeSet(redStart : number, redRate : number, greenStart : number,
-                       greenRate : number, blueStart : number,
-                       blueRate : number) : void {
-  this.redStart = redStart;
-  this.greenStart = greenStart;
-  this.blueStart = blueStart;
-  this.redRate = redRate;
-  this.greenRate = greenRate;
-  this.blueRate = blueRate;
-}
-
 function getControlObject() {
   let mode = "creative";
   let intervalID = null;
@@ -25,7 +14,10 @@ function getControlObject() {
   };
   const gridColour = {red: 0, green: 0, blue: 1, alpha: 1};
   const backgroundColour = {red: 1, green: 1, blue: 1, alpha: 1};
-  const colourFadeSet = new ColourFadeSet(0, 0.067, 0, 0, 1, 0);
+  const colourFadeSet = {
+    redStart: 0, redRate: 0.067, greenStart: 0, greenRate: 0, blueStart: 1, blueRate: 0,
+    enabled: true
+  };
   let boardArraySize = 41;
   let scale = Math.abs(camera.z) / 20;
   let lastCellTouched = null;
@@ -34,7 +26,7 @@ function getControlObject() {
   let patternName = "[userName defined]";
 
   return {
-    changeMode: function(resetSwitch) {
+    changeMode: function(resetSwitch : String) : void {
       if (resetSwitch) {
         if (mode !== "reset") {
           mode = "reset";
@@ -49,89 +41,114 @@ function getControlObject() {
       if (mode === "creative") {mode = "simulation"}
       else {mode = "creative"}
     },
-    setShowGrid: function(newMode) {
+    setShowGrid: function(newMode : boolean) : void {
       showGrid = newMode;
     },
-    moveCameraLeft: function() {
+    moveCameraLeft: function() : void {
       camera.x += scale;
     },
-    moveCameraRight: function() {
+    moveCameraRight: function() : void {
       camera.x -= scale;
     },
-    moveCameraUp: function() {
+    moveCameraUp: function() : void {
       camera.y -= scale;
     },
-    moveCameraDown: function() {
+    moveCameraDown: function() : void {
       camera.y += scale;
     },
-    moveCameraBack: function() {
+    moveCameraBack: function() : void {
       if (camera.z <= -44) {camera.z = -45}
       else {camera.z -= 1}
       scale = Math.abs(camera.z) / 20;
     },
-    moveCameraForward: function() {
+    moveCameraForward: function() : void {
       if (camera.z >= -6) {camera.z = -5}
       else {camera.z += 1}
       scale = Math.abs(camera.z) / 20;
     },
-    setGridColour: function(red, green, blue, alpha) {
+    setGridColour: function(red : number, green : number, blue : number, alpha : number) : void {
       gridColour.red = red;
       gridColour.green = green;
       gridColour.blue = blue;
       gridColour.alpha = alpha;
     },
-    setBackgroundColour: function(red, green, blue, alpha) {
+    setBackgroundColour: function(red : number, green : number, blue : number, alpha : number)
+                                 : void {
       backgroundColour.red = red;
       backgroundColour.green = green;
       backgroundColour.blue = blue;
       backgroundColour.alpha = alpha;
     },
-    setBoardArraySize: function(size) {
+    setColourFadeSet: function(enabled : boolean, redStart : number | null, redRate : number | null,
+                               greenStart : number | null, greenRate : number | null,
+                               blueStart : number | null, blueRate : number | null) : void {
+      colourFadeSet.enabled = enabled;
+      if (redStart !== null) {colourFadeSet.redStart = redStart}
+      if (redRate !== null) {colourFadeSet.redRate = redRate}
+      if (greenStart !== null) {colourFadeSet.greenStart = greenStart}
+      if (greenRate !== null) {colourFadeSet.greenRate = greenRate}
+      if (blueStart !== null) {colourFadeSet.blueStart = blueStart}
+      if (blueRate !== null) {colourFadeSet.blueRate = blueRate}  
+    },
+    setBoardArraySize: function(size : number) : void {
       boardArraySize = size;
     },
-    setPatternName: function(name) {
+    setPatternName: function(name : string) : void {
       patternName = name;
     },
-    getMode: function() {
+    getMode: function() : string {
       return mode;
     },
-    getShowGrid: function() {
+    getShowGrid: function() : boolean {
       return showGrid;
     },
-    getCamera: function() {
+    getCamera: function() : {cameraX : number, cameraY : number, cameraZ : number} {
       return {
         cameraX: camera.x, cameraY: camera.y, cameraZ: camera.z
       };
     },
-    getGridColour: function() {
+    getGridColour: function() : {red : number, green : number, blue : number, alpha : number} {
       return {red: gridColour.red, green: gridColour.green, blue: gridColour.blue,
               alpha: gridColour.alpha};
     },
-    getBackgroundColour: function() {
+    getBackgroundColour: function() : {red : number, green : number, blue : number, alpha : number} {
       return {red: backgroundColour.red, green: backgroundColour.green, blue: backgroundColour.blue,
               alpha: backgroundColour.alpha};
     },
-    getColourFadeSet: function() {
-      return {
-        redStart: colourFadeSet.redStart, redRate: colourFadeSet.redRate,
-        greenStart: colourFadeSet.greenStart, greenRate: colourFadeSet.greenRate,
-        blueStart: colourFadeSet.blueStart, blueRate: colourFadeSet.blueRate
-      };
+    getColourFadeSet: function() : {redStart : number, redRate : number,
+                                    greenStart : number, greenRate : number, blueStart : number,
+                                    blueRate : number, enabled: boolean} {
+      if (colourFadeSet.enabled) {
+        return {
+          redStart: colourFadeSet.redStart, redRate: colourFadeSet.redRate,
+          greenStart: colourFadeSet.greenStart, greenRate: colourFadeSet.greenRate,
+          blueStart: colourFadeSet.blueStart, blueRate: colourFadeSet.blueRate,
+          enabled: colourFadeSet.enabled
+        };
+      }
+      else {
+        return {
+          redStart: colourFadeSet.redStart, redRate: 0,
+          greenStart: colourFadeSet.greenStart, greenRate: 0,
+          blueStart: colourFadeSet.blueStart, blueRate: 0,
+          enabled: colourFadeSet.enabled
+        };
+      }
     },
-    getBoardArraySize: function() {
+    getBoardArraySize: function() : number {
       return boardArraySize;
     },
-    getBoardDimensions: function() {
+    getBoardDimensions: function() : string {
       const dimension = (boardArraySize - 1) * 2 + 1;
       return (`${dimension} * ${dimension}`);
     },
-    getGameTime: function() {
+    getGameTime: function() : string {
       return (`${gameBoardObject.gameTime}`);
     },
-    getTotalPopulation: function() {
+    getTotalPopulation: function() : string {
       return (`${gameBoardObject.totalPopulation}`);
     },
-    getFrameCheckInterval: function() {
+    getFrameCheckInterval: function() : string | null {
       if (gameBoardObject.gameTime % 5 !== 0) {return `${lastFrameTime} ms`}
       const t2 = new Date();
       if (tpsT1 === null) {
@@ -145,16 +162,17 @@ function getControlObject() {
         return (`${t2.getMilliseconds() - tpsT1.getMilliseconds()} ms`);
       }
     },
-    getPatternName: function() {
+    getPatternName: function() : string {
       return patternName;
     },
-    flipCellStateOnTouch: function(event, window, touch) {
+    flipCellStateOnTouch: function(event : string, window : {width: number, height: number},
+                                   touch : {x : number, y : number}) : void {
       lastCellTouched = flipCellStateOnTouch(event, window, touch, camera, lastCellTouched);
     },
-    setIntervalID: function(id) {
+    setIntervalID: function(id : NodeJS.Timer) : void {
       intervalID = id;
     },
-    getIntervalID: function() {
+    getIntervalID: function()  : NodeJS.Timer{
       return intervalID;
     }
   }

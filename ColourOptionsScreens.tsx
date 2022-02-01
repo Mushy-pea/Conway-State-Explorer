@@ -50,4 +50,24 @@ const BackgroundColourScreen = () => {
   );
 };
 
-export  {GridColourScreen, BackgroundColourScreen};
+const SetColour1Screen = () => {
+  return (
+    <View style={styles.colourOptionsContainer}>
+        <Text style={styles.textStyle}>Set colour 1 (for colour fade)</Text>
+        <ColorPicker style={{flex: 1}}
+                     onColorSelected={color => {setColour(color, control.setBackgroundColour)}}/>
+    </View>
+  );
+};
+
+const SetColour2Screen = () => {
+  return (
+    <View style={styles.colourOptionsContainer}>
+        <Text style={styles.textStyle}>Set colour 1 (for colour fade)</Text>
+        <ColorPicker style={{flex: 1}}
+                     onColorSelected={color => {setColour(color, control.setBackgroundColour)}}/>
+    </View>
+  );
+};
+
+export {GridColourScreen, BackgroundColourScreen, SetColour1Screen, SetColour2Screen};

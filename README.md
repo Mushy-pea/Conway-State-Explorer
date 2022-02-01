@@ -17,9 +17,9 @@ features.
 
 4.  A range of rendering options including colours and visual effects.
 
-The app frontend is so far being developed using Javascript, React Native and WebGL and tested in an
+The app frontend is so far being developed using TypeScript, React Native and WebGL and tested in an
 Android environment.  The intention is to build a Node.js based backend to allow for the pattern
 repository feature mentioned above.  In addition to releases on Github I hope to deploy the app
 to Google Play in time.
 
-![MainScreen image](https://github.com/Mushy-pea/Conway-State-Explorer/blob/master/MainScreen.png)
+[![Preview unavailable](https://img.youtube.com/vi/pVQ8gXEufAE/default.jpg)](https://youtu.be/pVQ8gXEufAE)

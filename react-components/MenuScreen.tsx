@@ -15,6 +15,7 @@ const styles = StyleSheet.create({
     },
     placeholderView: {
       flexGrow: 1,
+      flexShrink: 1,
       backgroundColor: "rgb(0, 0, 0)"
     },
     textStyle: {
@@ -24,12 +25,8 @@ const styles = StyleSheet.create({
   });
 
 // This component is a reusable menu that can hold up to four items, passed using the menuArray.
-const Menu = ({navigation, menuArray}) => {
+const Menu = ({menuArray}) => {
   const window = useWindowDimensions();
-  console.log(`Menu -> menuArray[0].colour: ${menuArray[0].colour}
-                       menuArray[1].colour: ${menuArray[1].colour}
-                       menuArray[2].colour: ${menuArray[2].colour}
-                       menuArray[3].colour: ${menuArray[3].colour}`);
 
   return (
     <View style={styles.menuView}>
@@ -37,33 +34,49 @@ const Menu = ({navigation, menuArray}) => {
                                 {flexBasis: window.height / 8,
                                  borderWidth: menuArray[0].disabled() ? 0 : 1,
                                  backgroundColor: menuArray[0].colour}]}
-                        onPress={() => {navigation.navigate(menuArray[0].route)}}
+                        onPress={menuArray[0].action}
                         disabled={menuArray[0].disabled()}>
-        <Text style={styles.textStyle}>{menuArray[0].text}</Text>
+        <Text style={[styles.textStyle, {fontSize: menuArray[0].fontSize}]}>{menuArray[0].text}</Text>
       </TouchableOpacity>
       <TouchableOpacity style={[styles.itemView,
                                 {flexBasis: window.height / 8,
                                  borderWidth: menuArray[1].disabled() ? 0 : 1,
                                  backgroundColor: menuArray[1].colour}]}
-                        onPress={() => {navigation.navigate(menuArray[1].route)}}
+                        onPress={menuArray[1].action}
                         disabled={menuArray[1].disabled()}>
-        <Text style={styles.textStyle}>{menuArray[1].text}</Text>
+        <Text style={[styles.textStyle, {fontSize: menuArray[1].fontSize}]}>{menuArray[1].text}</Text>
       </TouchableOpacity>
       <TouchableOpacity style={[styles.itemView,
                                 {flexBasis: window.height / 8,
                                  borderWidth: menuArray[2].disabled() ? 0 : 1,
                                  backgroundColor: menuArray[2].colour}]}
-                        onPress={() => {navigation.navigate(menuArray[2].route)}}
+                        onPress={menuArray[2].action}
                         disabled={menuArray[2].disabled()}>
-        <Text style={styles.textStyle}>{menuArray[2].text}</Text>
+        <Text style={[styles.textStyle, {fontSize: menuArray[2].fontSize}]}>{menuArray[2].text}</Text>
       </TouchableOpacity>
       <TouchableOpacity style={[styles.itemView,
                                 {flexBasis: window.height / 8,
                                  borderWidth: menuArray[3].disabled() ? 0 : 1, 
                                  backgroundColor: menuArray[3].colour}]}
-                        onPress={() => {navigation.navigate(menuArray[3].route)}}
+                        onPress={menuArray[4].action}
                         disabled={menuArray[3].disabled()}>
-        <Text style={styles.textStyle}>{menuArray[3].text}</Text>
+        <Text style={[styles.textStyle, {fontSize: menuArray[3].fontSize}]}>{menuArray[3].text}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.itemView,
+                                {flexBasis: window.height / 8,
+                                 borderWidth: menuArray[4].disabled() ? 0 : 1, 
+                                 backgroundColor: menuArray[4].colour}]}
+                        onPress={menuArray[4].action}
+                        disabled={menuArray[4].disabled()}>
+        <Text style={[styles.textStyle, {fontSize: menuArray[4].fontSize}]}>{menuArray[4].text}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.itemView,
+                                {flexBasis: window.height / 8,
+                                 borderWidth: menuArray[5].disabled() ? 0 : 1, 
+                                 backgroundColor: menuArray[5].colour}]}
+                        onPress={menuArray[5].action}
+                        disabled={menuArray[5].disabled()}>
+        <Text style={[styles.textStyle, {fontSize: menuArray[5].fontSize}]}>{menuArray[5].text}</Text>
       </TouchableOpacity>
       <View style={[styles.placeholderView, {flexBasis: window.height}]}/>
       </View>
