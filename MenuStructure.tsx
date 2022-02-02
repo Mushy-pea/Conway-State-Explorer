@@ -4,7 +4,7 @@ import Menu from './react-components/MenuScreen';
 import { control } from './logic-components/StateController';
 
 // This is a helper function for MenuArray.
-function disabledCheck(text : String, route : (() => void) | null) : Boolean {
+function disabledCheck(text : string, route : (() => void) | null) : boolean {
   if (text === null || route === null) {return true}
   else {return false}
 }
@@ -157,30 +157,30 @@ const BoardColourOptionsMenu = ({navigation}) => {
 };
 
 function updateEnabledSwitch(enabled : boolean,
-                             setEnabled : React.Dispatch<React.SetStateAction<Boolean>>) : void {
+                             setEnabled : React.Dispatch<React.SetStateAction<boolean>>) : void {
   setEnabled(! enabled);
-  control.setColourFadeSet(enabled);
+  control.setColourFadeSet(enabled, null, null, null, null, null, null);
 }
 
 const CellColourOptionsMenu = ({navigation}) => {
   const isFocused = useIsFocused();
   const [enabled, setEnabled] = useState(false);
   const {redStart, redRate, greenStart, greenRate, blueStart, blueRate} =
-    control.getColourFadeSet();
+    control.getColourFadeSet(1);
   const menuArray =
     MenuArray(null,
               "Enable age based colour fade.  Cells will fade between the two selected colours over three seconds, based on the time since their birth",
               12, "rgb(0, 0, 0)",
               () => updateEnabledSwitch(enabled, setEnabled),
               `${enabled ? "Disable" : "Enable"}`, 24, "rgb(0, 0, 0)",
-              () => navigation.navigate("SetColour1Screen"), "Set colour 1 (current colour below)",
+              () => navigation.navigate("SetColour1Screen"), "Set colour 1",
+              24, `rgb(${redStart * 255}, ${greenStart * 255}, ${blueStart * 255})`,
+              () => navigation.navigate("SetColour2Screen"), "Set colour 2", 24,
+              `rgb(${(redStart + redRate * 15) * 255}, ${(greenStart + greenRate * 15) * 255}, ${(blueStart + blueRate * 15) * 255})`,
+              null, "",
               24, "rgb(0, 0, 0)",
               null, "", 24,
-              `rgb(${redStart * 255}, ${greenStart * 255}, ${blueStart * 255})`,
-              () => navigation.navigate("SetColour2Screen"), "Set colour 2 (current colour below)",
-              24, "rgb(0, 0, 0)",
-              null, "", 24,
-              `rgb(${(redStart + redRate * 15) * 255}, ${(greenStart + greenRate * 15) * 255}, ${(blueStart + blueRate * 15) * 255})`);
+              "rgb(0, 0, 0)");
   return (
     <>
       <Menu menuArray={menuArray}/>

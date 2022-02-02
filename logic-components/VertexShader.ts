@@ -1,6 +1,6 @@
 // The GL vertex shader has its own module for clarity.
 
-const vertexShader : String = `
+const vertexShader = `
 attribute vec4 modPosition;
 uniform mat4 modToClip;
 

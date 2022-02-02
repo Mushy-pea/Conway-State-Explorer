@@ -7,20 +7,51 @@ import { cellModel, LineModels, modelElements } from './GameBoardModels';
 import { gameBoardObject, handleUpdateEvent, handleResetEvent } from './GameLogic';
 import { control } from './StateController';
 
-// These global variables are assigned values related to the OpenGL context that will be needed to
-// render the game board each frame.
-var gl;
-var glP;
+// This global const holds a handle to the OpenGL context created when onContextCreation is called.
+const gl = {
+  context: null
+};
+
+// This global const is assigned an object ready to hold the seven OpenGL state values that
+// will be needed to perform the required rendering each frame.
+const glP = glParameters();
 
 // This function is used to encapsulate values related to the OpenGL context in an object, a
 // reference to which is assigned to global variable glP when the renderer is initialised.
-function glParameters(uniform_modToClip, uniform_colour, attribute_modPosition,
-                      vertexBuffer_cellModel, vertexBuffer_verticalLineModel,
-                      vertexBuffer_horizontalLineModel, elementBuffer) {
+function glParameters() {
   const frustumScale = 1;
   const zNear = 0.5;
   const zFar = 100;
+  let uniform_modToClip;
+  let uniform_colour;
+  let attribute_modPosition;
+  let vertexBuffer_cellModel;
+  let vertexBuffer_verticalLineModel;
+  let vertexBuffer_horizontalLineModel;
+  let elementBuffer;
+
   return {
+    setUniform_modToClip: function(modToClip) {
+      uniform_modToClip = modToClip;
+    },
+    setUniform_colour: function(colour) {
+      uniform_colour = colour;
+    },
+    setAttribute_modPosition: function(modPosition) {
+      attribute_modPosition = modPosition;
+    },
+    setVertexBuffer_cellModel: function(cellModel) {
+      vertexBuffer_cellModel = cellModel;
+    },
+    setVertexBuffer_verticalLineModel: function(verticalLineModel) {
+      vertexBuffer_verticalLineModel = verticalLineModel;
+    },
+    setVertexBuffer_horizontalLineModel: function(horizontalLineModel) {
+      vertexBuffer_horizontalLineModel = horizontalLineModel;
+    },
+    setElementBuffer: function (newElementBuffer) {
+      elementBuffer = newElementBuffer;
+    },
     uniform_modToClip: function() {
       return uniform_modToClip;
     },
@@ -59,7 +90,7 @@ function glParameters(uniform_modToClip, uniform_colour, attribute_modPosition,
 function genModelTransformFunction(x : number, y : number, z : number, frustumTerm1 : number,
                                    zNear : number, zFar: number)
                                   : (i: number, j: number) => number[] {
-  const window = {width: gl.drawingBufferWidth, height: gl.drawingBufferHeight};
+  const window = {width: gl.context.drawingBufferWidth, height: gl.context.drawingBufferHeight};
   const frustumTerm0 = frustumTerm1 / (window.width / window.height);
   const frustumTerm2 = (zFar + zNear) / (zNear - zFar);
   const frustumTerm3 = (2 * zFar * zNear) / (zNear - zFar);
@@ -113,22 +144,22 @@ function genCellTransforms(gameBoard : object[], gameTime : number, colourFadeSe
   for (let i = 0; i <= arrayMax; i++) {
     for (let j = 0; j <= arrayMax; j++) {
       if (gameBoard[i][j].quadrant1 && i <= maxI && j <= maxJ) {
-        let cellColour = colourRange(gameBoard[i][j].q1LastBornOn);
+        const cellColour = colourRange(gameBoard[i][j].q1LastBornOn);
         transformArray.push({transform: transformFunction(j, -i), colour: cellColour});
       }
 
       if (gameBoard[i][j].quadrant2 && -i >= minI && j <= maxJ) {
-        let cellColour = colourRange(gameBoard[i][j].q2LastBornOn);
+        const cellColour = colourRange(gameBoard[i][j].q2LastBornOn);
         transformArray.push({transform: transformFunction(j, i), colour: cellColour});
       }
 
       if (gameBoard[i][j].quadrant3 && -i >= minI && -j >= minJ) {
-        let cellColour = colourRange(gameBoard[i][j].q3LastBornOn);
+        const cellColour = colourRange(gameBoard[i][j].q3LastBornOn);
         transformArray.push({transform: transformFunction(-j, i), colour: cellColour});
       }
 
       if (gameBoard[i][j].quadrant4 && i <= maxI && -j >= minJ) {
-        let cellColour = colourRange(gameBoard[i][j].q4LastBornOn);
+        const cellColour = colourRange(gameBoard[i][j].q4LastBornOn);
         transformArray.push({transform: transformFunction(-j, -i), colour: cellColour});
       }
     }
@@ -157,16 +188,16 @@ function genGridTransforms(transformFunction : (i: number, j: number) => number[
 // for the current frame.
 function renderModels(transformArray, uniform_modToClip, uniform_colour,
                       attribute_modPosition, vertexBuffer, elementBuffer) {
-  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-  gl.vertexAttribPointer(attribute_modPosition, 4, gl.FLOAT, false, 0, 0);
-  gl.enableVertexAttribArray(attribute_modPosition);
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementBuffer);
+  gl.context.bindBuffer(gl.context.ARRAY_BUFFER, vertexBuffer);
+  gl.context.vertexAttribPointer(attribute_modPosition, 4, gl.context.FLOAT, false, 0, 0);
+  gl.context.enableVertexAttribArray(attribute_modPosition);
+  gl.context.bindBuffer(gl.context.ELEMENT_ARRAY_BUFFER, elementBuffer);
 
   while (transformArray.length != 0) {
-    let transform = transformArray.pop();
-    gl.uniformMatrix4fv(uniform_modToClip, true, transform.transform);
-    gl.uniform4fv(uniform_colour, transform.colour);
-    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+    const transform = transformArray.pop();
+    gl.context.uniformMatrix4fv(uniform_modToClip, true, transform.transform);
+    gl.context.uniform4fv(uniform_colour, transform.colour);
+    gl.context.drawElements(gl.context.TRIANGLES, 6, gl.context.UNSIGNED_SHORT, 0);
   } 
 }
 
@@ -184,16 +215,16 @@ function handleRenderEvent() : void {
   const {cameraX, cameraY, cameraZ} = control.getCamera();
   const transformFunction = genModelTransformFunction(cameraX, cameraY, cameraZ, glP.frustumScale(),
                                                 glP.zNear(), glP.zFar());
-  gl.clear(gl.COLOR_BUFFER_BIT);
-  const aspectRatio = gl.drawingBufferHeight / gl.drawingBufferWidth;
+  gl.context.clear(gl.context.COLOR_BUFFER_BIT);
+  const aspectRatio = gl.context.drawingBufferHeight / gl.context.drawingBufferWidth;
   const renderRange = {minI: Math.trunc(cameraY - 1.478003 - 41),
                        maxI: Math.trunc(cameraY - 1.478003 + 41 + 80 * (aspectRatio - 1)),
                        minJ: Math.trunc(-(cameraX + 0.611501) - 41),
                        maxJ: Math.trunc(-(cameraX + 0.611501) + 41)};
   const max = boardArraySize - 1;
   const min = -max;
-  const colourFadeSet = control.getColourFadeSet();
-  let transformArray = [];
+  const colourFadeSet = control.getColourFadeSet(0);
+  const transformArray = [];
   genCellTransforms(gameBoardObject.gameBoard, gameBoardObject.gameTime, colourFadeSet,
                     transformFunction, transformArray, max, renderRange.minI, renderRange.maxI,
                     renderRange.minJ, renderRange.maxJ);
@@ -208,8 +239,8 @@ function handleRenderEvent() : void {
   renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
                glP.attribute_modPosition(), glP.vertexBuffer_verticalLineModel(),
                glP.elementBuffer());
-  gl.flush();
-  gl.endFrameEXP();
+  gl.context.flush();
+  gl.context.endFrameEXP();
 }
 
 // This function is called when the corresponding GLView component is first rendered in App.
@@ -239,21 +270,18 @@ function onContextCreation(_gl) : void {
   console.log(`Program link status: ${_gl.getProgramParameter(shaderProgram, _gl.LINK_STATUS)}`);
   console.log(`Program validate status:
                ${_gl.getProgramParameter(shaderProgram, _gl.VALIDATE_STATUS)}`);
-  const uniform_modToClip = _gl.getUniformLocation(shaderProgram, "modToClip");
-  const uniform_colour = _gl.getUniformLocation(shaderProgram, "colour");
-  const attribute_modPosition = _gl.getAttribLocation(shaderProgram, "modPosition");
-  const vertexBuffer_cellModel = loadBuffer(cellModel, null, _gl);
   const boardArraySize = control.getBoardArraySize();
   const lineModels = new LineModels(boardArraySize);
-  const vertexBuffer_verticalLineModel = loadBuffer(lineModels.verticalLineModel, null, _gl);
-  const vertexBuffer_horizontalLineModel = loadBuffer(lineModels.horizontalLineModel, null, _gl);
-  const elementBuffer = loadBuffer(null, modelElements, _gl);
-  glP = glParameters(uniform_modToClip, uniform_colour, attribute_modPosition,
-                     vertexBuffer_cellModel, vertexBuffer_verticalLineModel,
-                     vertexBuffer_horizontalLineModel, elementBuffer);
+  glP.setUniform_modToClip(_gl.getUniformLocation(shaderProgram, "modToClip"));
+  glP.setUniform_colour(_gl.getUniformLocation(shaderProgram, "colour"));
+  glP.setAttribute_modPosition(_gl.getAttribLocation(shaderProgram, "modPosition"));
+  glP.setVertexBuffer_cellModel(loadBuffer(cellModel, null, _gl));
+  glP.setVertexBuffer_verticalLineModel(loadBuffer(lineModels.verticalLineModel, null, _gl));
+  glP.setVertexBuffer_horizontalLineModel(loadBuffer(lineModels.horizontalLineModel, null, _gl));
+  glP.setElementBuffer(loadBuffer(null, modelElements, _gl));
   _gl.useProgram(shaderProgram);
 
-  gl = _gl;
+  gl.context = _gl;
   if (control.getIntervalID() === null) {handleResetEvent(boardArraySize)}
   control.setIntervalID(setInterval(handleRenderEvent, 200));
 }

@@ -16,13 +16,6 @@ const styles = StyleSheet.create({
   }
 });
 
-const textStyles = StyleSheet.create({
-  textStyle: {
-    color: "rgb(255, 255, 255)",
-    fontSize: 13
-  }
-});
-
 // This button component is designed to be tightly packed into a containing view with
 // others of this type or ControlBarPlaceHolders.
 const ControlBarButton = ({buttonHeight, imageSource, onPress, disabled}) => {

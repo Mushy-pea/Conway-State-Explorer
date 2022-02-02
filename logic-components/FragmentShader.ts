@@ -1,6 +1,6 @@
 // The GL fragment shader has its own module for clarity.
 
-const fragmentShader : String = `
+const fragmentShader = `
 uniform highp vec4 colour;
 
 void main(void) {

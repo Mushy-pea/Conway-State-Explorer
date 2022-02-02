@@ -3,7 +3,7 @@ from './GameLogic';
 
 // The top level application state that can be modified through the UI is encapsulated in the object
 // returned by getControlObject.  This includes everything except the game board state.
-var control;
+const control = getControlObject();
 
 function getControlObject() {
   let mode = "creative";
@@ -16,7 +16,7 @@ function getControlObject() {
   const backgroundColour = {red: 1, green: 1, blue: 1, alpha: 1};
   const colourFadeSet = {
     redStart: 0, redRate: 0.067, greenStart: 0, greenRate: 0, blueStart: 1, blueRate: 0,
-    enabled: true
+    enabled: false
   };
   let boardArraySize = 41;
   let scale = Math.abs(camera.z) / 20;
@@ -26,7 +26,7 @@ function getControlObject() {
   let patternName = "[userName defined]";
 
   return {
-    changeMode: function(resetSwitch : String) : void {
+    changeMode: function(resetSwitch : boolean) : void {
       if (resetSwitch) {
         if (mode !== "reset") {
           mode = "reset";
@@ -82,7 +82,7 @@ function getControlObject() {
     setColourFadeSet: function(enabled : boolean, redStart : number | null, redRate : number | null,
                                greenStart : number | null, greenRate : number | null,
                                blueStart : number | null, blueRate : number | null) : void {
-      colourFadeSet.enabled = enabled;
+      if (enabled !== null) {colourFadeSet.enabled = enabled}
       if (redStart !== null) {colourFadeSet.redStart = redStart}
       if (redRate !== null) {colourFadeSet.redRate = redRate}
       if (greenStart !== null) {colourFadeSet.greenStart = greenStart}
@@ -115,10 +115,10 @@ function getControlObject() {
       return {red: backgroundColour.red, green: backgroundColour.green, blue: backgroundColour.blue,
               alpha: backgroundColour.alpha};
     },
-    getColourFadeSet: function() : {redStart : number, redRate : number,
-                                    greenStart : number, greenRate : number, blueStart : number,
-                                    blueRate : number, enabled: boolean} {
-      if (colourFadeSet.enabled) {
+    getColourFadeSet: function(mode : number) : {redStart : number, redRate : number,
+                               greenStart : number, greenRate : number, blueStart : number,
+                               blueRate : number, enabled: boolean} {
+      if (colourFadeSet.enabled || mode === 1) {
         return {
           redStart: colourFadeSet.redStart, redRate: colourFadeSet.redRate,
           greenStart: colourFadeSet.greenStart, greenRate: colourFadeSet.greenRate,
@@ -180,7 +180,7 @@ function getControlObject() {
 
 // This function processes touch input captured by the game board container component in MainScreen
 // and updates the state of the game board accordingly.
-function flipCellStateOnTouch(event: String, window: {width : number, height: number},
+function flipCellStateOnTouch(event: string, window: {width : number, height: number},
                               touch: {x : number, y: number},
                               camera: {x: number, y: number, z: number},
                               lastCellTouched: {i: number, j: number}) : {i: number, j: number} {
@@ -218,10 +218,4 @@ function flipCellStateOnTouch(event: String, window: {width : number, height: nu
   return lastCellTouched;
 }
 
-// This function is called from MainScreen before GL context creation so that the controls are ready
-// to use in time.
-function initialiseControls() {
-  control = getControlObject();
-}
-
-export {control, initialiseControls};
+export {control};

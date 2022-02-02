@@ -4,7 +4,7 @@ import { GLView } from 'expo-gl';
 import { ControlBarButton, ControlBarPlaceHolder } from './react-components/ControlBar';
 import { MetaDataBar } from './react-components/MetaDataBar';
 import { onContextCreation } from './logic-components/GameBoardRenderer';
-import { control, initialiseControls } from './logic-components/StateController';
+import { control } from './logic-components/StateController';
 
 const styles = StyleSheet.create({
   mainScreenContainer: {
@@ -105,7 +105,6 @@ const ControlBar = ({buttonHeight, window}) => {
 const MainScreen = ({navigation}) => {
   const window = useWindowDimensions();
   const buttonHeight = window.height * 0.1;
-  initialiseControls();
 
   return (
     <View style={[styles.mainScreenContainer, {paddingTop: window.height * 0.04}]}>

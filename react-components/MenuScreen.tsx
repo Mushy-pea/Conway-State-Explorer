@@ -58,7 +58,7 @@ const Menu = ({menuArray}) => {
                                 {flexBasis: window.height / 8,
                                  borderWidth: menuArray[3].disabled() ? 0 : 1, 
                                  backgroundColor: menuArray[3].colour}]}
-                        onPress={menuArray[4].action}
+                        onPress={menuArray[3].action}
                         disabled={menuArray[3].disabled()}>
         <Text style={[styles.textStyle, {fontSize: menuArray[3].fontSize}]}>{menuArray[3].text}</Text>
       </TouchableOpacity>
