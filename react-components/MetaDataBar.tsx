@@ -33,27 +33,30 @@ const MetaDataBar = ({style, window, getState1, getState2, getState3, stateName1
   const aspectRatio = window.height / window.width;
   useEffect(() => scheduleUpdate(getState1, getState2, getState3, setReport1, setReport2,
                                  setReport3, period), []);
+  const m1 = `${stateName1}: ${report1}    `;
+  const m2 = `${stateName2}: ${report2}    `;
+  const m3 = `${stateName3}: ${report3}    `;
   if (aspectRatio < 1.877777) {
     return (
       <View style={style}>
-        <Text style={styles.textStyle}>{stateName1}: {report1}    {stateName2}: {report2}    {stateName3}: {report3}</Text>
+        <Text style={styles.textStyle}>{m1 + m2 + m3}</Text>
       </View>
     );
   }
   else if (aspectRatio < 2.024074) {
     return (
       <View style={style}>
-        <Text style={[styles.textStyle, {fontSize: 14}]}>{stateName1}: {report1}    {stateName2}: {report2}</Text>
-        <Text style={[styles.textStyle, {fontSize: 14}]}>{stateName3}: {report3}</Text>
+        <Text style={[styles.textStyle, {fontSize: 14}]}>{m1 + m2}</Text>
+        <Text style={[styles.textStyle, {fontSize: 14}]}>{m3}</Text>
       </View>
     );
   }
   else {
     return (
       <View style={style}>
-        <Text style={[styles.textStyle, {fontSize: 14}]}>{stateName1}: {report1}</Text>
-        <Text style={[styles.textStyle, {fontSize: 14}]}>{stateName2}: {report2}</Text>
-        <Text style={[styles.textStyle, {fontSize: 14}]}>{stateName3}: {report3}</Text>
+        <Text style={[styles.textStyle, {fontSize: 14}]}>{m1}</Text>
+        <Text style={[styles.textStyle, {fontSize: 14}]}>{m2}</Text>
+        <Text style={[styles.textStyle, {fontSize: 14}]}>{m3}</Text>
       </View>
     );
   }

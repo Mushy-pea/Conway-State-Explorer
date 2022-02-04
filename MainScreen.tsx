@@ -69,7 +69,9 @@ const ControlBar = ({buttonHeight, window}) => {
                         disabled={false} />
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={(mode === "creative") ? require("./assets/resetButton.png") :
-                                                             require("./assets/greyResetButton.png")}
+                                                             require(
+                                                              "./assets/greyResetButton.png"
+                                                             )}
                         onPress={onResetPressed}
                         disabled={(mode === "simulation") ? true : false} />
       <ControlBarButton buttonHeight={buttonHeight}

@@ -111,7 +111,8 @@ function getControlObject() {
       return {red: gridColour.red, green: gridColour.green, blue: gridColour.blue,
               alpha: gridColour.alpha};
     },
-    getBackgroundColour: function() : {red : number, green : number, blue : number, alpha : number} {
+    getBackgroundColour: function() : {red : number, green : number, blue : number, alpha : number}
+    {
       return {red: backgroundColour.red, green: backgroundColour.green, blue: backgroundColour.blue,
               alpha: backgroundColour.alpha};
     },

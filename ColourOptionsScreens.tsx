@@ -27,68 +27,24 @@ function determineColour(colourString : string) : {red : number, green : number,
   };
 }
 
-const GridColourScreen = () => {
+const ColourSelectionScreen = ({route}) => {
   return (
     <View style={styles.colourOptionsContainer}>
-      <Text style={styles.textStyle}>Set grid colour</Text>
-      <ColorPicker style={{flex: 1}}
-                   onColorSelected={color => {const {red, green, blue} = determineColour(color);
-                                    control.setGridColour(red, green, blue, 1)}}/>
-    </View>
-  );
-};
-
-const BackgroundColourScreen = () => {
-  return (
-    <View style={styles.colourOptionsContainer}>
-        <Text style={styles.textStyle}>Set background colour</Text>
+      <Text style={styles.textStyle}>{route.params.text}</Text>
         <ColorPicker style={{flex: 1}}
-                     onColorSelected={color => {const {red, green, blue} = determineColour(color);
-                                                control.setBackgroundColour(red, green, blue, 1)}}/>
+                     onColorSelected={route.params.action}/>
     </View>
   );
 };
 
-// This function updates the state of control.colourFadeSet after  user input has been received
+// This function updates the state of control.colourFadeSet after user input has been received
 // by the SetColour1Screen or SetColour2Screen components.
 function updateColourFade(red1 : number, green1 : number, blue1 : number, red2 : number,
                           green2 : number, blue2 : number) : void {
   const redRate = (red2 - red1) / 15;
   const greenRate = (green2 - green1) / 15;
   const blueRate = (blue2 - blue1) / 15;
-  control.setColourFadeSet(true, red1, redRate, green1, greenRate, blue1, blueRate);
+  control.setColourFadeSet(null, red1, redRate, green1, greenRate, blue1, blueRate);
 }
 
-const SetColour1Screen = () => {
-  return (
-    <View style={styles.colourOptionsContainer}>
-      <Text style={styles.textStyle}>Set colour 1 (for colour fade)</Text>
-        <ColorPicker style={{flex: 1}}
-                     onColorSelected={color => {
-                       const {redRate, greenRate, blueRate} = control.getColourFadeSet(1);
-                       const {red, green, blue} = determineColour(color);
-                       updateColourFade(red, green, blue, red + redRate * 15,
-                                        green + greenRate * 15, blue + blueRate * 15);
-                       console.log(`redStart: ${red}, greenStart: ${green}, blueStart: ${blue}, redEnd: ${red + redRate * 15}, greenEnd: ${green + greenRate * 15}, blueEnd: ${blue + blueRate * 15}`);
-                       
-                    }}/>
-    </View>
-  );
-};
-
-const SetColour2Screen = () => {
-  return (
-    <View style={styles.colourOptionsContainer}>
-      <Text style={styles.textStyle}>Set colour 2 (for colour fade)</Text>
-        <ColorPicker style={{flex: 1}}
-                     onColorSelected={color => {             
-                       const {redStart, greenStart, blueStart} = control.getColourFadeSet(1);
-                       const {red, green, blue} = determineColour(color);
-                       updateColourFade(redStart, greenStart, blueStart, red, green, blue);
-                       console.log(`redStart: ${redStart}, greenStart: ${greenStart}, blueStart: ${blueStart}, redEnd: ${red}, greenEnd: ${green}, blueEnd: ${blue}`);
-                    }}/>
-    </View>
-  );
-};
-
-export {GridColourScreen, BackgroundColourScreen, SetColour1Screen, SetColour2Screen};
+export {ColourSelectionScreen, determineColour, updateColourFade};
