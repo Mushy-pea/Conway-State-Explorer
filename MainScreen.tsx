@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, useWindowDimensions, GestureResponderEvent } from 'react-native';
+import { useSelector, useDispatch } from 'react-redux';
 import { GLView } from 'expo-gl';
 import { ControlBarButton, ControlBarPlaceHolder } from './react-components/ControlBar';
 import { MetaDataBar } from './react-components/MetaDataBar';
 import { onContextCreation } from './logic-components/GameBoardRenderer';
-import { control } from './logic-components/StateController';
+import { changeMode, moveCameraLeft, moveCameraRight,
+         moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward, flipCellStateOnTouch, getBoardDimensions,
+         getGameTime, getTotalPopulation, getPatternName }
+from './logic-components/StateController';
 
 const styles = StyleSheet.create({
   mainScreenContainer: {
@@ -39,26 +43,34 @@ const styles = StyleSheet.create({
 // the game board.
 function handleTouchRelease(window : {width: number, height: number}, evt : GestureResponderEvent)
                            : void {
-  control.flipCellStateOnTouch("touchReleased", window, 
+  flipCellStateOnTouch("touchReleased", window, 
                                {x: evt.nativeEvent.locationX, y: evt.nativeEvent.locationY});
 }
 
 function handleTouchMove(window : {width: number, height: number}, evt : GestureResponderEvent)
                         : void {
-  control.flipCellStateOnTouch("touchMoved", window, 
+  flipCellStateOnTouch("touchMoved", window, 
                                {x: evt.nativeEvent.locationX, y: evt.nativeEvent.locationY});
 }
 
 // This component is a container for eight buttons that appear at the bottom of the screen.
 const ControlBar = ({buttonHeight, window}) => {
   const [mode, setMode] = useState("creative");
+  const dispatch = useDispatch();
+  const changeMode_ = resetSwitch => {dispatch(changeMode(resetSwitch))};
+  const moveCameraUp_ = () => {dispatch(moveCameraUp())};
+  const moveCameraDown_ = () => {dispatch(moveCameraDown())};
+  const moveCameraLeft_ = () => {dispatch(moveCameraLeft())};
+  const moveCameraRight_ = () => {dispatch(moveCameraRight())};
+  const moveCameraForward_ = () => {dispatch(moveCameraForward())};
+  const moveCameraBack_ = () => {dispatch(moveCameraBack())};
   const onPlayPausePressed = () => {
-    control.changeMode(false);
+    changeMode_(false);
     if (mode === "simulation") {setMode("creative")}
     else {setMode("simulation")}
   };
   const onResetPressed = () => {
-    control.changeMode(true);
+    changeMode_(true);
   };
   return (
     <View style={[styles.bottomControlBar, {width: window.width}]}>
@@ -76,27 +88,27 @@ const ControlBar = ({buttonHeight, window}) => {
                         disabled={(mode === "simulation") ? true : false} />
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={require("./assets/upButton.png")}
-                        onPress={control.moveCameraUp}
+                        onPress={moveCameraUp_}
                         disabled={false} />
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={require("./assets/downButton.png")}
-                        onPress={control.moveCameraDown}
+                        onPress={moveCameraDown_}
                         disabled={false} />
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={require("./assets/leftButton.png")}
-                        onPress={control.moveCameraLeft}
+                        onPress={moveCameraLeft_}
                         disabled={false} />
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={require("./assets/rightButton.png")}
-                        onPress={control.moveCameraRight}
+                        onPress={moveCameraRight_}
                         disabled={false} />
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={require("./assets/plusButton.png")}
-                        onPress={control.moveCameraForward}
+                        onPress={moveCameraForward_}
                         disabled={false} />
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={require("./assets/minusButton.png")}
-                        onPress={control.moveCameraBack}
+                        onPress={moveCameraBack_}
                         disabled={false} />
     </View>
   );
@@ -107,10 +119,11 @@ const ControlBar = ({buttonHeight, window}) => {
 const MainScreen = ({navigation}) => {
   const window = useWindowDimensions();
   const buttonHeight = window.height * 0.1;
+  const control_ = useSelector(state => state);
 
   return (
     <View style={[styles.mainScreenContainer, {paddingTop: window.height * 0.04}]}>
-      <ControlBar buttonHeight={buttonHeight} window={window} />
+      <ControlBar buttonHeight={buttonHeight} window={window}/>
       <View style={[styles.gameBoardContainer, {width: window.width}]}>
         <GLView style={{width: window.width, height: window.width * 1.1}}
                 onContextCreate={onContextCreation}
@@ -120,11 +133,11 @@ const MainScreen = ({navigation}) => {
                 onResponderMove={(evt) => handleTouchMove(window, evt)}/>
         <MetaDataBar style={[styles.metaDataBar, {width: window.width}]}
                      window={window}
-                     getState1={control.getBoardDimensions}
+                     getState1={getBoardDimensions}
                      stateName1={"Board dimensions"}
-                     getState2={control.getGameTime}
+                     getState2={getGameTime}
                      stateName2={"Generation"}
-                     getState3={control.getTotalPopulation}
+                     getState3={getTotalPopulation}
                      stateName3={"Population"}
                      period={200}
                      />
@@ -133,11 +146,11 @@ const MainScreen = ({navigation}) => {
         <ControlBarPlaceHolder buttonHeight={buttonHeight}
                                flex={7}
                                colour={"rgb(0, 0, 0)"}
-                               content={`Pattern name: ${control.getPatternName()}`}/>
+                               content={`Pattern name: ${getPatternName()}`}/>
         <ControlBarButton buttonHeight={buttonHeight}
                           imageSource={require("./assets/menuButton.png")}
                           onPress={() => {
-                            clearInterval(control.getIntervalID());
+                            clearInterval(control_.intervalID);
                             navigation.navigate("MainMenu");
                           }}
                           disabled={false} />
@@ -146,4 +159,4 @@ const MainScreen = ({navigation}) => {
   );
 };
 
-export default MainScreen;
+export {MainScreen};

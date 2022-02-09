@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { ColorPicker } from 'react-native-color-picker';
-import { control } from './logic-components/StateController';
 
 const styles = StyleSheet.create({
   colourOptionsContainer: {
@@ -37,14 +36,4 @@ const ColourSelectionScreen = ({route}) => {
   );
 };
 
-// This function updates the state of control.colourFadeSet after user input has been received
-// by the SetColour1Screen or SetColour2Screen components.
-function updateColourFade(red1 : number, green1 : number, blue1 : number, red2 : number,
-                          green2 : number, blue2 : number) : void {
-  const redRate = (red2 - red1) / 15;
-  const greenRate = (green2 - green1) / 15;
-  const blueRate = (blue2 - blue1) / 15;
-  control.setColourFadeSet(null, red1, redRate, green1, greenRate, blue1, blueRate);
-}
-
-export {ColourSelectionScreen, determineColour, updateColourFade};
+export {ColourSelectionScreen, determineColour};

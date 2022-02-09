@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Animated } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
-import { determineColour, updateColourFade } from './ColourOptionsScreens';
+import { useSelector, useDispatch } from 'react-redux';
+import { determineColour } from './ColourOptionsScreens';
 import Menu from './react-components/MenuScreen';
-import { control } from './logic-components/StateController';
+import { control, setGridColour, setBackgroundColour, setColourFadeSet, store }
+from './logic-components/StateController';
 
 // This is a helper function for MenuArray.
 function disabledCheck(text : string, route : (() => void) | null) : boolean {
@@ -148,13 +150,21 @@ const GameMenu = ({navigation}) => {
 
 const BoardColourOptionsMenu = ({navigation}) => {
   const isFocused = useIsFocused();
-  const gdColour = control.getGridColour();
-  const bkColour = control.getBackgroundColour();
+  const control_ = useSelector(state => state);
+  const gdColour = control_.gridColour;
+  const bkColour = control_.backgroundColour;
+  const dispatch = useDispatch();
+  const setGridColour_ = (red, green, blue, alpha) => {
+    dispatch(setGridColour(red, green, blue, alpha));
+  };
+  const setBackgroundColour_ = (red, green, blue, alpha) => {
+    dispatch(setBackgroundColour(red, green, blue, alpha));
+  };
   const gridColourRequest = {
     text: "Set grid colour",
     action: color => {
       const {red, green, blue} = determineColour(color);
-      control.setGridColour(red, green, blue, 1)
+      setGridColour_(red, green, blue, 1);
     }
   };
   const backgroundColourRequest = {
@@ -162,7 +172,7 @@ const BoardColourOptionsMenu = ({navigation}) => {
     action: 
       color => {
         const {red, green, blue} = determineColour(color);
-        control.setBackgroundColour(red, green, blue, 1);
+        setBackgroundColour_(red, green, blue, 1);
       }
   };
   const menuArray =
@@ -213,16 +223,26 @@ const FadePreview = (redStart, redEnd, greenStart, greenEnd, blueStart, blueEnd)
 }
 
 // This function implements the logic for the colour fade enabled switch.
-function updateEnabledSwitch(isEnabled : boolean, enabled : boolean,
-                             setEnabled : React.Dispatch<React.SetStateAction<boolean>>) : void {
+function updateEnabledSwitch(enabled : boolean, isEnabled : boolean,
+                             setEnabled : (value: any) => void) {
   setEnabled(! isEnabled);
-  control.setColourFadeSet(! enabled, null, null, null, null, null, null);
+  store.dispatch(setColourFadeSet(! enabled, null, null, null, null, null, null));
+}
+
+// This function updates the state of control.colourFadeSet after user input has been received
+// by the SetColour1Screen or SetColour2Screen components.
+function updateColourFade(red1, green1, blue1, red2, green2, blue2) {
+  const redRate = (red2 - red1) / 15;
+  const greenRate = (green2 - green1) / 15;
+  const blueRate = (blue2 - blue1) / 15;
+  store.dispatch(setColourFadeSet(null, red1, redRate, green1, greenRate, blue1, blueRate));
 }
 
 const CellColourOptionsMenu = ({navigation}) => {
   const isFocused = useIsFocused();
+  const control_ = useSelector(state => state);
   const {redStart, redRate, greenStart, greenRate, blueStart, blueRate, enabled} =
-    control.getColourFadeSet(1);
+    control_.colourFadeSet;
   const [isEnabled, setEnabled] = useState(enabled);
   const redEnd = (redStart + redRate * 15) * 255;
   const greenEnd = (greenStart + greenRate * 15) * 255;
@@ -230,7 +250,6 @@ const CellColourOptionsMenu = ({navigation}) => {
   const colour1Request = {
     text: "Set colour fade start colour",
     action: color => {
-      const {redRate, greenRate, blueRate} = control.getColourFadeSet(1);
       const {red, green, blue} = determineColour(color);
       updateColourFade(red, green, blue, red + redRate * 15,
                          green + greenRate * 15, blue + blueRate * 15);
@@ -239,7 +258,6 @@ const CellColourOptionsMenu = ({navigation}) => {
   const colour2Request = {
     text: "Set colour fade end colour",
     action: color => {
-      const {redStart, greenStart, blueStart} = control.getColourFadeSet(1);
       const {red, green, blue} = determineColour(color);
       updateColourFade(redStart, greenStart, blueStart, red, green, blue);
     }
@@ -249,7 +267,7 @@ const CellColourOptionsMenu = ({navigation}) => {
               `Enable age based colour fade.  Cells will fade between the two selected colours over\
  three seconds, based on the time since their birth`,
               12, "rgb(0, 0, 0)",
-              () => updateEnabledSwitch(isEnabled, enabled, setEnabled),
+              () => updateEnabledSwitch(enabled, isEnabled, setEnabled),
               `${isEnabled ? "Disable" : "Enable"}`, 24, "rgb(0, 0, 0)",
               () => navigation.navigate("ColourSelectionScreen", colour1Request),
               "Set colour 1 (current colour below)",
@@ -258,7 +276,7 @@ const CellColourOptionsMenu = ({navigation}) => {
               24, `rgb(${redStart * 255}, ${greenStart * 255}, ${blueStart * 255})`,
               () => navigation.navigate("ColourSelectionScreen", colour2Request),
               "Set colour 2 (current colour below)", 24, "rgb(0, 0, 0)",
-              null, "", 24, `rgb(${(redStart + redRate * 15) * 255}, ${(greenStart + greenRate * 15) * 255}, ${(blueStart + blueRate * 15) * 255})`,
+              null, "", 24, `rgb(${redEnd}, ${greenEnd}, ${blueEnd})`,
               FadePreview(redStart * 255, redEnd, greenStart * 255, greenEnd, blueStart * 255,
                           blueEnd));
   return (

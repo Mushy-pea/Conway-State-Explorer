@@ -5,7 +5,7 @@ import vertexShader from './VertexShader';
 import fragmentShader from './FragmentShader';
 import { cellModel, LineModels, modelElements } from './GameBoardModels';
 import { gameBoardObject, handleUpdateEvent, handleResetEvent } from './GameLogic';
-import { control } from './StateController';
+import { control, store, changeMode, setIntervalID } from './StateController';
 
 // This global const holds a handle to the OpenGL context created when onContextCreation is called.
 const gl = {
@@ -172,9 +172,9 @@ function genCellTransforms(gameBoard : object[], gameTime : number, colourFadeSe
 function genGridTransforms(transformFunction : (i: number, j: number) => number[],
                            transformArray : object[], i : number, j : number, diffI : number,
                            diffJ : number, cMax : number) : void {
-  const gridColour_ = control.getGridColour();
-  const gridColour = [gridColour_.red, gridColour_.green, gridColour_.blue, gridColour_.alpha];
-  const showGrid = control.getShowGrid();
+  const {red, green, blue, alpha} = store.getState().gridColour;
+  const gridColour = [red, green, blue, alpha];
+  const showGrid = store.getState().showGrid;
   for (let c = 0; c <= cMax; c++) {
     if (showGrid || c === 0 || c === cMax) {
       transformArray.push({transform: transformFunction(i, j), colour: gridColour});
@@ -204,28 +204,35 @@ function renderModels(transformArray, uniform_modToClip, uniform_colour,
 // This function is the central branching point of this module and is called through an interval
 // timer.
 function handleRenderEvent() : void {
-  const boardArraySize = control.getBoardArraySize();
+  const boardArraySize = store.getState().boardArraySize;
+  const mode = (store.getState()).mode;
   
-  if (control.getMode() === "simulation") {handleUpdateEvent(boardArraySize)}
-  else if (control.getMode() === "reset") {
+  if (mode === "simulation") {handleUpdateEvent(boardArraySize)}
+  else if (mode === "reset") {
     handleResetEvent(boardArraySize);
-    control.changeMode(true);
+    store.dispatch(changeMode(true));
   }
   
-  const {cameraX, cameraY, cameraZ} = control.getCamera();
-  const transformFunction = genModelTransformFunction(cameraX, cameraY, cameraZ, glP.frustumScale(),
-                                                glP.zNear(), glP.zFar());
+  const camera = store.getState().camera;
+  const transformFunction = genModelTransformFunction(camera.x, camera.y, camera.z,
+                                                      glP.frustumScale(), glP.zNear(), glP.zFar());
   gl.context.clear(gl.context.COLOR_BUFFER_BIT);
   const aspectRatio = gl.context.drawingBufferHeight / gl.context.drawingBufferWidth;
-  const renderRange = {minI: Math.trunc(cameraY - 1.478003 - 41),
-                       maxI: Math.trunc(cameraY - 1.478003 + 41 + 80 * (aspectRatio - 1)),
-                       minJ: Math.trunc(-(cameraX + 0.611501) - 41),
-                       maxJ: Math.trunc(-(cameraX + 0.611501) + 41)};
+  const renderRange = {minI: Math.trunc(camera.y - 1.478003 - 41),
+                       maxI: Math.trunc(camera.y - 1.478003 + 41 + 80 * (aspectRatio - 1)),
+                       minJ: Math.trunc(-(camera.x + 0.611501) - 41),
+                       maxJ: Math.trunc(-(camera.x + 0.611501) + 41)};
   const max = boardArraySize - 1;
   const min = -max;
-  const colourFadeSet = control.getColourFadeSet(0);
+  const colourFadeSet = store.getState().colourFadeSet;
+  let colourFadeSet_ = {...colourFadeSet};
+  if (! colourFadeSet.enabled) {
+    colourFadeSet_.redRate = 0;
+    colourFadeSet_.greenRate = 0;
+    colourFadeSet_.blueRate = 0;
+  }
   const transformArray = [];
-  genCellTransforms(gameBoardObject.gameBoard, gameBoardObject.gameTime, colourFadeSet,
+  genCellTransforms(gameBoardObject.gameBoard, gameBoardObject.gameTime, colourFadeSet_,
                     transformFunction, transformArray, max, renderRange.minI, renderRange.maxI,
                     renderRange.minJ, renderRange.maxJ);
   renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
@@ -248,7 +255,7 @@ function handleRenderEvent() : void {
 // related to the GL context to the global variables gl and glP.
 function onContextCreation(_gl) : void {
   _gl.viewport(0, 0, _gl.drawingBufferWidth, _gl.drawingBufferHeight);
-  const {red, green, blue, alpha} = control.getBackgroundColour();
+  const {red, green, blue, alpha} = store.getState().backgroundColour;
   _gl.clearColor(red, green, blue, alpha);
   _gl.clear(_gl.COLOR_BUFFER_BIT);
 
@@ -270,7 +277,7 @@ function onContextCreation(_gl) : void {
   console.log(`Program link status: ${_gl.getProgramParameter(shaderProgram, _gl.LINK_STATUS)}`);
   console.log(`Program validate status:
                ${_gl.getProgramParameter(shaderProgram, _gl.VALIDATE_STATUS)}`);
-  const boardArraySize = control.getBoardArraySize();
+  const boardArraySize = store.getState().boardArraySize;
   const lineModels = new LineModels(boardArraySize);
   glP.setUniform_modToClip(_gl.getUniformLocation(shaderProgram, "modToClip"));
   glP.setUniform_colour(_gl.getUniformLocation(shaderProgram, "colour"));
@@ -282,8 +289,8 @@ function onContextCreation(_gl) : void {
   _gl.useProgram(shaderProgram);
 
   gl.context = _gl;
-  if (control.getIntervalID() === null) {handleResetEvent(boardArraySize)}
-  control.setIntervalID(setInterval(handleRenderEvent, 200));
+  if (store.getState().intervalID === null) {handleResetEvent(boardArraySize)}
+  store.dispatch(setIntervalID(setInterval(handleRenderEvent, 200)));
 }
 
 export {onContextCreation};
