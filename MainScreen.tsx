@@ -7,7 +7,7 @@ import { MetaDataBar } from './react-components/MetaDataBar';
 import { onContextCreation } from './logic-components/GameBoardRenderer';
 import { changeMode, moveCameraLeft, moveCameraRight,
          moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward, flipCellStateOnTouch, getBoardDimensions,
-         getGameTime, getTotalPopulation, getPatternName }
+         getGameTime, getTotalPopulation }
 from './logic-components/StateController';
 
 const styles = StyleSheet.create({
@@ -119,7 +119,7 @@ const ControlBar = ({buttonHeight, window}) => {
 const MainScreen = ({navigation}) => {
   const window = useWindowDimensions();
   const buttonHeight = window.height * 0.1;
-  const control_ = useSelector(state => state);
+  const state = useSelector(state => state);
 
   return (
     <View style={[styles.mainScreenContainer, {paddingTop: window.height * 0.04}]}>
@@ -146,11 +146,11 @@ const MainScreen = ({navigation}) => {
         <ControlBarPlaceHolder buttonHeight={buttonHeight}
                                flex={7}
                                colour={"rgb(0, 0, 0)"}
-                               content={`Pattern name: ${getPatternName()}`}/>
+                               content={`Pattern name: ${state.patternName}`}/>
         <ControlBarButton buttonHeight={buttonHeight}
                           imageSource={require("./assets/menuButton.png")}
                           onPress={() => {
-                            clearInterval(control_.intervalID);
+                            clearInterval(state.intervalID);
                             navigation.navigate("MainMenu");
                           }}
                           disabled={false} />

@@ -12,6 +12,7 @@
     "preset": "react-native"
   },
   "dependencies": {
+    "@react-native-community/checkbox": "^0.5.9",
     "@react-navigation/native": "^6.0.6",
     "@react-navigation/native-stack": "^6.2.5",
     "expo": "~42.0.1",

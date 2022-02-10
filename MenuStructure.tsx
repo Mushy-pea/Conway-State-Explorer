@@ -2,9 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Animated } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
-import { determineColour } from './ColourOptionsScreens';
+import { determineColour } from './ColourSelectionScreen';
 import Menu from './react-components/MenuScreen';
-import { control, setGridColour, setBackgroundColour, setColourFadeSet, store }
+import { setGridColour, setBackgroundColour, setColourFadeSet, store, setShowGrid }
 from './logic-components/StateController';
 
 // This is a helper function for MenuArray.
@@ -116,7 +116,7 @@ const DisplayMenu = ({navigation}) => {
                               "Board colour options", 24, "rgb(0, 0, 0)",
                               () => navigation.navigate("CellColourOptionsMenu"),
                               "Cell colour options", 24, "rgb(0, 0, 0)",
-                              () => navigation.navigate("GraphOptions"), "Graph options", 24,
+                              () => navigation.navigate("GraphOptionsMenu"), "Graph options", 24,
                               "rgb(0, 0, 0)",
                               null, "", 24, "rgb(0, 0, 0)",
                               null, "", 24, "rgb(0, 0, 0)",
@@ -136,7 +136,7 @@ const GameMenu = ({navigation}) => {
                               "rgb(0, 0, 0)",
                               () => navigation.navigate("SavePattern"), "Save pattern", 24,
                               "rgb(0, 0, 0)",
-                              () => navigation.navigate("SetGameRules"), "Set game rules", 24,
+                              () => navigation.navigate("SetGameRulesScreen"), "Set game rules", 24,
                               "rgb(0, 0, 0)",
                               null, "",  24, "rgb(0, 0, 0)",
                               null, "",  24, "rgb(0, 0, 0)",
@@ -222,11 +222,11 @@ const FadePreview = (redStart, redEnd, greenStart, greenEnd, blueStart, blueEnd)
   );
 }
 
-// This function implements the logic for the colour fade enabled switch.
+// This function implements the logic for enable / disable switches in the menus.
 function updateEnabledSwitch(enabled : boolean, isEnabled : boolean,
-                             setEnabled : (value: any) => void) {
+                             setEnabled : (value: any) => void, updaterFunction) {
   setEnabled(! isEnabled);
-  store.dispatch(setColourFadeSet(! enabled, null, null, null, null, null, null));
+  store.dispatch(updaterFunction(! enabled, null, null, null, null, null, null));
 }
 
 // This function updates the state of control.colourFadeSet after user input has been received
@@ -241,7 +241,7 @@ function updateColourFade(red1, green1, blue1, red2, green2, blue2) {
 const CellColourOptionsMenu = ({navigation}) => {
   const isFocused = useIsFocused();
   const control_ = useSelector(state => state);
-  const {redStart, redRate, greenStart, greenRate, blueStart, blueRate, enabled} =
+  const {enabled, redStart, redRate, greenStart, greenRate, blueStart, blueRate} =
     control_.colourFadeSet;
   const [isEnabled, setEnabled] = useState(enabled);
   const redEnd = (redStart + redRate * 15) * 255;
@@ -267,7 +267,7 @@ const CellColourOptionsMenu = ({navigation}) => {
               `Enable age based colour fade.  Cells will fade between the two selected colours over\
  three seconds, based on the time since their birth`,
               12, "rgb(0, 0, 0)",
-              () => updateEnabledSwitch(enabled, isEnabled, setEnabled),
+              () => updateEnabledSwitch(enabled, isEnabled, setEnabled, setColourFadeSet),
               `${isEnabled ? "Disable" : "Enable"}`, 24, "rgb(0, 0, 0)",
               () => navigation.navigate("ColourSelectionScreen", colour1Request),
               "Set colour 1 (current colour below)",
@@ -286,4 +286,25 @@ const CellColourOptionsMenu = ({navigation}) => {
   );
 };
 
-export {MainMenu, DisplayMenu, GameMenu, BoardColourOptionsMenu, CellColourOptionsMenu};
+const GraphOptionsMenu = () => {
+  const state = useSelector(state => state);
+  const enabled = state.showGrid;
+  const [isEnabled, setEnabled] = useState(enabled);
+  const menuArray =
+    MenuArray(null, "Show a grid over the board.", 12, "rgb(0, 0, 0)",
+              () => updateEnabledSwitch(enabled, isEnabled, setEnabled, setShowGrid),
+              `${isEnabled ? "Disable" : "Enable"}`, 24, "rgb(0, 0, 0)",
+              null, "",  24, "rgb(0, 0, 0)",
+              null, "",  24, "rgb(0, 0, 0)",
+              null, "",  24, "rgb(0, 0, 0)",
+              null, "",  24, "rgb(0, 0, 0)",
+              null);
+  return (
+    <>
+      <Menu menuArray={menuArray}/>
+    </>
+  );
+};
+
+export {MainMenu, DisplayMenu, GameMenu, BoardColourOptionsMenu, CellColourOptionsMenu,
+        GraphOptionsMenu};

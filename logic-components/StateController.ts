@@ -58,7 +58,9 @@ const INITIAL_STATE = {
   boardArraySize: 41,
   scale: 2.25,
   lastCellTouched: null,
-  patternName: "[userName defined]"
+  patternName: "[userName defined]",
+  survivalRules: [false, false, true, true, false, false, false, false, false],
+  birthRules: [false, false, false, true, false, false, false, false, false]
 };
 
 const controlReducer = (state = INITIAL_STATE, action) => {
@@ -121,6 +123,7 @@ const controlReducer = (state = INITIAL_STATE, action) => {
         x: state.camera.x, y: state.camera.y, z: newCameraZ
       };
       newState.camera = newCamera;
+      newState.scale = Math.abs(newCameraZ) / 20;
       return newState;
     case "MOVE_CAMERA_FORWARD":
       if (state.camera.z >= -6) {newCameraZ = -5}
@@ -129,6 +132,7 @@ const controlReducer = (state = INITIAL_STATE, action) => {
         x: state.camera.x, y: state.camera.y, z: newCameraZ
       };
       newState.camera = newCamera;
+      newState.scale = Math.abs(newCameraZ) / 20;
       return newState;
     case "SET_GRID_COLOUR":
       newState.gridColour = {red: action.payload.red,
@@ -172,6 +176,18 @@ const controlReducer = (state = INITIAL_STATE, action) => {
       else {
         newState.lastCellTouched = {i: action.payload.i, j: action.payload.j};
       }
+      return newState;
+    case "SET_BOARD_ARRAY_SIZE":
+      newState.boardArraySize = action.payload;
+      return newState;
+    case "SET_PATTERN_NAME":
+      newState.patternName = action.payload;
+      return newState;
+    case "SET_SURVIVAL_RULES":
+      newState.survivalRules = action.payload;
+      return newState;
+    case "SET_BIRTH_RULES":
+      newState.birthRules = action.payload;
       return newState;
     default:
       return state
@@ -258,10 +274,38 @@ const setColourFadeSet = (enabled : boolean, redStart : number | null, redRate :
   }
 );
 
+const setBoardArraySize = (size : number) => (
+  {
+    type: "SET_BOARD_ARRAY_SIZE",
+    payload: size
+  }
+);
+
 const setLastCellTouched = (i : number, j : number) => (
   {
     type: "SET_LAST_CELL_TOUCHED",
     payload: {i: i, j: j}
+  }
+);
+
+const setPatternName = patternName => (
+  {
+    type: "SET_PATTERN_NAME",
+    payload: patternName
+  }
+);
+
+const setSurvivalRules = survivalRules => (
+  {
+    type: "SET_SURVIVAL_RULES",
+    payload: survivalRules
+  }
+);
+
+const setBirthRules = birthRules => (
+  {
+    type: "SET_BIRTH_RULES",
+    payload: birthRules
   }
 );
 
@@ -280,16 +324,9 @@ function getTotalPopulation() : string {
   return (`${gameBoardObject.totalPopulation}`);
 }
 
-// This function is also used in MainScreen.
-function getPatternName() : string {
-  const patternName = store.getState().patternName;
-  return patternName;
-}
-
 const store = createStore(controlReducer);
 
 export {store, changeMode, setIntervalID, setShowGrid, moveCameraLeft, moveCameraRight,
         moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward, setGridColour,
-        setBackgroundColour, setColourFadeSet, flipCellStateOnTouch, getBoardDimensions,
-        getGameTime, getTotalPopulation, getPatternName};
-
+        setBackgroundColour, setColourFadeSet, setBoardArraySize, setPatternName,
+        flipCellStateOnTouch, getBoardDimensions, getGameTime, getTotalPopulation};

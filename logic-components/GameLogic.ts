@@ -2,6 +2,7 @@
 // update it at each game time tick.
 
 import testBoardState5 from './TestBoardStates';
+import { store } from './StateController';
 
 // The gameBoard and nextGameBoard arrays hold the state of the game board itself.
 // The boardUpdateTable array holds meta data that allows an optimisation to be applied, such that
@@ -254,11 +255,11 @@ function handleResetEvent(boardArraySize : number) : void {
 function handleUpdateEvent(boardArraySize : number) : void {
   const max = boardArraySize - 1;
   const min = -max;
+  const survivalRules = store.getState().survivalRules;
+  const birthRules = store.getState().birthRules;
   gameBoardObject.totalPopulation =
     updateGameBoard(gameBoardObject.gameBoard, gameBoardObject.nextGameBoard,
-                    gameBoardObject.boardUpdateTable,
-                    [false, false, true, true, false, false, false, false, false],
-                    [false, false, false, true, false, false, false, false, false],
+                    gameBoardObject.boardUpdateTable, survivalRules, birthRules,
                     gameBoardObject.gameTime, min, max);
   gameBoardObject.gameBoard = gameBoardObject.nextGameBoard;
   gameBoardObject.nextGameBoard =
