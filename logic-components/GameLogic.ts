@@ -2,7 +2,7 @@
 // update it at each game time tick.
 
 import testBoardState5 from './TestBoardStates';
-import { store } from './StateController';
+import { store, setLastCellTouched } from './StateController';
 
 // The gameBoard and nextGameBoard arrays hold the state of the game board itself.
 // The boardUpdateTable array holds meta data that allows an optimisation to be applied, such that
@@ -268,8 +268,52 @@ function handleUpdateEvent(boardArraySize : number) : void {
   gameBoardObject.gameTime++;
 }
 
-// export {createGameBoard, createUpdateTable, getCellState, setCellState, updateGameBoard,
-//         testGameBoard};
+// This function processes touch input captured by the game board container component in MainScreen
+// and updates the state of the game board accordingly.
+function flipCellStateOnTouch(event: string, window: {width : number, height: number},
+                              touch: {x : number, y: number}) : void {
+  if (store.getState().mode === "simulation") {return null}
+  const lastCellTouched = store.getState().lastCellTouched;
+  const camera = store.getState().camera;
+  const applyTruncation = x => {
+    if (x < 0) {return Math.trunc(x) - 1}
+    else {return Math.trunc(x)}
+  };
+  const flipCell = (i, j) => {
+    const nextCellState = ! getCellState(gameBoardObject.gameBoard, i, j).cellState;
+    setCellState(gameBoardObject.gameBoard, nextCellState, gameBoardObject.gameTime,
+    cellUpdaterFunctions2, i, j);
+    setUpdateTable(gameBoardObject.boardUpdateTable, gameBoardObject.gameTime, i, j);
+  };
+  const cameraXYDiff = {x: camera.x - 35.48849883999984, y: camera.y + 36.02199604000001};
+  const cameraZRatio = camera.z / -5;
+  const cameraZDiff = {x: -((9 * cameraZRatio) - 9) / 2, y: -((9.9 * cameraZRatio) - 9.9) / 2};
+  const scaling = window.width / (9 * cameraZRatio);
+  const i = applyTruncation(touch.y / scaling + cameraXYDiff.y + cameraZDiff.y - 40);
+  const j = applyTruncation(touch.x / scaling - cameraXYDiff.x + cameraZDiff.x - 40);
+  if (event === "touchReleased" ) {
+    flipCell(i, j);
+    store.dispatch(setLastCellTouched(null, null));
+  }
+  else if (event === "touchMoved" && lastCellTouched !== null) {
+    if (! (i === lastCellTouched.i && j === lastCellTouched.j)) {
+      flipCell(lastCellTouched.i, lastCellTouched.j);
+      store.dispatch(setLastCellTouched(i, j));
+    }
+  }
+  else {
+    store.dispatch(setLastCellTouched(i, j));
+  }
+}
 
-export {gameBoardObject, getCellState, setCellState, setUpdateTable, cellUpdaterFunctions1,
-        cellUpdaterFunctions2, handleUpdateEvent, handleResetEvent};
+// These two helper functions are used with the MetaDataBar component in MainScreen.
+function getGameTime() : string {
+  return (`${gameBoardObject.gameTime}`);
+}
+
+function getTotalPopulation() : string {
+  return (`${gameBoardObject.totalPopulation}`);
+}
+
+export {gameBoardObject, handleUpdateEvent, handleResetEvent, flipCellStateOnTouch, getGameTime,
+        getTotalPopulation};

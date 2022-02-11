@@ -5,7 +5,7 @@ import vertexShader from './VertexShader';
 import fragmentShader from './FragmentShader';
 import { cellModel, LineModels, modelElements } from './GameBoardModels';
 import { gameBoardObject, handleUpdateEvent, handleResetEvent } from './GameLogic';
-import { control, store, changeMode, setIntervalID } from './StateController';
+import { store, changeMode, setIntervalID } from './StateController';
 
 // This global const holds a handle to the OpenGL context created when onContextCreation is called.
 const gl = {
@@ -225,7 +225,7 @@ function handleRenderEvent() : void {
   const max = boardArraySize - 1;
   const min = -max;
   const colourFadeSet = store.getState().colourFadeSet;
-  let colourFadeSet_ = {...colourFadeSet};
+  const colourFadeSet_ = {...colourFadeSet};
   if (! colourFadeSet.enabled) {
     colourFadeSet_.redRate = 0;
     colourFadeSet_.greenRate = 0;

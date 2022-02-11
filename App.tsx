@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Provider } from 'react-redux';
 import { store } from './logic-components/StateController';
 import { MainScreen } from './MainScreen';
+import SetGameRulesScreen from './SetGameRulesScreen';
 import { ColourSelectionScreen } from './ColourSelectionScreen';
 import { MainMenu, DisplayMenu, GameMenu, BoardColourOptionsMenu,
          CellColourOptionsMenu, GraphOptionsMenu } from './MenuStructure';
@@ -23,6 +24,7 @@ const App = () => {
           <Stack.Screen name="CellColourOptionsMenu" component={CellColourOptionsMenu}/>
           <Stack.Screen name="GraphOptionsMenu" component={GraphOptionsMenu}/>
           <Stack.Screen name="ColourSelectionScreen" component={ColourSelectionScreen}/>
+          <Stack.Screen name="SetGameRulesScreen" component={SetGameRulesScreen}/>
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>

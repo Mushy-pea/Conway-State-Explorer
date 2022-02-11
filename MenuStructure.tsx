@@ -27,7 +27,7 @@ function MenuArray(action0 : (() => void) | null, text0 : string, fontSize0 : nu
                    action4 : (() => void) | null, text4 : string, fontSize4 : number,
                    colour4 : string,
                    action5 : (() => void) | null, text5 : string, fontSize5 : number,
-                   colour5 : string, nestedView : any)
+                   colour5 : string, nestedView)
                    : object {
   return [
     {
@@ -224,7 +224,7 @@ const FadePreview = (redStart, redEnd, greenStart, greenEnd, blueStart, blueEnd)
 
 // This function implements the logic for enable / disable switches in the menus.
 function updateEnabledSwitch(enabled : boolean, isEnabled : boolean,
-                             setEnabled : (value: any) => void, updaterFunction) {
+                             setEnabled : (value) => void, updaterFunction) {
   setEnabled(! isEnabled);
   store.dispatch(updaterFunction(! enabled, null, null, null, null, null, null));
 }

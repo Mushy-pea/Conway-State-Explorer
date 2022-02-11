@@ -6,9 +6,10 @@ import { ControlBarButton, ControlBarPlaceHolder } from './react-components/Cont
 import { MetaDataBar } from './react-components/MetaDataBar';
 import { onContextCreation } from './logic-components/GameBoardRenderer';
 import { changeMode, moveCameraLeft, moveCameraRight,
-         moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward, flipCellStateOnTouch, getBoardDimensions,
-         getGameTime, getTotalPopulation }
+         moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward, getBoardDimensions }
 from './logic-components/StateController';
+import { flipCellStateOnTouch, getGameTime, getTotalPopulation }
+from './logic-components/GameLogic';
 
 const styles = StyleSheet.create({
   mainScreenContainer: {

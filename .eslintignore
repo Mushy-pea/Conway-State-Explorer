@@ -1,2 +1,4 @@
 node_modules
 GameLogic.test.js
+.eslintrc.js
+babel.config.js

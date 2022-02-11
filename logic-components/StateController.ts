@@ -1,44 +1,4 @@
 import { createStore } from 'redux';
-import { gameBoardObject, getCellState, setCellState, setUpdateTable, cellUpdaterFunctions2 }
-from './GameLogic';
-
-// This function processes touch input captured by the game board container component in MainScreen
-// and updates the state of the game board accordingly.
-function flipCellStateOnTouch(event: string, window: {width : number, height: number},
-                              touch: {x : number, y: number}) : void {
-  if (store.getState().mode === "simulation") {return null}
-  const lastCellTouched = store.getState().lastCellTouched;
-  const camera = store.getState().camera;
-  const applyTruncation = x => {
-    if (x < 0) {return Math.trunc(x) - 1}
-    else {return Math.trunc(x)}
-  };
-  const flipCell = (i, j) => {
-    const nextCellState = ! getCellState(gameBoardObject.gameBoard, i, j).cellState;
-    setCellState(gameBoardObject.gameBoard, nextCellState, gameBoardObject.gameTime,
-                 cellUpdaterFunctions2, i, j);
-    setUpdateTable(gameBoardObject.boardUpdateTable, gameBoardObject.gameTime, i, j);
-  };
-  const cameraXYDiff = {x: camera.x - 35.48849883999984, y: camera.y + 36.02199604000001};
-  const cameraZRatio = camera.z / -5;
-  const cameraZDiff = {x: -((9 * cameraZRatio) - 9) / 2, y: -((9.9 * cameraZRatio) - 9.9) / 2};
-  const scaling = window.width / (9 * cameraZRatio);
-  const i = applyTruncation(touch.y / scaling + cameraXYDiff.y + cameraZDiff.y - 40);
-  const j = applyTruncation(touch.x / scaling - cameraXYDiff.x + cameraZDiff.x - 40);
-  if (event === "touchReleased" ) {
-    flipCell(i, j);
-    store.dispatch(setLastCellTouched(null, null));
-  }
-  else if (event === "touchMoved" && lastCellTouched !== null) {
-    if (! (i === lastCellTouched.i && j === lastCellTouched.j)) {
-      flipCell(lastCellTouched.i, lastCellTouched.j);
-      store.dispatch(setLastCellTouched(i, j));
-    }
-  }
-  else {
-    store.dispatch(setLastCellTouched(i, j));
-  }
-}
 
 // The top level application state that can be modified through the UI is held in the
 // controlReducer Redux store.  This includes everything except the game board state.
@@ -64,14 +24,13 @@ const INITIAL_STATE = {
 };
 
 const controlReducer = (state = INITIAL_STATE, action) => {
-  let newState = {...state};
+  const newState = {...state};
   let newCamera;
   let newCameraZ;
+  let newMode;
   switch (action.type) {
     case "CHANGE_MODE":
-      const resetSwitch : boolean = action.payload;
-      let newMode;
-      if (resetSwitch) {
+      if (action.payload) {
         if (state.mode !== "reset") {
           newMode = "reset";
         }
@@ -85,12 +44,10 @@ const controlReducer = (state = INITIAL_STATE, action) => {
       newState.mode = newMode;
       return newState;
     case "SET_INTERVAL_ID":
-      const intervalID : NodeJS.Timer = action.payload;
-      newState.intervalID = intervalID;
+      newState.intervalID = action.payload;
       return newState;
     case "SET_SHOW_GRID":
-      const showGrid : boolean = action.payload;
-      newState.showGrid = showGrid;
+      newState.showGrid = action.payload;
       return newState;
     case "MOVE_CAMERA_LEFT":
       newCamera = {
@@ -309,19 +266,11 @@ const setBirthRules = birthRules => (
   }
 );
 
-// These three helper functions are used with the MetaDataBar component in MainScreen.
+// This function is used with the MetaDataBar component in MainScreen.
 function getBoardDimensions() : string {
   const boardArraySize = store.getState().boardArraySize;
   const dimension = (boardArraySize - 1) * 2 + 1;
   return (`${dimension} * ${dimension}`);
-}
-
-function getGameTime() : string {
-  return (`${gameBoardObject.gameTime}`);
-}
-
-function getTotalPopulation() : string {
-  return (`${gameBoardObject.totalPopulation}`);
 }
 
 const store = createStore(controlReducer);
@@ -329,4 +278,4 @@ const store = createStore(controlReducer);
 export {store, changeMode, setIntervalID, setShowGrid, moveCameraLeft, moveCameraRight,
         moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward, setGridColour,
         setBackgroundColour, setColourFadeSet, setBoardArraySize, setPatternName,
-        flipCellStateOnTouch, getBoardDimensions, getGameTime, getTotalPopulation};
+        setLastCellTouched, getBoardDimensions, setSurvivalRules, setBirthRules};
