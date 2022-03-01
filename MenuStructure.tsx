@@ -130,7 +130,7 @@ const DisplayMenu = ({navigation}) => {
 };
 
 const GameMenu = ({navigation}) => {
-  const menuArray = MenuArray(() => navigation.navigate("BoardSize"), "Board size" , 24,
+  const menuArray = MenuArray(() => navigation.navigate("SetBoardSizeScreen"), "Board size" , 24,
                               "rgb(0, 0, 0)",
                               () => navigation.navigate("LoadPattern"), "Load pattern", 24,
                               "rgb(0, 0, 0)",
