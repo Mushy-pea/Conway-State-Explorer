@@ -1,5 +1,12 @@
 import { createStore } from 'redux';
 
+type ColourFadeSet = {
+  redStart : number, redRate : number,
+  greenStart : number, greenRate : number,
+  blueStart : number, blueRate : number,
+  enabled : boolean
+};
+
 // The top level application state that can be modified through the UI is held in the
 // controlReducer Redux store.  This includes everything except the game board state.
 const INITIAL_STATE = {
@@ -278,4 +285,5 @@ const store = createStore(controlReducer);
 export {store, changeMode, setIntervalID, setShowGrid, moveCameraLeft, moveCameraRight,
         moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward, setGridColour,
         setBackgroundColour, setColourFadeSet, setBoardArraySize, setPatternName,
-        setLastCellTouched, getBoardDimensions, setSurvivalRules, setBirthRules};
+        setLastCellTouched, getBoardDimensions, setSurvivalRules, setBirthRules, ColourFadeSet};
+

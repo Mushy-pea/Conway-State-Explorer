@@ -30,6 +30,13 @@ function initTestBoard(gameBoard, min, max) {
   }
 }
 
+// This function loads a game board pattern given pattern data fetched from the server.
+function loadPattern(gameBoard : BoardCell[], pattern : {i: number, j: number}[]) {
+  pattern.forEach(liveCell => {
+    setCellState(gameBoard, true, 0, cellUpdaterFunctions1, liveCell.i, liveCell.j)
+  });
+}
+
 // This function is used by updateGameBoard to set the current cell and each of its neighbours to
 // true in boardUpdateTable.
 function setUpdateTable(boardUpdateTable : UpdateTableCell[], gameTime : number,

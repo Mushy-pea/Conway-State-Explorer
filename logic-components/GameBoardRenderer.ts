@@ -5,7 +5,8 @@ import vertexShader from './VertexShader';
 import fragmentShader from './FragmentShader';
 import { cellModel, LineModels, modelElements } from './GameBoardModels';
 import { gameBoardObject, handleUpdateEvent, handleResetEvent } from './GameLogic';
-import { store, changeMode, setIntervalID } from './StateController';
+import { store, changeMode, setIntervalID, ColourFadeSet } from './StateController';
+import { BoardCell , getCellState } from './GameLogicTypes';
 
 // This global const holds a handle to the OpenGL context created when onContextCreation is called.
 const gl = {
@@ -126,7 +127,8 @@ function loadBuffer(vertexArray, elementArray, _gl) {
 
 // This function determines the colour of cells when the stability colour fade option is enabled.
 // Cells fade over a user defined range depending on how long they've been alive.
-function applyColourFade(colourFadeSet, gameTime : number, lastBornOn : number) : number[] {
+function applyColourFade(colourFadeSet : ColourFadeSet, gameTime : number, lastBornOn : number)
+                        : number[] {
   const phase = Math.min(gameTime - lastBornOn, 15);
   const red = colourFadeSet.redStart + phase * colourFadeSet.redRate;
   const green = colourFadeSet.greenStart + phase * colourFadeSet.greenRate;
@@ -136,31 +138,17 @@ function applyColourFade(colourFadeSet, gameTime : number, lastBornOn : number) 
 
 // This function applies the model to clip space transform function for each live cell on the
 // game board, thereby allowing a cell model to be rendered in each corresponding position.
-function genCellTransforms(gameBoard : object[], gameTime : number, colourFadeSet,
+function genCellTransforms(gameBoard : BoardCell[], gameTime : number,
+                           colourFadeSet : ColourFadeSet,
                            transformFunction : (i: number, j: number) => number[],
-                          transformArray : object[], arrayMax : number, minI : number,
-                          maxI : number, minJ : number, maxJ : number) : void {
-  const colourRange = lastBornOn => applyColourFade(colourFadeSet, gameTime, lastBornOn);
-  for (let i = 0; i <= arrayMax; i++) {
-    for (let j = 0; j <= arrayMax; j++) {
-      if (gameBoard[i][j].quadrant1 && i <= maxI && j <= maxJ) {
-        const cellColour = colourRange(gameBoard[i][j].q1LastBornOn);
+                           transformArray : object[], minI : number,
+                           maxI : number, minJ : number, maxJ : number) : void {
+  for (let i = minI; i <= maxI; i++) {
+    for (let j = minJ; j <= maxJ; j++) {
+      const cell = getCellState(gameBoard, i, j);
+      if (cell.cellState) {
+        const cellColour = applyColourFade(colourFadeSet, gameTime, cell.lastBornOn);
         transformArray.push({transform: transformFunction(j, -i), colour: cellColour});
-      }
-
-      if (gameBoard[i][j].quadrant2 && -i >= minI && j <= maxJ) {
-        const cellColour = colourRange(gameBoard[i][j].q2LastBornOn);
-        transformArray.push({transform: transformFunction(j, i), colour: cellColour});
-      }
-
-      if (gameBoard[i][j].quadrant3 && -i >= minI && -j >= minJ) {
-        const cellColour = colourRange(gameBoard[i][j].q3LastBornOn);
-        transformArray.push({transform: transformFunction(-j, i), colour: cellColour});
-      }
-
-      if (gameBoard[i][j].quadrant4 && i <= maxI && -j >= minJ) {
-        const cellColour = colourRange(gameBoard[i][j].q4LastBornOn);
-        transformArray.push({transform: transformFunction(-j, -i), colour: cellColour});
       }
     }
   }
@@ -233,7 +221,7 @@ function handleRenderEvent() : void {
   }
   const transformArray = [];
   genCellTransforms(gameBoardObject.gameBoard, gameBoardObject.gameTime, colourFadeSet_,
-                    transformFunction, transformArray, max, renderRange.minI, renderRange.maxI,
+                    transformFunction, transformArray, renderRange.minI, renderRange.maxI,
                     renderRange.minJ, renderRange.maxJ);
   renderModels(transformArray, glP.uniform_modToClip(), glP.uniform_colour(),
                glP.attribute_modPosition(), glP.vertexBuffer_cellModel(), glP.elementBuffer());

@@ -2,19 +2,23 @@
 // It is used as a library by the application front end (Conway-State-Explorer) and back end
 // (Conway-State-Explorer-Server).
 
-type BoardCell = {quadrant1 : boolean,
-                  quadrant2 : boolean,
-                  quadrant3 : boolean,
-                  quadrant4 : boolean,
-                  q1LastBornOn : number,
-                  q2LastBornOn : number,
-                  q3LastBornOn : number,
-                  q4LastBornOn : number};
+type BoardCell = {
+  quadrant1 : boolean,
+  quadrant2 : boolean,
+  quadrant3 : boolean,
+  quadrant4 : boolean,
+  q1LastBornOn : number,
+  q2LastBornOn : number,
+  q3LastBornOn : number,
+  q4LastBornOn : number
+};
 
-type UpdateTableCell = {quadrant1 : number,
-                        quadrant2 : number,
-                        quadrant3 : number,
-                        quadrant4 : number};
+type UpdateTableCell = {
+  quadrant1 : number,
+  quadrant2 : number,
+  quadrant3 : number,
+  quadrant4 : number
+};
 
 function boardCell(q1 = 0, q2 = 0, q3 = 0, q4 = 0) : BoardCell {
   return {
@@ -98,24 +102,25 @@ const cellUpdaterFunctions2 = {
 
 // This is an accessor function (get) for arrays of type BoardCell and UpdateTableCell.
 function getCellState(table : BoardCell[] | UpdateTableCell[], i : number, j : number)
-                     : {exists: boolean, cellState: boolean | number} {
+                     : {cellState: boolean | number, lastBornOn: number} {
   const absoluteI = Math.abs(i);
   const absoluteJ = Math.abs(j);
   if (absoluteI >= table.length || absoluteJ >= table.length) {
-    return {exists: false, cellState: false};
+    return {lastBornOn: 0, cellState: false};
   }
     
+  const quadCell = table[absoluteI][absoluteJ];
   if (i >= 0 && j >= 0) {
-    return {exists: true, cellState: table[absoluteI][absoluteJ].quadrant1};
+    return {cellState: quadCell.quadrant1, lastBornOn: quadCell.q1LastBornOn};
   }
   else if (i < 0 && j >= 0) {
-    return {exists: true, cellState: table[absoluteI][absoluteJ].quadrant2};
+    return {cellState: quadCell.quadrant2, lastBornOn: quadCell.q2LastBornOn};
   }
   else if (i < 0 && j < 0) {
-    return {exists: true, cellState: table[absoluteI][absoluteJ].quadrant3};
+    return {cellState: quadCell.quadrant3, lastBornOn: quadCell.q3LastBornOn};
   }
   else {
-    return {exists: true, cellState: table[absoluteI][absoluteJ].quadrant4};
+    return {cellState: quadCell.quadrant4, lastBornOn: quadCell.q4LastBornOn};
   }
 }
 
