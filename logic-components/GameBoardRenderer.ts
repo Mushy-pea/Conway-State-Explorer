@@ -191,11 +191,11 @@ function renderModels(transformArray, uniform_modToClip, uniform_colour,
 
 // This function is the central branching point of this module and is called through an interval
 // timer.
-function handleRenderEvent() : void {
+function handleRenderEvent(updateCycle : boolean) : void {
   const boardArraySize = store.getState().boardArraySize;
-  const mode = (store.getState()).mode;
+  const mode = store.getState().mode;
   
-  if (mode === "simulation") {handleUpdateEvent(boardArraySize)}
+  if (mode === "simulation" && updateCycle) {handleUpdateEvent(boardArraySize)}
   else if (mode === "reset") {
     handleResetEvent(boardArraySize);
     store.dispatch(changeMode(true));
@@ -278,7 +278,7 @@ function onContextCreation(_gl) : void {
 
   gl.context = _gl;
   if (store.getState().intervalID === null) {handleResetEvent(boardArraySize)}
-  store.dispatch(setIntervalID(setInterval(handleRenderEvent, 200)));
+  store.dispatch(setIntervalID(setInterval(handleRenderEvent, 200, true)));
 }
 
-export {onContextCreation};
+export {onContextCreation, handleRenderEvent};

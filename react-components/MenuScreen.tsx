@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, useWindowDimensions } from 'r
 
 const styles = StyleSheet.create({
     menuView: {
-      backgroundColor: "rgb(0, 0, 60)",
+      backgroundColor: "rgb(0, 0, 64)",
       flex: 1
     },
     itemView: {

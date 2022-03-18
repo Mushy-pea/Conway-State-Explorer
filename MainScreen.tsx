@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { GLView } from 'expo-gl';
 import { ControlBarButton, ControlBarPlaceHolder } from './react-components/ControlBar';
 import { MetaDataBar } from './react-components/MetaDataBar';
-import { onContextCreation } from './logic-components/GameBoardRenderer';
+import { onContextCreation, handleRenderEvent } from './logic-components/GameBoardRenderer';
 import { changeMode, moveCameraLeft, moveCameraRight,
          moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward, getBoardDimensions }
 from './logic-components/StateController';
@@ -59,12 +59,6 @@ const ControlBar = ({buttonHeight, window}) => {
   const [mode, setMode] = useState("creative");
   const dispatch = useDispatch();
   const changeMode_ = resetSwitch => {dispatch(changeMode(resetSwitch))};
-  const moveCameraUp_ = () => {dispatch(moveCameraUp())};
-  const moveCameraDown_ = () => {dispatch(moveCameraDown())};
-  const moveCameraLeft_ = () => {dispatch(moveCameraLeft())};
-  const moveCameraRight_ = () => {dispatch(moveCameraRight())};
-  const moveCameraForward_ = () => {dispatch(moveCameraForward())};
-  const moveCameraBack_ = () => {dispatch(moveCameraBack())};
   const onPlayPausePressed = () => {
     changeMode_(false);
     if (mode === "simulation") {setMode("creative")}
@@ -89,27 +83,45 @@ const ControlBar = ({buttonHeight, window}) => {
                         disabled={(mode === "simulation") ? true : false} />
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={require("./assets/upButton.png")}
-                        onPress={moveCameraUp_}
+                        onPress={() => {
+                          dispatch(moveCameraUp());
+                          handleRenderEvent(false);
+                        }}
                         disabled={false} />
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={require("./assets/downButton.png")}
-                        onPress={moveCameraDown_}
+                        onPress={() => {
+                          dispatch(moveCameraDown());
+                          handleRenderEvent(false);
+                        }}
                         disabled={false} />
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={require("./assets/leftButton.png")}
-                        onPress={moveCameraLeft_}
+                        onPress={() => {
+                          dispatch(moveCameraLeft());
+                          handleRenderEvent(false);
+                        }}
                         disabled={false} />
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={require("./assets/rightButton.png")}
-                        onPress={moveCameraRight_}
+                        onPress={() => {
+                          dispatch(moveCameraRight());
+                          handleRenderEvent(false);
+                        }}
                         disabled={false} />
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={require("./assets/plusButton.png")}
-                        onPress={moveCameraForward_}
+                        onPress={() => {
+                          dispatch(moveCameraForward());
+                          handleRenderEvent(false);
+                        }}
                         disabled={false} />
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={require("./assets/minusButton.png")}
-                        onPress={moveCameraBack_}
+                        onPress={() => {
+                          dispatch(moveCameraBack());
+                          handleRenderEvent(false);
+                        }}
                         disabled={false} />
     </View>
   );

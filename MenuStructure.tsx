@@ -90,8 +90,6 @@ function MenuArray(action0 : (() => void) | null, text0 : string, fontSize0 : nu
   ];
 }
 
-
-
 // All the menu screens are constructed here using the Menu component and imported by App for
 // use in the stack navigator.
 const MainMenu = ({navigation}) => {
@@ -132,7 +130,7 @@ const DisplayMenu = ({navigation}) => {
 const GameMenu = ({navigation}) => {
   const menuArray = MenuArray(() => navigation.navigate("SetBoardSizeScreen"), "Board size" , 24,
                               "rgb(0, 0, 0)",
-                              () => navigation.navigate("LoadPattern"), "Load pattern", 24,
+                              () => navigation.navigate("ShowCatalogueScreen"), "Load pattern", 24,
                               "rgb(0, 0, 0)",
                               () => navigation.navigate("SavePattern"), "Save pattern", 24,
                               "rgb(0, 0, 0)",

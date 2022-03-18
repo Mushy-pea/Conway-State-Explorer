@@ -6,6 +6,8 @@ import { store } from './logic-components/StateController';
 import { MainScreen } from './MainScreen';
 import SetGameRulesScreen from './SetGameRulesScreen';
 import { ColourSelectionScreen } from './ColourSelectionScreen';
+import ShowCatalogueScreen from './ShowCatalogueScreen';
+import LoadPatternScreen from './LoadPatternScreen';
 import { MainMenu, DisplayMenu, GameMenu, BoardColourOptionsMenu,
          CellColourOptionsMenu, GraphOptionsMenu } from './MenuStructure';
 
@@ -25,6 +27,8 @@ const App = () => {
           <Stack.Screen name="GraphOptionsMenu" component={GraphOptionsMenu}/>
           <Stack.Screen name="ColourSelectionScreen" component={ColourSelectionScreen}/>
           <Stack.Screen name="SetGameRulesScreen" component={SetGameRulesScreen}/>
+          <Stack.Screen name="ShowCatalogueScreen" component={ShowCatalogueScreen}/>
+          <Stack.Screen name="LoadPatternScreen" component={LoadPatternScreen}/>
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>

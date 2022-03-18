@@ -42,6 +42,26 @@ function updateTableCell(q1 = 0, q2 = 0, q3 = 0, q4 = 0) : UpdateTableCell {
   };
 }
 
+type PatternObject = {
+  boardArraySize : number,
+  liveCells: {
+    i : number,
+    j : number
+  }[]                  
+};
+
+type PatternPackage = {
+  name : string,
+  username : string,
+  comments : string,
+  patternObject: PatternObject
+};
+
+type CatalogueReference = {
+  Pattern_id : number,
+  Name : string
+};
+
 // The cell updater functions are passed to setCellState to specialise its functionality at
 // call time.
 function cellUpdaterQ1_1(table : BoardCell[] | UpdateTableCell[], state: boolean | number,
@@ -172,4 +192,6 @@ function resetBoardArray(arr : BoardCell[] | UpdateTableCell[],
 }
 
 export {BoardCell, boardCell, UpdateTableCell, updateTableCell, cellUpdaterFunctions1,
-        cellUpdaterFunctions2, getCellState, setCellState, resetBoardArray}
+        cellUpdaterFunctions2, getCellState, setCellState, resetBoardArray, PatternObject,
+        PatternPackage, CatalogueReference}
+
