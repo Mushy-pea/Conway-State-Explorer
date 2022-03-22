@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
 
 // This button component is designed to be tightly packed into a containing view with
 // others of this type or ControlBarPlaceHolders.
-const ControlBarButton = ({buttonHeight, imageSource, onPress, disabled}) => {
+const ControlBarButton = ({buttonHeight, imageSource, onPress, disabled = false}) => {
   return (
     <TouchableOpacity style={[styles.controlBarButton, {height: buttonHeight}]}
                       onPress={onPress}

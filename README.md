@@ -18,8 +18,9 @@ features.
 4.  A range of rendering options including colours and visual effects.
 
 The app frontend is so far being developed using TypeScript, React Native and WebGL and tested in an
-Android environment.  The intention is to build a Node.js based backend to allow for the pattern
-repository feature mentioned above.  In addition to releases on Github I hope to deploy the app
-to Google Play in time.
+Android environment.  A Node.js based REST API server has been developed to allow for the pattern 
+repository feature mentioned above, which has a separate repository here:
+https://github.com/Mushy-pea/Conway-State-Explorer-Server.  In addition to releases on Github I hope
+to deploy the app to Google Play in time.
 
 [![Preview unavailable](https://img.youtube.com/vi/pVQ8gXEufAE/default.jpg)](https://youtu.be/pVQ8gXEufAE)

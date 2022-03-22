@@ -72,57 +72,50 @@ const ControlBar = ({buttonHeight, window}) => {
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={(mode === "creative") ? require("./assets/playButton.png") :
                                                              require("./assets/pauseButton.png")}
-                        onPress={onPlayPausePressed}
-                        disabled={false} />
+                        onPress={onPlayPausePressed}/>
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={(mode === "creative") ? require("./assets/resetButton.png") :
                                                              require(
                                                               "./assets/greyResetButton.png"
                                                              )}
                         onPress={onResetPressed}
-                        disabled={(mode === "simulation") ? true : false} />
+                        disabled={(mode === "simulation") ? true : false}/>
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={require("./assets/upButton.png")}
                         onPress={() => {
                           dispatch(moveCameraUp());
                           handleRenderEvent(false);
-                        }}
-                        disabled={false} />
+                        }}/>
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={require("./assets/downButton.png")}
                         onPress={() => {
                           dispatch(moveCameraDown());
                           handleRenderEvent(false);
-                        }}
-                        disabled={false} />
+                        }}/>
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={require("./assets/leftButton.png")}
                         onPress={() => {
                           dispatch(moveCameraLeft());
                           handleRenderEvent(false);
-                        }}
-                        disabled={false} />
+                        }}/>
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={require("./assets/rightButton.png")}
                         onPress={() => {
                           dispatch(moveCameraRight());
                           handleRenderEvent(false);
-                        }}
-                        disabled={false} />
+                        }}/>
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={require("./assets/plusButton.png")}
                         onPress={() => {
                           dispatch(moveCameraForward());
                           handleRenderEvent(false);
-                        }}
-                        disabled={false} />
+                        }}/>
       <ControlBarButton buttonHeight={buttonHeight}
                         imageSource={require("./assets/minusButton.png")}
                         onPress={() => {
                           dispatch(moveCameraBack());
                           handleRenderEvent(false);
-                        }}
-                        disabled={false} />
+                        }}/>
     </View>
   );
 };

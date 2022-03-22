@@ -197,7 +197,7 @@ function handleRenderEvent(updateCycle : boolean) : void {
   
   if (mode === "simulation" && updateCycle) {handleUpdateEvent(boardArraySize)}
   else if (mode === "reset") {
-    handleResetEvent(boardArraySize);
+    handleResetEvent(boardArraySize, []);
     store.dispatch(changeMode(true));
   }
   
@@ -277,7 +277,7 @@ function onContextCreation(_gl) : void {
   _gl.useProgram(shaderProgram);
 
   gl.context = _gl;
-  if (store.getState().intervalID === null) {handleResetEvent(boardArraySize)}
+  if (store.getState().intervalID === null) {handleResetEvent(boardArraySize, [])}
   store.dispatch(setIntervalID(setInterval(handleRenderEvent, 200, true)));
 }
 

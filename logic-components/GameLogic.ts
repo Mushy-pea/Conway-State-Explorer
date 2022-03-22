@@ -95,7 +95,7 @@ function updateGameBoard(gameBoard : BoardCell[], nextGameBoard : BoardCell[],
 }
 
 // This function is called from GameBoardRenderer to cause a reset of the game board state.
-function handleResetEvent(boardArraySize : number) : void {
+function handleResetEvent(boardArraySize : number, pattern : {i: number, j: number}[]) : void {
   gameBoardObject.gameBoard =
     Array(boardArraySize).fill(boardCell).map(() => new Array(boardArraySize).fill(boardCell));
   gameBoardObject.nextGameBoard =
@@ -111,7 +111,7 @@ function handleResetEvent(boardArraySize : number) : void {
   resetBoardArray(gameBoardObject.boardUpdateTable, updateTableCell, max, null);
   gameBoardObject.gameTime = 0;
   gameBoardObject.totalPopulation = 0;
-  initTestBoard(gameBoardObject.gameBoard, min, max);
+  loadPattern(gameBoardObject.gameBoard, pattern);
 }
 
 // This function is called from GameBoardRenderer to cause an update of the game board state.

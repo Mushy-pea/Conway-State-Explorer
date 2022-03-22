@@ -1,5 +1,8 @@
 import { createStore } from 'redux';
 
+// All API calls made by the app go to the same root URL, so it has been hard coded once here.
+const rootURL = "https://fabled-archive-341612.ew.r.appspot.com/";
+
 type ColourFadeSet = {
   redStart : number, redRate : number,
   greenStart : number, greenRate : number,
@@ -25,7 +28,7 @@ const INITIAL_STATE = {
   boardArraySize: 41,
   scale: 2.25,
   lastCellTouched: null,
-  patternName: "[userName defined]",
+  patternName: "Untitled",
   survivalRules: [false, false, true, true, false, false, false, false, false],
   birthRules: [false, false, false, true, false, false, false, false, false]
 };
@@ -285,5 +288,6 @@ const store = createStore(controlReducer);
 export {store, changeMode, setIntervalID, setShowGrid, moveCameraLeft, moveCameraRight,
         moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward, setGridColour,
         setBackgroundColour, setColourFadeSet, setBoardArraySize, setPatternName,
-        setLastCellTouched, getBoardDimensions, setSurvivalRules, setBirthRules, ColourFadeSet};
+        setLastCellTouched, getBoardDimensions, setSurvivalRules, setBirthRules, ColourFadeSet,
+        rootURL};
 

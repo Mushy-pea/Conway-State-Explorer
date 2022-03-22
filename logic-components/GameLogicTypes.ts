@@ -13,13 +13,6 @@ type BoardCell = {
   q4LastBornOn : number
 };
 
-type UpdateTableCell = {
-  quadrant1 : number,
-  quadrant2 : number,
-  quadrant3 : number,
-  quadrant4 : number
-};
-
 function boardCell(q1 = 0, q2 = 0, q3 = 0, q4 = 0) : BoardCell {
   return {
     quadrant1: false,
@@ -32,6 +25,13 @@ function boardCell(q1 = 0, q2 = 0, q3 = 0, q4 = 0) : BoardCell {
     q4LastBornOn: q4
   };
 }
+
+type UpdateTableCell = {
+  quadrant1 : number,
+  quadrant2 : number,
+  quadrant3 : number,
+  quadrant4 : number
+};
 
 function updateTableCell(q1 = 0, q2 = 0, q3 = 0, q4 = 0) : UpdateTableCell {
   return {
@@ -56,6 +56,18 @@ type PatternPackage = {
   comments : string,
   patternObject: PatternObject
 };
+
+function patternPackage(name : string, comments : string, username = "",
+                        patternObject : PatternObject = null) : PatternPackage {
+  return (
+    {
+      name: name,
+      username: username,
+      comments: comments,
+      patternObject: patternObject
+    }
+  );
+}
 
 type CatalogueReference = {
   Pattern_id : number,
@@ -193,5 +205,5 @@ function resetBoardArray(arr : BoardCell[] | UpdateTableCell[],
 
 export {BoardCell, boardCell, UpdateTableCell, updateTableCell, cellUpdaterFunctions1,
         cellUpdaterFunctions2, getCellState, setCellState, resetBoardArray, PatternObject,
-        PatternPackage, CatalogueReference}
+        PatternPackage, CatalogueReference, patternPackage}
 
