@@ -18,18 +18,6 @@ const gameBoardObject = {
   totalPopulation: 0
 };
 
-// For testing purposes.
-function initTestBoard(gameBoard, min, max) {
-  let k = 0;
-  for (let i = min; i <= max; i++) {
-    for (let j = min; j <= max; j++) {
-      if (testBoardState5[k] === 1) {setCellState(gameBoard, true, 0, cellUpdaterFunctions1,
-                                        i, j);}
-      k++;
-    }
-  }
-}
-
 // This function loads a game board pattern given pattern data fetched from the server.
 function loadPattern(gameBoard : BoardCell[], pattern : {i: number, j: number}[]) {
   pattern.forEach(liveCell => {
@@ -104,7 +92,6 @@ function handleResetEvent(boardArraySize : number, pattern : {i: number, j: numb
     Array(boardArraySize).fill(updateTableCell).map(() => new Array(boardArraySize)
     .fill(updateTableCell));
   const max = boardArraySize - 1;
-  const min = -max;
 
   resetBoardArray(gameBoardObject.gameBoard, boardCell, max, null);
   resetBoardArray(gameBoardObject.nextGameBoard, boardCell, max, null);

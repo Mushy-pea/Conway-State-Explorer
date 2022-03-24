@@ -1,4 +1,6 @@
 import { createStore } from 'redux';
+import * as Crypto from 'expo-crypto';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // All API calls made by the app go to the same root URL, so it has been hard coded once here.
 const rootURL = "https://fabled-archive-341612.ew.r.appspot.com/";
@@ -13,6 +15,8 @@ type ColourFadeSet = {
 // The top level application state that can be modified through the UI is held in the
 // controlReducer Redux store.  This includes everything except the game board state.
 const INITIAL_STATE = {
+  username: "",
+
   mode: "creative",
   intervalID: null,
   showGrid: true,
@@ -156,6 +160,9 @@ const controlReducer = (state = INITIAL_STATE, action) => {
     case "SET_BIRTH_RULES":
       newState.birthRules = action.payload;
       return newState;
+    case "SET_USERNAME":
+      newState.username = action.payload;
+      return newState;
     default:
       return state
   }
@@ -276,6 +283,13 @@ const setBirthRules = birthRules => (
   }
 );
 
+const setUsername = username => (
+  {
+    type: "SET_USERNAME",
+    payload: username
+  }
+);
+
 // This function is used with the MetaDataBar component in MainScreen.
 function getBoardDimensions() : string {
   const boardArraySize = store.getState().boardArraySize;
@@ -284,6 +298,30 @@ function getBoardDimensions() : string {
 }
 
 const store = createStore(controlReducer);
+
+// This function is part of the implementation of the transparent username system.  The first time
+// the app is initialised on a device a likely unique hash is generated, to allow for user
+// authentication by the server for add_pattern and delete_pattern API calls.
+async function initUsername() : Promise<void> {
+  try {
+    let localUsername = await AsyncStorage.getItem("username");
+    if (localUsername === null) {
+      console.log("initUsername: localUsername not found.  Generating new SHA256 hash.");
+      const key = "This might be different in the release of the app.";
+      const salt = Date();
+      localUsername = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256,
+                                                     `${key}${salt}`);
+      await AsyncStorage.setItem("username", localUsername);
+    }
+    console.log(`initUsername: The localUsername is ${localUsername}`);
+    store.dispatch(setUsername(localUsername));
+  }
+  catch(error) {
+    console.error(`initUsername failed with error: ${error}`);
+  }
+}
+
+initUsername();
 
 export {store, changeMode, setIntervalID, setShowGrid, moveCameraLeft, moveCameraRight,
         moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward, setGridColour,
