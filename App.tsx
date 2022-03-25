@@ -8,6 +8,7 @@ import SetGameRulesScreen from './SetGameRulesScreen';
 import { ColourSelectionScreen } from './ColourSelectionScreen';
 import ShowCatalogueScreen from './ShowCatalogueScreen';
 import LoadPatternScreen from './LoadPatternScreen';
+import SharePatternScreen from './SharePatternScreen';
 import { MainMenu, DisplayMenu, GameMenu, BoardColourOptionsMenu,
          CellColourOptionsMenu, GraphOptionsMenu } from './MenuStructure';
 
@@ -29,6 +30,7 @@ const App = () => {
           <Stack.Screen name="SetGameRulesScreen" component={SetGameRulesScreen}/>
           <Stack.Screen name="ShowCatalogueScreen" component={ShowCatalogueScreen}/>
           <Stack.Screen name="LoadPatternScreen" component={LoadPatternScreen}/>
+          <Stack.Screen name="SharePatternScreen" component={SharePatternScreen}/>
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>

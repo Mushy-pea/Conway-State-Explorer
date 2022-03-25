@@ -132,7 +132,7 @@ const GameMenu = ({navigation}) => {
                               "rgb(0, 0, 0)",
                               () => navigation.navigate("ShowCatalogueScreen"), "Load pattern", 24,
                               "rgb(0, 0, 0)",
-                              () => navigation.navigate("SavePattern"), "Save pattern", 24,
+                              () => navigation.navigate("SharePatternScreen"), "Share pattern", 24,
                               "rgb(0, 0, 0)",
                               () => navigation.navigate("SetGameRulesScreen"), "Set game rules", 24,
                               "rgb(0, 0, 0)",

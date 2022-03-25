@@ -4,7 +4,6 @@ import { BoardCell, boardCell, UpdateTableCell, updateTableCell, cellUpdaterFunc
          cellUpdaterFunctions2, getCellState, setCellState, resetBoardArray }
 from './GameLogicTypes';
 import { store, setLastCellTouched } from './StateController';
-import testBoardState5 from './TestBoardStates';
 
 // The gameBoard and nextGameBoard arrays hold the state of the game board itself.
 // The boardUpdateTable array holds meta data that allows an optimisation to be applied, such that
@@ -23,6 +22,21 @@ function loadPattern(gameBoard : BoardCell[], pattern : {i: number, j: number}[]
   pattern.forEach(liveCell => {
     setCellState(gameBoard, true, 0, cellUpdaterFunctions1, liveCell.i, liveCell.j)
   });
+}
+
+// This function converts a gameBoard array into an array of live cell (i, j) position tuples,
+// so it can then be shared with the server.
+function savePattern(gameBoard : BoardCell[], min : number, max : number)
+                    : {i: number, j: number}[] {
+  const result = [];
+  for (let i = min; i <= max; i++) {
+    for (let j = min; j <= max; j++) {
+      if (getCellState(gameBoard, i, j).cellState) {
+        result.push({i: i, j: j});
+      }
+    }
+  }
+  return result;
 }
 
 // This function is used by updateGameBoard to set the current cell and each of its neighbours to
@@ -166,4 +180,4 @@ function getTotalPopulation() : string {
 }
 
 export {gameBoardObject, handleUpdateEvent, handleResetEvent, flipCellStateOnTouch, getGameTime,
-        getTotalPopulation};
+        getTotalPopulation, savePattern};
