@@ -57,13 +57,12 @@ async function deletePattern(patternId : number, username : string,
                              setLoadingState : React.Dispatch<React.SetStateAction<string>>)
                             : Promise<void> {
   setLoadingState("deleting");
-  const rootURL_ = "https://fabled-archive-341612x.ew.r.appspot.com/";
   try {
     const request = JSON.stringify({
       patternId: patternId,
       username: username
     });
-    const response = await fetch(`${rootURL_}delete_pattern`, {
+    const response = await fetch(`${rootURL}delete_pattern`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -155,9 +154,15 @@ const LoadPatternScreen = ({navigation, route}) => {
           <View style={[styles.resultView, {flexBasis: window.height / 2}]}>
             <Text style={styles.textStyle}>
               {resultPackage.name}
-              {"\n"}
-              {"\n"}
+              {"\n\n"}
               {resultPackage.comments}
+              {"\n\n"}
+              All the patterns made available through this app upon its launch were obtained from
+              the archive at https://conwaylife.com/wiki/Category:Patterns.  They are distributed
+              here under the same GNU Free Documentation License 1.3 that they were distributed under
+              by said website.  The GNU Free Documentation License 1.3 also applies to any patterns
+              shared by app users.  This license can be found here:
+              http://www.gnu.org/licenses/fdl-1.3.html.
             </Text>
           </View>
           <LoadingOptions loadDisabled={loadingState === "failed" || loadingState === "deleted"}
