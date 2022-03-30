@@ -29,7 +29,7 @@ const INITIAL_STATE = {
     redStart: 0, redRate: 0.067, greenStart: 0, greenRate: 0, blueStart: 1, blueRate: 0,
     enabled: false
   },
-  boardArraySize: 41,
+  boardArraySize: 101,
   scale: 2.25,
   lastCellTouched: null,
   patternName: "Untitled",

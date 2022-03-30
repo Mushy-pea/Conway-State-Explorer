@@ -18,9 +18,9 @@ const gameBoardObject = {
 };
 
 // This function loads a game board pattern given pattern data fetched from the server.
-function loadPattern(gameBoard : BoardCell[], pattern : {i: number, j: number}[]) {
+function loadPattern(gameBoard : BoardCell[], pattern : {i: number, j: number}[]) : void {
   pattern.forEach(liveCell => {
-    setCellState(gameBoard, true, 0, cellUpdaterFunctions1, liveCell.i, liveCell.j)
+    setCellState(gameBoard, true, 0, cellUpdaterFunctions1, liveCell.i, liveCell.j);
   });
 }
 
@@ -37,6 +37,19 @@ function savePattern(gameBoard : BoardCell[], min : number, max : number)
     }
   }
   return result;
+}
+
+// This function is used to generate a pseudo random game board pattern.
+function genRandomPattern(min : number, max : number) : {i: number, j: number}[] {
+  const pattern = [];
+  for (let i = min; i <= max; i++) {
+    for (let j = min; j <= max; j++) {
+      if (Math.random() > 0.5) {
+        pattern.push({i: i, j: j});
+      }
+    }
+  }
+  return pattern;
 }
 
 // This function is used by updateGameBoard to set the current cell and each of its neighbours to
@@ -180,4 +193,4 @@ function getTotalPopulation() : string {
 }
 
 export {gameBoardObject, handleUpdateEvent, handleResetEvent, flipCellStateOnTouch, getGameTime,
-        getTotalPopulation, savePattern};
+        getTotalPopulation, savePattern, genRandomPattern};

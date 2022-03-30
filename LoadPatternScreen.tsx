@@ -4,8 +4,7 @@ from 'react-native';
 import { useDispatch } from 'react-redux';
 import { PatternPackage, patternPackage } from './logic-components/GameLogicTypes';
 import { handleResetEvent } from './logic-components/GameLogic';
-import { rootURL, store, setPatternName, setBoardArraySize }
-from './logic-components/StateController';
+import { rootURL, store, setPatternName } from './logic-components/StateController';
 
 const styles = StyleSheet.create({
   containerView: {
@@ -84,22 +83,20 @@ async function deletePattern(patternId : number, username : string,
   }
 }
 
-// This function is used to ensure the game board dimensions are at least twice the size of the
-// bounding box of the pattern to be loaded.
-function detBoardSize(boardArraySize : number, boundingBox : number) : number {
-  if (boundingBox * 2 > boardArraySize) {return boundingBox * 2 + 1;}
-  else {return boardArraySize;}
-}
-
 function triggerLoadPattern(boardArraySize : number, resultPackage : PatternPackage,
+                            setResultPackage : React.Dispatch<React.SetStateAction<PatternPackage>>,
+                            setLoadingState : React.Dispatch<React.SetStateAction<string>>,
                             dispatch : Dispatch<any>, navigation) : void {
-  const newBoardArraySize = detBoardSize(boardArraySize,
-                                         resultPackage.patternObject.boardArraySize);
-                          dispatch(setBoardArraySize(newBoardArraySize));
-                          dispatch(setPatternName(resultPackage.name.substring(6)));
-                          handleResetEvent(newBoardArraySize,
-                                           resultPackage.patternObject.liveCells);
-                          navigation.navigate("MainScreen");
+  if (resultPackage.patternObject.boardArraySize > boardArraySize) {
+    setResultPackage(patternPackage("This pattern is bigger than the game board simulated by the app and therefore can't be loaded.",
+                                    "Sorry about that."));
+    setLoadingState("failed");
+  }
+  else {
+    dispatch(setPatternName(resultPackage.name.substring(6)));
+    handleResetEvent(boardArraySize, resultPackage.patternObject.liveCells);
+    navigation.navigate("MainScreen");
+  }
 }
 
 // This component renders the Load and Delete options the user is conditionally presented with
@@ -111,8 +108,9 @@ const LoadingOptions = ({loadDisabled, deleteDisabled, window, boardArraySize, r
     <>
       <TouchableOpacity style={[styles.resultView, {flexBasis: window.height / 8,
                                                     borderWidth: loadDisabled ? 0 : 1}]}
-                        onPress={() => triggerLoadPattern(boardArraySize, resultPackage, dispatch,
-                                                          navigation)}
+                        onPress={() => triggerLoadPattern(boardArraySize, resultPackage,
+                                                          setResultPackage, setLoadingState,
+                                                          dispatch, navigation)}
                         disabled={loadDisabled}>
         <Text style={[styles.textStyle,
                       {fontSize: 24,

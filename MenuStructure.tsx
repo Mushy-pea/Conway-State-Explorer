@@ -4,6 +4,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 import { determineColour } from './ColourSelectionScreen';
 import Menu from './react-components/MenuScreen';
+import { genRandomPattern, handleResetEvent } from './logic-components/GameLogic';
 import { setGridColour, setBackgroundColour, setColourFadeSet, store, setShowGrid }
 from './logic-components/StateController';
 
@@ -128,8 +129,13 @@ const DisplayMenu = ({navigation}) => {
 };
 
 const GameMenu = ({navigation}) => {
-  const menuArray = MenuArray(() => navigation.navigate("SetBoardSizeScreen"), "Board size" , 24,
-                              "rgb(0, 0, 0)",
+  const boardArraySize = store.getState().boardArraySize;
+  const randomiseBoard = () => {
+    handleResetEvent(boardArraySize, genRandomPattern(-40, 40));
+    navigation.navigate("MainScreen");
+  };
+  const menuArray = MenuArray(() => randomiseBoard(),
+                              "Generate random pattern" , 24, "rgb(0, 0, 0)",
                               () => navigation.navigate("ShowCatalogueScreen"), "Load pattern", 24,
                               "rgb(0, 0, 0)",
                               () => navigation.navigate("SharePatternScreen"), "Share pattern", 24,

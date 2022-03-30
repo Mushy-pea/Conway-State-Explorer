@@ -86,7 +86,7 @@ const SharePatternScreen = ({navigation}) => {
     <View style={styles.containerView}>
       {sharingState === "sharing" ?
         <View style={styles.waitView}>
-          <ActivityIndicator color="rgb(0, 0, 180)" size="large"/>
+          <ActivityIndicator color="rgb(255, 255, 255)" size="large"/>
         </View>
       :
         <>
