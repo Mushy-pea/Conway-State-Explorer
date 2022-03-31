@@ -62,7 +62,8 @@ async function getCatalogue(searchString : string,
     setLoadingState("completed");
   }
   catch(error) {
-    const errorMessage = "Sorry, there's a problem with the server and the pattern catalogue can't be loaded at this time.  Tap here to go back to the previous screen.";
+    const errorMessage = "Sorry, there's a problem with the server and the pattern catalogue can't \
+be loaded at this time.  Tap here to go back to the previous screen.";
     const errorView = [{Pattern_id: 0, Name: errorMessage}];
     setCatalogueView(errorView);
     setLoadingState("failed");

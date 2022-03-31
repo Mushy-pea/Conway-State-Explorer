@@ -65,15 +65,16 @@ const SharePatternScreen = ({navigation}) => {
   const max = boardArraySize - 1;
   const min = -max;
 
-  const pendingText = "You can share a pattern you've created with other app users here.  Patterns shared\
+  const pendingText = "You can share a pattern you've created with other app users here.  \
+  Patterns shared\
   in this way will be made available to other users under the GNU Free Documentation\
   License 1.3.  This license can be found here: http://www.gnu.org/licenses/fdl-1.3.html.\
   The app maintainer reserves the right to remove patterns from the database if misuse\
   of this online service is deemed to have occured.  No guarantee is made as to how\
   long the online service will presist.  Having said that, have fun!";
 
-  const failedText = "There's a problem with the server and the pattern can't be shared at this time.\
-  Sorry about that.";
+  const failedText = "There's a problem with the server and the pattern can't be shared at this \
+  time.  Sorry about that.";
 
   const patternObject = {
     boardArraySize: boardArraySize,
@@ -117,7 +118,8 @@ const SharePatternScreen = ({navigation}) => {
                             disabled={sharingState === "failed"}>
             <Text style={[styles.textStyle,
                           {fontSize: 24,
-                           color: sharingState === "pending" ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)"}]}>
+                           color: sharingState === "pending" ? "rgb(255, 255, 255)" :
+                                  "rgb(0, 0, 0)"}]}>
               Share
             </Text>
           </TouchableOpacity>

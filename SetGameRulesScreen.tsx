@@ -93,7 +93,10 @@ const SetGameRulesScreen = () => {
   return (
     <View style={styles.containerView}>
       <View style={[styles.itemView, {flexBasis: window.height * 0.125}]}>
-        <Text style={styles.textStyle1}>Set the survival rules of the game.  Cells will survive with [SELECT BELOW] live neighbours:</Text>
+        <Text style={styles.textStyle1}>
+          Set the survival rules of the game.  Cells will survive if they have a specified number of
+          live neighbours:
+        </Text>
       </View>
       <View style={[styles.itemView, {flexBasis: window.height * 0.0625}]}>
         <CheckBox value={survivalRule0}
@@ -164,7 +167,10 @@ const SetGameRulesScreen = () => {
         <Text style={styles.textStyle2}>8</Text>
       </View>
       <View style={[styles.itemView, {flexBasis: window.height * 0.125}]}>
-        <Text style={styles.textStyle1}>Set the birth rules of the game.  Cells will be born with [SELECT BELOW] live neighbours:</Text>
+        <Text style={styles.textStyle1}>
+          Set the birth rules of the game.  Cells will be born if they have a specified number of
+          live neighbours:
+        </Text>
       </View>
       <View style={[styles.itemView, {flexBasis: window.height * 0.0625}]}>
         <CheckBox value={birthRule0}

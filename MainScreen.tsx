@@ -5,7 +5,7 @@ import { GLView } from 'expo-gl';
 import { ControlBarButton, ControlBarPlaceHolder } from './react-components/ControlBar';
 import { MetaDataBar } from './react-components/MetaDataBar';
 import { onContextCreation, handleRenderEvent } from './logic-components/GameBoardRenderer';
-import { changeMode, moveCameraLeft, moveCameraRight,
+import { changeMode, setInitFlag, moveCameraLeft, moveCameraRight,
          moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward, getBoardDimensions }
 from './logic-components/StateController';
 import { flipCellStateOnTouch, getGameTime, getTotalPopulation }
@@ -126,6 +126,7 @@ const MainScreen = ({navigation}) => {
   const window = useWindowDimensions();
   const buttonHeight = window.height * 0.1;
   const state = useSelector(state => state);
+  const dispatch = useDispatch();
 
   return (
     <View style={[styles.mainScreenContainer, {paddingTop: window.height * 0.04}]}>
@@ -156,7 +157,7 @@ const MainScreen = ({navigation}) => {
         <ControlBarButton buttonHeight={buttonHeight}
                           imageSource={require("./assets/menuButton.png")}
                           onPress={() => {
-                            clearInterval(state.intervalID);
+                            dispatch(setInitFlag("resume"));
                             navigation.navigate("MainMenu");
                           }}
                           disabled={false} />

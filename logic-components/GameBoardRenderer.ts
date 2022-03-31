@@ -5,8 +5,8 @@ import vertexShader from './VertexShader';
 import fragmentShader from './FragmentShader';
 import { cellModel, LineModels, modelElements } from './GameBoardModels';
 import { gameBoardObject, handleUpdateEvent, handleResetEvent } from './GameLogic';
-import { store, changeMode, setIntervalID, ColourFadeSet } from './StateController';
 import { BoardCell , getCellState } from './GameLogicTypes';
+import { store, changeMode, setInitFlag, ColourFadeSet } from './StateController';
 
 // This global const holds a handle to the OpenGL context created when onContextCreation is called.
 const gl = {
@@ -236,6 +236,9 @@ function handleRenderEvent(updateCycle : boolean) : void {
                glP.elementBuffer());
   gl.context.flush();
   gl.context.endFrameEXP();
+  if (store.getState().initFlag === "running" && updateCycle) {
+    setTimeout(handleRenderEvent, 200, true);
+  }
 }
 
 // This function is called when the corresponding GLView component is first rendered in App.
@@ -275,10 +278,15 @@ function onContextCreation(_gl) : void {
   glP.setVertexBuffer_horizontalLineModel(loadBuffer(lineModels.horizontalLineModel, null, _gl));
   glP.setElementBuffer(loadBuffer(null, modelElements, _gl));
   _gl.useProgram(shaderProgram);
-
   gl.context = _gl;
-  if (store.getState().intervalID === null) {handleResetEvent(boardArraySize, [])}
-  store.dispatch(setIntervalID(setInterval(handleRenderEvent, 200, true)));
+
+  const initFlag = store.getState().initFlag;
+  if (initFlag === "start") {
+    handleResetEvent(boardArraySize, []);
+  }
+  store.dispatch(setInitFlag("running"));
+  setTimeout(handleRenderEvent, 0, true);
 }
 
 export {onContextCreation, handleRenderEvent};
+

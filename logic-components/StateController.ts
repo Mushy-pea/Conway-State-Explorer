@@ -16,9 +16,9 @@ type ColourFadeSet = {
 // controlReducer Redux store.  This includes everything except the game board state.
 const INITIAL_STATE = {
   username: "",
-
   mode: "creative",
-  intervalID: null,
+  initFlag: "start",
+
   showGrid: true,
   camera: {
     x: -0.611501, y: 1.478003, z: -45
@@ -29,8 +29,9 @@ const INITIAL_STATE = {
     redStart: 0, redRate: 0.067, greenStart: 0, greenRate: 0, blueStart: 1, blueRate: 0,
     enabled: false
   },
-  boardArraySize: 101,
   scale: 2.25,
+
+  boardArraySize: 101,
   lastCellTouched: null,
   patternName: "Untitled",
   survivalRules: [false, false, true, true, false, false, false, false, false],
@@ -57,8 +58,8 @@ const controlReducer = (state = INITIAL_STATE, action) => {
 
       newState.mode = newMode;
       return newState;
-    case "SET_INTERVAL_ID":
-      newState.intervalID = action.payload;
+    case "SET_INIT_FLAG":
+      newState.initFlag = action.payload;
       return newState;
     case "SET_SHOW_GRID":
       newState.showGrid = action.payload;
@@ -148,9 +149,6 @@ const controlReducer = (state = INITIAL_STATE, action) => {
         newState.lastCellTouched = {i: action.payload.i, j: action.payload.j};
       }
       return newState;
-    case "SET_BOARD_ARRAY_SIZE":
-      newState.boardArraySize = action.payload;
-      return newState;
     case "SET_PATTERN_NAME":
       newState.patternName = action.payload;
       return newState;
@@ -176,10 +174,10 @@ const changeMode = (resetSwitch : boolean) => (
   }
 );
 
-const setIntervalID = (intervalID : NodeJS.Timer) => (
+const setInitFlag = (flag : string) => (
   {
-    type: "SET_INTERVAL_ID",
-    payload: intervalID
+    type: "SET_INIT_FLAG",
+    payload: flag
   }
 );
 
@@ -245,13 +243,6 @@ const setColourFadeSet = (enabled : boolean, redStart : number | null, redRate :
     type: "SET_COLOUR_FADE_SET",
     payload: {enabled: enabled, redStart: redStart, redRate: redRate, greenStart: greenStart,
               greenRate: greenRate, blueStart: blueStart, blueRate: blueRate}
-  }
-);
-
-const setBoardArraySize = (size : number) => (
-  {
-    type: "SET_BOARD_ARRAY_SIZE",
-    payload: size
   }
 );
 
@@ -323,9 +314,9 @@ async function initUsername() : Promise<void> {
 
 initUsername();
 
-export {store, changeMode, setIntervalID, setShowGrid, moveCameraLeft, moveCameraRight,
+export {store, changeMode, setInitFlag, setShowGrid, moveCameraLeft, moveCameraRight,
         moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward, setGridColour,
-        setBackgroundColour, setColourFadeSet, setBoardArraySize, setPatternName,
+        setBackgroundColour, setColourFadeSet, setPatternName,
         setLastCellTouched, getBoardDimensions, setSurvivalRules, setBirthRules, ColourFadeSet,
         rootURL};
 

@@ -131,7 +131,7 @@ const DisplayMenu = ({navigation}) => {
 const GameMenu = ({navigation}) => {
   const boardArraySize = store.getState().boardArraySize;
   const randomiseBoard = () => {
-    handleResetEvent(boardArraySize, genRandomPattern(-40, 40));
+    handleResetEvent(boardArraySize, genRandomPattern(-100, 100));
     navigation.navigate("MainScreen");
   };
   const menuArray = MenuArray(() => randomiseBoard(),

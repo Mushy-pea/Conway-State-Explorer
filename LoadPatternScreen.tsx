@@ -43,8 +43,10 @@ async function getPattern(patternId : number,
     setLoadingState("completed");
   }
   catch(error) {
-    setResultPackage(patternPackage("There's a problem with the server and the selected pattern can't be loaded at this time.",
-                                     "Sorry about that.  You can return to the previous screen with the back button."));
+    setResultPackage(patternPackage("There's a problem with the server and the selected pattern \
+                                     can't be loaded at this time.",
+                                     "Sorry about that.  You can return to the previous screen \
+                                     with the back button."));
     setLoadingState("failed");
   }
 }
@@ -88,7 +90,8 @@ function triggerLoadPattern(boardArraySize : number, resultPackage : PatternPack
                             setLoadingState : React.Dispatch<React.SetStateAction<string>>,
                             dispatch : Dispatch<any>, navigation) : void {
   if (resultPackage.patternObject.boardArraySize > boardArraySize) {
-    setResultPackage(patternPackage("This pattern is bigger than the game board simulated by the app and therefore can't be loaded.",
+    setResultPackage(patternPackage("This pattern is bigger than the game board simulated by the \
+                                     app and therefore can't be loaded.",
                                     "Sorry about that."));
     setLoadingState("failed");
   }
@@ -157,9 +160,9 @@ const LoadPatternScreen = ({navigation, route}) => {
               {"\n\n"}
               All the patterns made available through this app upon its launch were obtained from
               the archive at https://conwaylife.com/wiki/Category:Patterns.  They are distributed
-              here under the same GNU Free Documentation License 1.3 that they were distributed under
-              by said website.  The GNU Free Documentation License 1.3 also applies to any patterns
-              shared by app users.  This license can be found here:
+              here under the same GNU Free Documentation License 1.3 that they were distributed
+              under by said website.  The GNU Free Documentation License 1.3 also applies to any
+              patterns shared by app users.  This license can be found here:
               http://www.gnu.org/licenses/fdl-1.3.html.
             </Text>
           </View>
