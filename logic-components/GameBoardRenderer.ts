@@ -237,7 +237,7 @@ function handleRenderEvent(updateCycle : boolean) : void {
   gl.context.flush();
   gl.context.endFrameEXP();
   if (store.getState().initFlag === "running" && updateCycle) {
-    setTimeout(handleRenderEvent, 200, true);
+    setTimeout(handleRenderEvent, 50, true);
   }
 }
 

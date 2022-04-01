@@ -86,22 +86,18 @@ function updateGameBoard(gameBoard : BoardCell[], nextGameBoard : BoardCell[],
           if (obj.cellState) {return total + 1}
           else {return total}}, 0);
         if (getCellState(gameBoard, i, j).cellState) {
-          survivalRules.forEach((x, index) => {
-            if (x && index === localPopulation) {
-              setCellState(nextGameBoard, true, null, cellUpdaterFunctions1, i, j);
-              setUpdateTable(boardUpdateTable, gameTime + 1, i, j);
-              totalPopulation++;
-            }
-          })
+          if (survivalRules.some((x, index) => {return x && index === localPopulation})) {
+            setCellState(nextGameBoard, true, null, cellUpdaterFunctions1, i, j);
+            setUpdateTable(boardUpdateTable, gameTime + 1, i, j);
+            totalPopulation++;
+          }
         }
         else {
-          birthRules.forEach((x, index) => {
-            if (x && index === localPopulation) {
-              setCellState(nextGameBoard, true, gameTime, cellUpdaterFunctions2, i, j);
-              setUpdateTable(boardUpdateTable, gameTime + 1, i, j);
-              totalPopulation++;
-            }
-          })
+          if (birthRules.some((x, index) => {return x && index === localPopulation})) {
+            setCellState(nextGameBoard, true, gameTime, cellUpdaterFunctions2, i, j);
+            setUpdateTable(boardUpdateTable, gameTime + 1, i, j);
+            totalPopulation++;
+          }
         }
       }
     }
