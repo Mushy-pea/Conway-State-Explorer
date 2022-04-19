@@ -31,7 +31,7 @@ const INITIAL_STATE = {
   },
   scale: 2.25,
 
-  boardArraySize: 101,
+  boardArraySize: 81,
   lastCellTouched: null,
   patternName: "Untitled",
   survivalRules: [false, false, true, true, false, false, false, false, false],

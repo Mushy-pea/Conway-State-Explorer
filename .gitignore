@@ -9,5 +9,10 @@ npm-debug.*
 *.orig.*
 web-build/
 
+logic-components/GameLogic.js
+logic-components/GameLogicTypes.js
+logic-components/StateController.js
+performance_log.txt
+
 # macOS
 .DS_Store

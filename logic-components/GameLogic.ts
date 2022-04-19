@@ -188,5 +188,5 @@ function getTotalPopulation() : string {
   return (`${gameBoardObject.totalPopulation}`);
 }
 
-export {gameBoardObject, handleUpdateEvent, handleResetEvent, flipCellStateOnTouch, getGameTime,
-        getTotalPopulation, savePattern, genRandomPattern};
+export {gameBoardObject, updateGameBoard, handleUpdateEvent, handleResetEvent, flipCellStateOnTouch,
+        getGameTime, getTotalPopulation, savePattern, genRandomPattern};

@@ -1,0 +1,6 @@
+const store = {};
+
+function setLastCellTouched() {
+
+}
+
