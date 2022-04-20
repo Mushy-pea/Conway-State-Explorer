@@ -121,6 +121,22 @@ test("Does setCellState return false when given an out of bounds index?", () => 
 const survivalRules = [false, false, true, true, false, false, false, false, false];
 const birthRules = [false, false, false, true, false, false, false, false, false];
 
+function initBoardArrays(size) {
+  const gameBoard = Array(size).fill(boardCell).map(() => new Array(size).fill(boardCell));
+  const nextGameBoard = Array(size).fill(boardCell).map(() => new Array(size).fill(boardCell));
+  const boardUpdateTable =
+    Array(size).fill(updateTableCell).map(() => new Array(size).fill(updateTableCell));
+  const max = size - 1;
+  resetBoardArray(gameBoard, boardCell, max, null);
+  resetBoardArray(nextGameBoard, boardCell, max, null);
+  resetBoardArray(boardUpdateTable, updateTableCell, max, null);
+  return {
+    gameBoard: gameBoard,
+    nextGameBoard: nextGameBoard,
+    boardUpdateTable: boardUpdateTable
+  };
+}
+
 // In this test the gameBoard is initialised to the below state and is expected to change
 // as indicated.
 // Before:                               After:
@@ -136,13 +152,7 @@ const birthRules = [false, false, false, true, false, false, false, false, false
 test("Does updateGameBoard cause the expected change in a gameBoard when at least the following \
 conditions are present: \
 live cells with 0 live neighbours and dead cells with 0 or 1 live neighbours?", () => {
-  const gameBoard = Array(5).fill(boardCell).map(() => new Array(5).fill(boardCell));
-  const nextGameBoard = Array(5).fill(boardCell).map(() => new Array(5).fill(boardCell));
-  const boardUpdateTable =
-    Array(5).fill(updateTableCell).map(() => new Array(5).fill(updateTableCell));
-  resetBoardArray(gameBoard, boardCell, 4, null);
-  resetBoardArray(nextGameBoard, boardCell, 4, null);
-  resetBoardArray(boardUpdateTable, updateTableCell, 4, null);
+  const {gameBoard, nextGameBoard, boardUpdateTable} = initBoardArrays(5);
   gameBoard[2][2] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true};
   gameBoard[2][1] = {quadrant1: true, quadrant2: false, quadrant3: false, quadrant4: false};
   gameBoard[1][1] = {quadrant1: false, quadrant2: true, quadrant3: false, quadrant4: false};
@@ -171,13 +181,7 @@ live cells with 0 live neighbours and dead cells with 0 or 1 live neighbours?", 
 test("Does updateGameBoard cause the expected change in a gameBoard when at least the following \
 conditions are present: \
 live cells with 1 live neighbour and dead cells with 0, 1 or 2 live neighbours?", () => {
-  const gameBoard = Array(5).fill(boardCell).map(() => new Array(5).fill(boardCell));
-  const nextGameBoard = Array(5).fill(boardCell).map(() => new Array(5).fill(boardCell));
-  const boardUpdateTable =
-    Array(5).fill(updateTableCell).map(() => new Array(5).fill(updateTableCell));
-  resetBoardArray(gameBoard, boardCell, 4, null);
-  resetBoardArray(nextGameBoard, boardCell, 4, null);
-  resetBoardArray(boardUpdateTable, updateTableCell, 4, null);
+  const {gameBoard, nextGameBoard, boardUpdateTable} = initBoardArrays(5);
   gameBoard[2][2] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true};
   gameBoard[1][2] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true};
   const totalPopulation = updateGameBoard(gameBoard, nextGameBoard, boardUpdateTable, survivalRules,
@@ -204,13 +208,7 @@ live cells with 1 live neighbour and dead cells with 0, 1 or 2 live neighbours?"
 test("Does updateGameBoard cause the expected change in a gameBoard when at least the following \
 conditions are present: live cells with 1 or 2 live neighbours and dead cells with \
 0, 1, 2 or 3 live neighbours?", () => {
-  const gameBoard = Array(5).fill(boardCell).map(() => new Array(5).fill(boardCell));
-  const nextGameBoard = Array(5).fill(boardCell).map(() => new Array(5).fill(boardCell));
-  const boardUpdateTable =
-    Array(5).fill(updateTableCell).map(() => new Array(5).fill(updateTableCell));
-  resetBoardArray(gameBoard, boardCell, 4, null);
-  resetBoardArray(nextGameBoard, boardCell, 4, null);
-  resetBoardArray(boardUpdateTable, updateTableCell, 4, null);
+  const {gameBoard, nextGameBoard, boardUpdateTable} = initBoardArrays(5);
   gameBoard[2][2] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true,
                      q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
   gameBoard[2][1] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true,
@@ -247,13 +245,7 @@ conditions are present: live cells with 1 or 2 live neighbours and dead cells wi
 test("Does updateGameBoard cause the expected change in a gameBoard when at least the following \
 conditions are present: \
 live cells with 3 live neighbours and dead cells with 0, 1 or 2 live neighbours?", () => {
-  const gameBoard = Array(5).fill(boardCell).map(() => new Array(5).fill(boardCell));
-  const nextGameBoard = Array(5).fill(boardCell).map(() => new Array(5).fill(boardCell));
-  const boardUpdateTable =
-    Array(5).fill(updateTableCell).map(() => new Array(5).fill(updateTableCell));
-  resetBoardArray(gameBoard, boardCell, 4, null);
-  resetBoardArray(nextGameBoard, boardCell, 4, null);
-  resetBoardArray(boardUpdateTable, updateTableCell, 4, null);
+  const {gameBoard, nextGameBoard, boardUpdateTable} = initBoardArrays(5);
   gameBoard[2][2] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true,
                      q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
   gameBoard[2][1] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true,
@@ -294,13 +286,7 @@ live cells with 3 live neighbours and dead cells with 0, 1 or 2 live neighbours?
 test("Does updateGameBoard cause the expected change in a gameBoard when at least the following \
 conditions are present: live cells with 2, 3 or 4 live neighbours and dead cells with \
 0, 1, 2 or 3 live neighbours?", () => {
-  const gameBoard = Array(5).fill(boardCell).map(() => new Array(5).fill(boardCell));
-  const nextGameBoard = Array(5).fill(boardCell).map(() => new Array(5).fill(boardCell));
-  const boardUpdateTable =
-    Array(5).fill(updateTableCell).map(() => new Array(5).fill(updateTableCell));
-  resetBoardArray(gameBoard, boardCell, 4, null);
-  resetBoardArray(nextGameBoard, boardCell, 4, null);
-  resetBoardArray(boardUpdateTable, updateTableCell, 4, null);
+  const {gameBoard, nextGameBoard, boardUpdateTable} = initBoardArrays(5);
   gameBoard[2][1] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true,
                      q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
   gameBoard[2][0] = {quadrant1: true, quadrant2: false, quadrant3: false, quadrant4: false,
@@ -345,13 +331,7 @@ conditions are present: live cells with 2, 3 or 4 live neighbours and dead cells
 test("Does updateGameBoard cause the expected change in a gameBoard when at least the following \
 conditions are present: live cells with 2 or 4 live neighbours and dead cells with \
 0, 1, 2, 3 or 8 live neighbours?", () => {
-  const gameBoard = Array(5).fill(boardCell).map(() => new Array(5).fill(boardCell));
-  const nextGameBoard = Array(5).fill(boardCell).map(() => new Array(5).fill(boardCell));
-  const boardUpdateTable =
-    Array(5).fill(updateTableCell).map(() => new Array(5).fill(updateTableCell));
-  resetBoardArray(gameBoard, boardCell, 4, null);
-  resetBoardArray(nextGameBoard, boardCell, 4, null);
-  resetBoardArray(boardUpdateTable, updateTableCell, 4, null);
+  const {gameBoard, nextGameBoard, boardUpdateTable} = initBoardArrays(5);
   gameBoard[2][2] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true,
                      q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
   gameBoard[2][1] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true,
@@ -387,6 +367,140 @@ conditions are present: live cells with 2 or 4 live neighbours and dead cells wi
   expectedGameBoard[0][2] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true,
                              q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
   expectedGameBoard[1][3] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expect(nextGameBoard).toStrictEqual(expectedGameBoard);
+});
+
+// In this test the gameBoard is initialised to the below state before the test is run and
+// is expected to change as indicated.
+// Before:   q3                q2            After:   q3                q2       
+// [ [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],    [ [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+//   [ 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0 ],      [0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0],
+//   [ 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0 ],      [0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+//   [ 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0 ],      [0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],      [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+//   [ 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0 ],      [0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0],
+//   [ 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0 ],      [0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1],
+//   [ 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0 ],      [0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ] ]     [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0] ]
+//           q4                  q1                    q4                  q1     
+test("Does updateGameBoard cause the expected change in a gameBoard when at least the following \
+conditions are present: live cells with 5, 6, 7 or 8 live neighbours?", () => {
+  const {gameBoard, nextGameBoard, boardUpdateTable} = initBoardArrays(6);
+  gameBoard[2][2] = {quadrant1: true, quadrant2: false, quadrant3: true, quadrant4: true,
+                     q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  gameBoard[2][3] = {quadrant1: true, quadrant2: true, quadrant3: false, quadrant4: true,
+                     q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  gameBoard[2][4] = {quadrant1: true, quadrant2: true, quadrant3: false, quadrant4: true,
+                     q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  gameBoard[3][2] = {quadrant1: true, quadrant2: false, quadrant3: true, quadrant4: true,
+                     q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  gameBoard[3][3] = {quadrant1: true, quadrant2: true, quadrant3: true, quadrant4: true,
+                     q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  gameBoard[3][4] = {quadrant1: true, quadrant2: true, quadrant3: false, quadrant4: false,
+                     q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  gameBoard[4][2] = {quadrant1: true, quadrant2: true, quadrant3: true, quadrant4: true,
+                     q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  gameBoard[4][3] = {quadrant1: true, quadrant2: true, quadrant3: true, quadrant4: true,
+                     q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  gameBoard[4][4] = {quadrant1: true, quadrant2: true, quadrant3: true, quadrant4: true,
+                     q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  const totalPopulation = updateGameBoard(gameBoard, nextGameBoard, boardUpdateTable, survivalRules,
+                                          birthRules, 0, -5, 5);
+  expect(totalPopulation).toBe(28);
+
+  const expectedGameBoard = Array(6).fill(boardCell).map(() => new Array(6).fill(boardCell));
+  resetBoardArray(expectedGameBoard, boardCell, 5, null);
+  expectedGameBoard[1][3] = {quadrant1: true, quadrant2: false, quadrant3: false, quadrant4: true,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[2][2] = {quadrant1: true, quadrant2: false, quadrant3: true, quadrant4: true,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[2][3] = {quadrant1: false, quadrant2: true, quadrant3: true, quadrant4: false,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[2][4] = {quadrant1: true, quadrant2: true, quadrant3: false, quadrant4: true,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[3][1] = {quadrant1: true, quadrant2: false, quadrant3: true, quadrant4: true,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[3][4] = {quadrant1: false, quadrant2: false, quadrant3: true, quadrant4: false,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[3][5] = {quadrant1: true, quadrant2: true, quadrant3: false, quadrant4: false,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[4][2] = {quadrant1: true, quadrant2: true, quadrant3: true, quadrant4: true,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[4][4] = {quadrant1: true, quadrant2: true, quadrant3: true, quadrant4: true,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[5][3] = {quadrant1: true, quadrant2: true, quadrant3: true, quadrant4: true,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expect(nextGameBoard).toStrictEqual(expectedGameBoard);
+});
+
+// In this test the gameBoard is initialised to the below state before the test is run and
+// is expected to change as indicated.
+// Before:   q3                q2            After:   q3                q2       
+// [ [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],    [ [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+//   [ 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0 ],      [0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0],
+//   [ 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0 ],      [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 ],      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],      [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+//   [ 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0 ],      [0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0],
+//   [ 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0 ],      [0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+//   [ 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0 ],      [0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0],
+//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ] ]     [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0] ]
+//           q4                  q1                    q4                  q1     
+test("Does updateGameBoard cause the expected change in a gameBoard when at least the following \
+conditions are present: dead cells with 4, 5, 6 or 7 live neighbours?", () => {
+  const {gameBoard, nextGameBoard, boardUpdateTable} = initBoardArrays(6);
+  gameBoard[2][2] = {quadrant1: true, quadrant2: false, quadrant3: false, quadrant4: true,
+                     q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  gameBoard[2][3] = {quadrant1: true, quadrant2: false, quadrant3: false, quadrant4: true,
+                     q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  gameBoard[2][4] = {quadrant1: true, quadrant2: true, quadrant3: false, quadrant4: true,
+                     q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  gameBoard[3][2] = {quadrant1: false, quadrant2: false, quadrant3: true, quadrant4: true,
+                     q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  gameBoard[3][3] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: false,
+                     q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  gameBoard[3][4] = {quadrant1: true, quadrant2: true, quadrant3: false, quadrant4: false,
+                     q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  gameBoard[4][2] = {quadrant1: true, quadrant2: true, quadrant3: true, quadrant4: true,
+                     q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  gameBoard[4][3] = {quadrant1: true, quadrant2: true, quadrant3: true, quadrant4: true,
+                     q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  gameBoard[4][4] = {quadrant1: true, quadrant2: true, quadrant3: true, quadrant4: false,
+                     q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  const totalPopulation = updateGameBoard(gameBoard, nextGameBoard, boardUpdateTable, survivalRules,
+                                          birthRules, 0, -5, 5);
+  expect(totalPopulation).toBe(23);
+
+  const expectedGameBoard = Array(6).fill(boardCell).map(() => new Array(6).fill(boardCell));
+  resetBoardArray(expectedGameBoard, boardCell, 5, null);
+  expectedGameBoard[1][3] = {quadrant1: true, quadrant2: false, quadrant3: false, quadrant4: true,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[2][2] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[2][3] = {quadrant1: true, quadrant2: false, quadrant3: false, quadrant4: true,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[2][4] = {quadrant1: true, quadrant2: false, quadrant3: false, quadrant4: false,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[3][1] = {quadrant1: false, quadrant2: false, quadrant3: false, quadrant4: true,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[3][2] = {quadrant1: false, quadrant2: false, quadrant3: true, quadrant4: false,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[3][4] = {quadrant1: false, quadrant2: true, quadrant3: false, quadrant4: true,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[3][5] = {quadrant1: true, quadrant2: true, quadrant3: false, quadrant4: false,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[4][2] = {quadrant1: false, quadrant2: false, quadrant3: true, quadrant4: true,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[4][3] = {quadrant1: true, quadrant2: true, quadrant3: true, quadrant4: true,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[4][4] = {quadrant1: true, quadrant2: true, quadrant3: false, quadrant4: false,
+                             q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
+  expectedGameBoard[5][3] = {quadrant1: true, quadrant2: true, quadrant3: true, quadrant4: false,
                              q1LastBornOn: 0, q2LastBornOn: 0, q3LastBornOn: 0, q4LastBornOn: 0};
   expect(nextGameBoard).toStrictEqual(expectedGameBoard);
 });
