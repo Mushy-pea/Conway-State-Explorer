@@ -314,6 +314,10 @@ async function initUsername() : Promise<void> {
 
 initUsername();
 
+export type RootState = ReturnType<typeof store.getState>;
+
+export type AppDispatch = typeof store.dispatch;
+
 export {store, changeMode, setInitFlag, setShowGrid, moveCameraLeft, moveCameraRight,
         moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward, setGridColour,
         setBackgroundColour, setColourFadeSet, setPatternName,

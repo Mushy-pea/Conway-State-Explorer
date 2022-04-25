@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
 import CheckBox from '@react-native-community/checkbox';
 import { setSurvivalRules, setBirthRules } from './logic-components/StateController';
+import { useAppDispatch, useAppSelector } from './Hooks';
 
 const styles = StyleSheet.create({
   containerView: {
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
 // checkboxes being flipped in the SetGameRulesScreen component.
 function updateRules(rules : boolean[], rule0 : boolean, rule1 : boolean, rule2 : boolean,
                      rule3 : boolean, rule4 : boolean, rule5 : boolean, rule6 : boolean,
-                     rule7 : boolean, rule8 : boolean) {
+                     rule7 : boolean, rule8 : boolean) : boolean[] {
   if (rule0 !== null) {return [rule0, rules[1], rules[2], rules[3], rules[4], rules[5],
                                rules[6], rules[7], rules[8]]}
   if (rule1 !== null) {return [rules[0], rule1, rules[2], rules[3], rules[4], rules[5],
@@ -58,8 +58,8 @@ return rules;
 const SetGameRulesScreen = () => {
   const window = useWindowDimensions();
   const tint = {true: "rgb(255, 255, 255)", false: "rgb(0, 0, 160)"};
-  const state = useSelector(state => state);
-  const dispatch = useDispatch();
+  const state = useAppSelector(state => state);
+  const dispatch = useAppDispatch();
   const survivalRules = state.survivalRules;
   const birthRules = state.birthRules;
   const setSurvivalRules_ = (rule0, rule1, rule2, rule3, rule4, rule5, rule6, rule7, rule8) => {

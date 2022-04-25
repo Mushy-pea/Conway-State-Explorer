@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, useWindowDimensions, GestureResponderEvent } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
 import { GLView } from 'expo-gl';
 import { ControlBarButton, ControlBarPlaceHolder } from './react-components/ControlBar';
 import { MetaDataBar } from './react-components/MetaDataBar';
@@ -8,6 +7,7 @@ import { onContextCreation, handleRenderEvent } from './logic-components/GameBoa
 import { changeMode, setInitFlag, moveCameraLeft, moveCameraRight,
          moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward, getBoardDimensions }
 from './logic-components/StateController';
+import { useAppDispatch, useAppSelector } from './Hooks';
 import { flipCellStateOnTouch, getGameTime, getTotalPopulation }
 from './logic-components/GameLogic';
 
@@ -57,7 +57,7 @@ function handleTouchMove(window : {width: number, height: number}, evt : Gesture
 // This component is a container for eight buttons that appear at the bottom of the screen.
 const ControlBar = ({buttonHeight, window}) => {
   const [mode, setMode] = useState("creative");
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const changeMode_ = resetSwitch => {dispatch(changeMode(resetSwitch))};
   const onPlayPausePressed = () => {
     changeMode_(false);
@@ -125,8 +125,8 @@ const ControlBar = ({buttonHeight, window}) => {
 const MainScreen = ({navigation}) => {
   const window = useWindowDimensions();
   const buttonHeight = window.height * 0.1;
-  const state = useSelector(state => state);
-  const dispatch = useDispatch();
+  const state = useAppSelector(state => state);
+  const dispatch = useAppDispatch();
 
   return (
     <View style={[styles.mainScreenContainer, {paddingTop: window.height * 0.04}]}>

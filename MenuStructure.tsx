@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Animated } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
-import { useSelector, useDispatch } from 'react-redux';
 import { determineColour } from './ColourSelectionScreen';
 import Menu from './react-components/MenuScreen';
 import { genRandomPattern, handleResetEvent } from './logic-components/GameLogic';
 import { setGridColour, setBackgroundColour, setColourFadeSet, store, setShowGrid }
 from './logic-components/StateController';
+import { useAppDispatch, useAppSelector } from './Hooks';
 
 // This is a helper function for MenuArray.
 function disabledCheck(text : string, route : (() => void) | null) : boolean {
@@ -154,10 +154,10 @@ const GameMenu = ({navigation}) => {
 
 const BoardColourOptionsMenu = ({navigation}) => {
   const isFocused = useIsFocused();
-  const control_ = useSelector(state => state);
+  const control_ = useAppSelector(state => state);
   const gdColour = control_.gridColour;
   const bkColour = control_.backgroundColour;
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const setGridColour_ = (red, green, blue, alpha) => {
     dispatch(setGridColour(red, green, blue, alpha));
   };
@@ -244,7 +244,7 @@ function updateColourFade(red1, green1, blue1, red2, green2, blue2) {
 
 const CellColourOptionsMenu = ({navigation}) => {
   const isFocused = useIsFocused();
-  const control_ = useSelector(state => state);
+  const control_ = useAppSelector(state => state);
   const {enabled, redStart, redRate, greenStart, greenRate, blueStart, blueRate} =
     control_.colourFadeSet;
   const [isEnabled, setEnabled] = useState(enabled);
@@ -291,7 +291,7 @@ const CellColourOptionsMenu = ({navigation}) => {
 };
 
 const GraphOptionsMenu = () => {
-  const state = useSelector(state => state);
+  const state = useAppSelector(state => state);
   const enabled = state.showGrid;
   const [isEnabled, setEnabled] = useState(enabled);
   const menuArray =
