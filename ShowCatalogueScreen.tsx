@@ -80,7 +80,7 @@ const ShowCatalogueScreen = ({navigation}) => {
         <Item name={item.Name}
               patternId={item.Pattern_id}
               navigation={navigation}
-              destination={"LoadPatternScreen"}/>
+              destination={"Load Pattern Screen"}/>
       );
     }
     else {

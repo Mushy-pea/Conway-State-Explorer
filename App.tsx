@@ -19,18 +19,18 @@ const App = () => {
     <Provider store={store}>
       <NavigationContainer>
         <Stack.Navigator>
-          <Stack.Screen name="MainScreen" component={MainScreen}/>
-          <Stack.Screen name="MainMenu" component={MainMenu}/>
-          <Stack.Screen name="DisplayMenu" component={DisplayMenu}/>
-          <Stack.Screen name="GameMenu" component={GameMenu}/>
-          <Stack.Screen name="BoardColourOptionsMenu" component={BoardColourOptionsMenu}/>
-          <Stack.Screen name="CellColourOptionsMenu" component={CellColourOptionsMenu}/>
-          <Stack.Screen name="GraphOptionsMenu" component={GraphOptionsMenu}/>
-          <Stack.Screen name="ColourSelectionScreen" component={ColourSelectionScreen}/>
-          <Stack.Screen name="SetGameRulesScreen" component={SetGameRulesScreen}/>
-          <Stack.Screen name="ShowCatalogueScreen" component={ShowCatalogueScreen}/>
-          <Stack.Screen name="LoadPatternScreen" component={LoadPatternScreen}/>
-          <Stack.Screen name="SharePatternScreen" component={SharePatternScreen}/>
+          <Stack.Screen name="Main Screen" component={MainScreen}/>
+          <Stack.Screen name="Main Menu" component={MainMenu}/>
+          <Stack.Screen name="Display Menu" component={DisplayMenu}/>
+          <Stack.Screen name="Game Menu" component={GameMenu}/>
+          <Stack.Screen name="Board Colour Options" component={BoardColourOptionsMenu}/>
+          <Stack.Screen name="Cell Colour Options" component={CellColourOptionsMenu}/>
+          <Stack.Screen name="Graph Options" component={GraphOptionsMenu}/>
+          <Stack.Screen name="Colour Selection Screen" component={ColourSelectionScreen}/>
+          <Stack.Screen name="Set Game Rules Screen" component={SetGameRulesScreen}/>
+          <Stack.Screen name="Show Catalogue Screen" component={ShowCatalogueScreen}/>
+          <Stack.Screen name="Load Pattern Screen" component={LoadPatternScreen}/>
+          <Stack.Screen name="Share Pattern Screen" component={SharePatternScreen}/>
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>
@@ -38,3 +38,4 @@ const App = () => {
 };
 
 export default App;
+

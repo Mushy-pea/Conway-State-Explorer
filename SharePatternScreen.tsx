@@ -4,7 +4,7 @@ import { View, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimension
 from 'react-native';
 import { patternPackage, PatternPackage } from './logic-components/GameLogicTypes';
 import { gameBoardObject, savePattern } from './logic-components/GameLogic';
-import { store, rootURL } from './logic-components/StateController';
+import { store, setPatternName, rootURL } from './logic-components/StateController';
 
 const styles = StyleSheet.create({
   containerView: {
@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
 // This function makes a request to the REST API to add a pattern to the database.
 async function addPattern(sharedPattern : PatternPackage, sharingState : string, navigation,
                           setSharingState : React.Dispatch<React.SetStateAction<string>>)
-                          : Promise<void> {
+                         : Promise<void> {
   if (sharingState === "pending") {return;}
   try {
     const request = JSON.stringify(sharedPattern);
@@ -43,7 +43,8 @@ async function addPattern(sharedPattern : PatternPackage, sharingState : string,
       body: request
     });
     if (response.status === 202) {
-      navigation.navigate("MainScreen");
+      store.dispatch(setPatternName(sharedPattern.name));
+      navigation.navigate("Main Screen");
     }
     else {
       setSharingState("failed");

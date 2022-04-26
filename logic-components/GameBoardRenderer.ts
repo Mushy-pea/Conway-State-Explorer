@@ -6,7 +6,7 @@ import fragmentShader from './FragmentShader';
 import { cellModel, LineModels, modelElements } from './GameBoardModels';
 import { gameBoardObject, handleUpdateEvent, handleResetEvent } from './GameLogic';
 import { BoardCell , getCellState } from './GameLogicTypes';
-import { store, changeMode, setInitFlag, ColourFadeSet } from './StateController';
+import { store, changeMode, setInitFlag, resetCamera, ColourFadeSet } from './StateController';
 
 // This global const holds a handle to the OpenGL context created when onContextCreation is called.
 const gl = {
@@ -198,6 +198,7 @@ function handleRenderEvent(updateCycle : boolean) : void {
   if (mode === "simulation" && updateCycle) {handleUpdateEvent(boardArraySize)}
   else if (mode === "reset") {
     handleResetEvent(boardArraySize, []);
+    store.dispatch(resetCamera());
     store.dispatch(changeMode(true));
   }
   

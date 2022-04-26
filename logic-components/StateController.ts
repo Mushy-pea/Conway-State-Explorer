@@ -106,6 +106,11 @@ const controlReducer = (state = INITIAL_STATE, action) => {
       newState.camera = newCamera;
       newState.scale = Math.abs(newCameraZ) / 20;
       return newState;
+    case "RESET_CAMERA":
+      newState.camera = {
+        x: -0.611501, y: 1.478003, z: -45
+      };
+      return newState;
     case "SET_GRID_COLOUR":
       newState.gridColour = {red: action.payload.red,
                              green: action.payload.green,
@@ -222,6 +227,12 @@ const moveCameraForward = () => (
   }
 );
 
+const resetCamera = () => (
+  {
+    type: "RESET_CAMERA"
+  }
+);
+
 const setGridColour = (red : number, green : number, blue : number, alpha : number) => (
   {
     type: "SET_GRID_COLOUR",
@@ -319,7 +330,7 @@ export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
 export {store, changeMode, setInitFlag, setShowGrid, moveCameraLeft, moveCameraRight,
-        moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward, setGridColour,
+        moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward, resetCamera, setGridColour,
         setBackgroundColour, setColourFadeSet, setPatternName,
         setLastCellTouched, getBoardDimensions, setSurvivalRules, setBirthRules, ColourFadeSet,
         rootURL};

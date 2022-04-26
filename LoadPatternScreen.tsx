@@ -98,7 +98,7 @@ function triggerLoadPattern(boardArraySize : number, resultPackage : PatternPack
   else {
     dispatch(setPatternName(resultPackage.name.substring(6)));
     handleResetEvent(boardArraySize, resultPackage.patternObject.liveCells);
-    navigation.navigate("MainScreen");
+    navigation.navigate("Main Screen");
   }
 }
 

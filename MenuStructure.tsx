@@ -4,7 +4,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { determineColour } from './ColourSelectionScreen';
 import Menu from './react-components/MenuScreen';
 import { genRandomPattern, handleResetEvent } from './logic-components/GameLogic';
-import { setGridColour, setBackgroundColour, setColourFadeSet, store, setShowGrid }
+import { setGridColour, setBackgroundColour, setColourFadeSet, setShowGrid, setPatternName, store }
 from './logic-components/StateController';
 import { useAppDispatch, useAppSelector } from './Hooks';
 
@@ -94,9 +94,9 @@ function MenuArray(action0 : (() => void) | null, text0 : string, fontSize0 : nu
 // All the menu screens are constructed here using the Menu component and imported by App for
 // use in the stack navigator.
 const MainMenu = ({navigation}) => {
-  const menuArray = MenuArray(() => navigation.navigate("DisplayMenu"), "Display options", 24,
+  const menuArray = MenuArray(() => navigation.navigate("Display Menu"), "Display Menu", 24,
                               "rgb(0, 0, 0)",
-                              () => navigation.navigate("GameMenu"), "Game options", 24,
+                              () => navigation.navigate("Game Menu"), "Game Menu", 24,
                               "rgb(0, 0, 0)",
                               null, "", 24, "rgb(0, 0, 0)",
                               null, "", 24, "rgb(0, 0, 0)",
@@ -111,11 +111,11 @@ const MainMenu = ({navigation}) => {
 };
 
 const DisplayMenu = ({navigation}) => {
-  const menuArray = MenuArray(() => navigation.navigate("BoardColourOptionsMenu"),
+  const menuArray = MenuArray(() => navigation.navigate("Board Colour Options"),
                               "Board colour options", 24, "rgb(0, 0, 0)",
-                              () => navigation.navigate("CellColourOptionsMenu"),
+                              () => navigation.navigate("Cell Colour Options"),
                               "Cell colour options", 24, "rgb(0, 0, 0)",
-                              () => navigation.navigate("GraphOptionsMenu"), "Graph options", 24,
+                              () => navigation.navigate("Graph Options"), "Graph options", 24,
                               "rgb(0, 0, 0)",
                               null, "", 24, "rgb(0, 0, 0)",
                               null, "", 24, "rgb(0, 0, 0)",
@@ -132,15 +132,16 @@ const GameMenu = ({navigation}) => {
   const boardArraySize = store.getState().boardArraySize;
   const randomiseBoard = () => {
     handleResetEvent(boardArraySize, genRandomPattern(-100, 100));
-    navigation.navigate("MainScreen");
+    store.dispatch(setPatternName("Untitled"));
+    navigation.navigate("Main Screen");
   };
   const menuArray = MenuArray(() => randomiseBoard(),
                               "Generate random pattern" , 24, "rgb(0, 0, 0)",
-                              () => navigation.navigate("ShowCatalogueScreen"), "Load pattern", 24,
+                              () => navigation.navigate("Show Catalogue Screen"), "Load pattern", 24,
                               "rgb(0, 0, 0)",
-                              () => navigation.navigate("SharePatternScreen"), "Share pattern", 24,
+                              () => navigation.navigate("Share Pattern Screen"), "Share pattern", 24,
                               "rgb(0, 0, 0)",
-                              () => navigation.navigate("SetGameRulesScreen"), "Set game rules", 24,
+                              () => navigation.navigate("Set Game Rules Screen"), "Set game rules", 24,
                               "rgb(0, 0, 0)",
                               null, "",  24, "rgb(0, 0, 0)",
                               null, "",  24, "rgb(0, 0, 0)",
@@ -180,11 +181,11 @@ const BoardColourOptionsMenu = ({navigation}) => {
       }
   };
   const menuArray =
-    MenuArray(() => navigation.navigate("ColourSelectionScreen", gridColourRequest),
+    MenuArray(() => navigation.navigate("Colour Selection Screen", gridColourRequest),
               "Set grid colour (current colour below)", 24, "rgb(0, 0, 0)",
               null, "", 24,
               `rgb(${gdColour.red * 255}, ${gdColour.green * 255}, ${gdColour.blue * 255})`,
-              () => navigation.navigate("ColourSelectionScreen", backgroundColourRequest),
+              () => navigation.navigate("Colour Selection Screen", backgroundColourRequest),
               "Set background colour (current colour below)", 24, "rgb(0, 0, 0)",
               null, "", 24,
               `rgb(${bkColour.red * 255}, ${bkColour.green * 255}, ${bkColour.blue * 255})`,
@@ -273,12 +274,12 @@ const CellColourOptionsMenu = ({navigation}) => {
               12, "rgb(0, 0, 0)",
               () => updateEnabledSwitch(enabled, isEnabled, setEnabled, setColourFadeSet),
               `${isEnabled ? "Disable" : "Enable"}`, 24, "rgb(0, 0, 0)",
-              () => navigation.navigate("ColourSelectionScreen", colour1Request),
+              () => navigation.navigate("Colour Selection Screen", colour1Request),
               "Set colour 1 (current colour below)",
               24, "rgb(0, 0, 0)",
               null, "",
               24, `rgb(${redStart * 255}, ${greenStart * 255}, ${blueStart * 255})`,
-              () => navigation.navigate("ColourSelectionScreen", colour2Request),
+              () => navigation.navigate("Colour Selection Screen", colour2Request),
               "Set colour 2 (current colour below)", 24, "rgb(0, 0, 0)",
               null, "", 24, `rgb(${redEnd}, ${greenEnd}, ${blueEnd})`,
               FadePreview(redStart * 255, redEnd, greenStart * 255, greenEnd, blueStart * 255,

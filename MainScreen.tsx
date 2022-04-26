@@ -5,8 +5,8 @@ import { ControlBarButton, ControlBarPlaceHolder } from './react-components/Cont
 import { MetaDataBar } from './react-components/MetaDataBar';
 import { onContextCreation, handleRenderEvent } from './logic-components/GameBoardRenderer';
 import { changeMode, setInitFlag, moveCameraLeft, moveCameraRight,
-         moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward, getBoardDimensions }
-from './logic-components/StateController';
+         moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward, setPatternName,
+         getBoardDimensions } from './logic-components/StateController';
 import { useAppDispatch, useAppSelector } from './Hooks';
 import { flipCellStateOnTouch, getGameTime, getTotalPopulation }
 from './logic-components/GameLogic';
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   },
   topControlBar: {
     flex: 0.1,
-    backgroundColor: "rgb(0, 0, 0)",
+    backgroundColor: "rgb(0, 0, 128)",
     flexDirection: "row"
   }
 });
@@ -65,6 +65,7 @@ const ControlBar = ({buttonHeight, window}) => {
     else {setMode("simulation")}
   };
   const onResetPressed = () => {
+    dispatch(setPatternName("Untitled"));
     changeMode_(true);
   };
   return (
@@ -158,7 +159,7 @@ const MainScreen = ({navigation}) => {
                           imageSource={require("./assets/menuButton.png")}
                           onPress={() => {
                             dispatch(setInitFlag("resume"));
-                            navigation.navigate("MainMenu");
+                            navigation.navigate("Main Menu");
                           }}
                           disabled={false} />
       </View>

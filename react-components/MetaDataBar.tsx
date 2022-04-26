@@ -4,7 +4,7 @@ import { View, StyleSheet, Text } from 'react-native';
 const styles = StyleSheet.create({
   textStyle: {
     color: "rgb(255, 255, 255)",
-    fontSize: 12
+    fontSize: 10
   }
 });
 
