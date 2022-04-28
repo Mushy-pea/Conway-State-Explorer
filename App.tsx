@@ -9,6 +9,7 @@ import { ColourSelectionScreen } from './ColourSelectionScreen';
 import ShowCatalogueScreen from './ShowCatalogueScreen';
 import LoadPatternScreen from './LoadPatternScreen';
 import SharePatternScreen from './SharePatternScreen';
+import UserPolicyScreen from './UserPolicyScreen';
 import { MainMenu, DisplayMenu, GameMenu, BoardColourOptionsMenu,
          CellColourOptionsMenu, GraphOptionsMenu } from './MenuStructure';
 
@@ -31,6 +32,7 @@ const App = () => {
           <Stack.Screen name="Show Catalogue Screen" component={ShowCatalogueScreen}/>
           <Stack.Screen name="Load Pattern Screen" component={LoadPatternScreen}/>
           <Stack.Screen name="Share Pattern Screen" component={SharePatternScreen}/>
+          <Stack.Screen name="User Policy Screen" component={UserPolicyScreen}/>
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>

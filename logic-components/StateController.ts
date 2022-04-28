@@ -16,6 +16,7 @@ type ColourFadeSet = {
 // controlReducer Redux store.  This includes everything except the game board state.
 const INITIAL_STATE = {
   username: "",
+  policyAgreedFlag: "false",
   mode: "creative",
   initFlag: "start",
 
@@ -44,6 +45,12 @@ const controlReducer = (state = INITIAL_STATE, action) => {
   let newCameraZ;
   let newMode;
   switch (action.type) {
+    case "SET_USERNAME":
+      newState.username = action.payload;
+      return newState;
+    case "SET_POLICY_AGREED_FLAG":
+      newState.policyAgreedFlag = action.payload;
+      return newState;
     case "CHANGE_MODE":
       if (action.payload) {
         if (state.mode !== "reset") {
@@ -163,15 +170,26 @@ const controlReducer = (state = INITIAL_STATE, action) => {
     case "SET_BIRTH_RULES":
       newState.birthRules = action.payload;
       return newState;
-    case "SET_USERNAME":
-      newState.username = action.payload;
-      return newState;
     default:
       return state
   }
 };
 
 // The types of actions handled by controlReducer are defined here.
+const setUsername = username => (
+  {
+    type: "SET_USERNAME",
+    payload: username
+  }
+);
+
+const setPolicyAgreedFlag = (flag : string) => (
+  {
+    type: "SET_POLICY_AGREED_FLAG",
+    payload: flag
+  }
+);
+
 const changeMode = (resetSwitch : boolean) => (
   {
     type: "CHANGE_MODE",
@@ -285,13 +303,6 @@ const setBirthRules = birthRules => (
   }
 );
 
-const setUsername = username => (
-  {
-    type: "SET_USERNAME",
-    payload: username
-  }
-);
-
 // This function is used with the MetaDataBar component in MainScreen.
 function getBoardDimensions() : string {
   const boardArraySize = store.getState().boardArraySize;
@@ -304,34 +315,49 @@ const store = createStore(controlReducer);
 // This function is part of the implementation of the transparent username system.  The first time
 // the app is initialised on a device a likely unique hash is generated, to allow for user
 // authentication by the server for add_pattern and delete_pattern API calls.
-async function initUsername() : Promise<void> {
+async function initPersistentState() : Promise<void> {
   try {
     let localUsername = await AsyncStorage.getItem("username");
     if (localUsername === null) {
-      console.log("initUsername: localUsername not found.  Generating new SHA256 hash.");
+      console.log("initPersistentState: localUsername not found.  Generating new SHA256 hash.");
       const key = "This might be different in the release of the app.";
       const salt = Date();
       localUsername = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256,
                                                      `${key}${salt}`);
       await AsyncStorage.setItem("username", localUsername);
     }
-    console.log(`initUsername: The localUsername is ${localUsername}`);
+    console.log(`initPersistentState: The localUsername is ${localUsername}`);
     store.dispatch(setUsername(localUsername));
   }
   catch(error) {
-    console.error(`initUsername failed with error: ${error}`);
+    console.error(`initPersistentState failed with error: ${error}, while handling localUsername.`);
+  }
+
+  try {
+    let localPolicyAgreedFlag = await AsyncStorage.getItem("policyAgreedFlag");
+    if (localPolicyAgreedFlag === null) {
+      console.log("initPersistentState: localPolicyAgreedFlag not found.  Setting this value to false.");
+      await AsyncStorage.setItem("policyAgreedFlag", "false");
+    }
+    else {
+      store.dispatch(setPolicyAgreedFlag(localPolicyAgreedFlag));
+      console.log(`initPersistentState: localPolicyAgreedFlag is ${localPolicyAgreedFlag}`);
+    }
+  }
+  catch(error) {
+    console.error(`initPersistentState failed with error: ${error}, while handling localPolicyAgreedFlag.`);
   }
 }
 
-initUsername();
+initPersistentState();
 
 export type RootState = ReturnType<typeof store.getState>;
 
 export type AppDispatch = typeof store.dispatch;
 
-export {store, changeMode, setInitFlag, setShowGrid, moveCameraLeft, moveCameraRight,
-        moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward, resetCamera, setGridColour,
-        setBackgroundColour, setColourFadeSet, setPatternName,
+export {store, setPolicyAgreedFlag, changeMode, setInitFlag, setShowGrid, moveCameraLeft,
+        moveCameraRight, moveCameraUp, moveCameraDown, moveCameraBack, moveCameraForward,
+        resetCamera, setGridColour, setBackgroundColour, setColourFadeSet, setPatternName,
         setLastCellTouched, getBoardDimensions, setSurvivalRules, setBirthRules, ColourFadeSet,
         rootURL};
 
