@@ -135,6 +135,10 @@ Agreement is voluntary and all other app features remain accessible in either ca
         relevant Board Pattern may be removed and the user blocked from making further 
         contributions without notice.
         {"\n\n"}
+        If you encounter a Board Pattern that you feel constitutes misuse please report this using 
+        the e - mail address steven.tinsley81@gmail.com.  I will endeavour to investigate the issue 
+        and reply within 24 hours.
+        {"\n\n"}
         The Application creates a pseudorandom username for each user.  Although this is not 
         visible to users it is held by the Online Service with any Board Pattern they contribute.  
         Through this mechanism Board Patterns can be deleted from the Online Service, but only by 

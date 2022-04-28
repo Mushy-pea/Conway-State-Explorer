@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Animated } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
+import * as Linking from 'expo-linking';
 import { determineColour } from './ColourSelectionScreen';
 import Menu from './react-components/MenuScreen';
 import { genRandomPattern, handleResetEvent } from './logic-components/GameLogic';
@@ -99,7 +100,8 @@ const MainMenu = ({navigation}) => {
     () => navigation.navigate("Game Menu"), "Game Menu", 24, "rgb(0, 0, 0)",
     () => navigation.navigate("User Policy Screen", {nextScreen: "Main Menu", redirected: false}),
     "User Policy Screen", 24, "rgb(0, 0, 0)",
-    null, "", 24, "rgb(0, 0, 0)",
+    () => Linking.openURL("https://www.buymeacoffee.com/steventinsley"), "Support the Developer",
+    24, "rgb(0, 0, 0)",
     null, "", 24, "rgb(0, 0, 0)",
     null, "", 24, "rgb(0, 0, 0)",
     null);
@@ -139,7 +141,7 @@ const GameMenu = ({navigation}) => {
   let screenRedirect = "User Policy Screen";
   if (policyAgreedFlag === "true") { screenRedirect = "Share Pattern Screen" }
   const menuArray = MenuArray(
-    () => randomiseBoard(), "Generate random pattern" , 24, "rgb(0, 0, 0)",
+    randomiseBoard, "Generate random pattern" , 24, "rgb(0, 0, 0)",
     () => navigation.navigate("Show Catalogue Screen"), "Load pattern", 24, "rgb(0, 0, 0)",
     () => navigation.navigate(screenRedirect, {nextScreen: "Share Pattern Screen", redirected: true}),
     "Share pattern", 24, "rgb(0, 0, 0)",
