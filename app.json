@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "ConwayStateExplorer",
-    "slug": "ConwayStateExplorer",
+    "name": "Conway State Explorer",
+    "slug": "Conway-State-Explorer",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -23,7 +23,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.mushypea.ConwayStateExplorer"
     },
     "web": {
       "favicon": "./assets/favicon.png"

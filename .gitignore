@@ -12,6 +12,9 @@ web-build/
 logic-components/GameLogic.js
 logic-components/GameLogicTypes.js
 logic-components/StateController.js
+
+credentials.json
+
 performance_log.txt
 
 # macOS
