@@ -15,6 +15,9 @@ const styles = StyleSheet.create({
   },
   headingText: {
     fontWeight: "bold"
+  },
+  uniqueText: {
+    color: "rgb(80, 80, 255)"
   }
 });
 
@@ -36,8 +39,11 @@ const UserPolicyScreen = ({navigation, route}) => {
     if (policyAgreedFlag === "true") { return true }
     else { return false }
   };
+
   const [agreeBox, setAgreeBox] = useState(policyAgreedFlagBool());
   const [decisionMade, setDecisionMade] = useState(false);
+  const usernameHead = store.getState().username.substring(0, 8);
+  const usernameTail = store.getState().username.substring(8);
   if (route.params.redirected && decisionMade === false) {
     Alert.alert(
       "You've been redirected",
@@ -139,10 +145,10 @@ Agreement is voluntary and all other app features remain accessible in either ca
         the e - mail address steven.tinsley81@gmail.com.  I will endeavour to investigate the issue 
         and reply within 24 hours.
         {"\n\n"}
-        The Application creates a pseudorandom username for each user.  Although this is not 
-        visible to users it is held by the Online Service with any Board Pattern they contribute.  
-        Through this mechanism Board Patterns can be deleted from the Online Service, but only by 
-        the user who contributed them.
+        The Application creates a pseudorandom username for each user, which is shown at the bottom 
+        of this page.  This is held by the Online Service with any Board Pattern a user contributes.  
+        Through this mechanism Board Patterns can be deleted from the Online Service but only by 
+        the user who contributed them (or by the Developer as explained above).
         {"\n\n"}
         <Text style={styles.headingText}>
           5.  Reliability and persistence of the Online Service
@@ -154,7 +160,19 @@ Agreement is voluntary and all other app features remain accessible in either ca
         it may be shut down permanently without notice.  At some point the Developer may decide to 
         contribute some Board Patterns that users have contributed to the Online Service to the 
         archive at https://conwaylife.com/wiki/Category:Patterns, but there is no guarantee.
-
+        {"\n\n"}
+        <Text style={styles.uniqueText}>
+          Username: {usernameHead}
+        </Text>
+        {usernameTail}
+        {"\n\n"}
+        You may wish to make a written note of the first eight characters of this username.  In the 
+        event that you need to contact the Developer (at steven.tinsley81@gmail.com) to request 
+        manual removal of content you have provided it can be used to identify you as the author of 
+        the content.  Please note that the username is generated pseudorandomly on your device at 
+        Application install time, so reinstallation of the Application would cause a different 
+        username to be generated.
+        {"\n\n"}
         If you are happy to accept this policy please check the box below to confirm your agreement.
         {"\n\n"}
       </Text>
